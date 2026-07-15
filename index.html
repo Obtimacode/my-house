@@ -6,14 +6,18 @@
     <title>MyHouse Cozy Cinema</title>
     <!-- PeerJS للمكالمات الصوتية المباشرة -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- مكتبة Lucide للأيقونات العصرية الأنيقة -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #3b82f6;
+            --bg-color: #090d16;
+            --card-bg: #111827;
+            --accent: #0066ff;
+            --accent-hover: #0052cc;
             --danger: #ef4444;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
         }
 
         * { 
@@ -37,39 +41,122 @@
         .container { 
             background: var(--card-bg); 
             width: 100%; 
-            max-width: 420px; 
-            padding: 25px; 
-            border-radius: 24px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+            max-width: 400px; 
+            padding: 30px 24px; 
+            border-radius: 20px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); 
             text-align: center; 
         }
         
-        h1 { font-size: 22px; margin-bottom: 20px; color: var(--text); }
-        
-        .avatar-picker { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; cursor: pointer; }
-        .avatar-picker img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
-        .avatar-picker input { display: none; }
-        .avatar-overlay { position: absolute; bottom: 2px; right: 2px; background: var(--accent); padding: 6px; border-radius: 50%; font-size: 12px; }
-        
-        input[type="text"] { 
-            width: 100%; padding: 12px 16px; background: #273549; border: 2px solid #334155; 
-            border-radius: 12px; color: white; font-size: 16px; margin-bottom: 15px; outline: none; text-align: center;
+        h1 { 
+            font-size: 20px; 
+            font-weight: 600; 
+            margin-bottom: 24px; 
+            color: var(--text); 
+            letter-spacing: -0.5px;
         }
         
-        button { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .avatar-picker { 
+            position: relative; 
+            width: 90px; 
+            height: 90px; 
+            margin: 0 auto 24px; 
+            cursor: pointer; 
+        }
+        .avatar-picker img { 
+            width: 100%; 
+            height: 100%; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--accent); 
+            box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
+        }
+        .avatar-picker input { display: none; }
+        .avatar-overlay { 
+            position: absolute; 
+            bottom: 0; 
+            right: 0; 
+            background: var(--accent); 
+            padding: 6px; 
+            border-radius: 50%; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .avatar-overlay svg { width: 14px; height: 14px; }
+        
+        input[type="text"] { 
+            width: 100%; 
+            padding: 12px 16px; 
+            background: #1f2937; 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            color: white; 
+            font-size: 15px; 
+            margin-bottom: 16px; 
+            outline: none; 
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--accent); 
+            border: none; 
+            border-radius: 12px; 
+            color: white; 
+            font-size: 15px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--accent-hover); }
         
         #app-screen { display: none; }
-        .users-list { margin-top: 15px; max-height: 350px; overflow-y: auto; text-align: right; }
-        .user-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #273549; margin-bottom: 10px; border-radius: 14px; cursor: pointer; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .call-icon { background: #10b981; padding: 8px; border-radius: 50%; display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; }
+        .users-list { margin-top: 15px; max-height: 320px; overflow-y: auto; text-align: right; }
+        .user-card { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px 16px; 
+            background: #151f32; 
+            margin-bottom: 10px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .user-card:hover {
+            border-color: #2a3a55;
+            background: #1b283f;
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .call-icon { 
+            background: var(--accent); 
+            color: white;
+            padding: 8px; 
+            border-radius: 50%; 
+            display: flex; 
+            width: 32px; 
+            height: 32px; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .call-icon svg { width: 16px; height: 16px; }
 
         /* شاشة السينما والمكالمة */
         #call-screen { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0b0f19; z-index: 100; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 15px;
+            background: #05070c; z-index: 100; flex-direction: column; 
+            align-items: center; justify-content: space-between; padding: 20px 15px;
         }
         
         /* مساحة الفيديو والسينما */
@@ -78,11 +165,12 @@
             width: 100%;
             height: 60%;
             background: #000;
-            border-radius: 20px;
+            border-radius: 16px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            border: 1px solid var(--border-color);
         }
 
         #video-container {
@@ -101,23 +189,24 @@
             display: flex;
             gap: 8px;
             width: 100%;
-            padding: 10px;
-            background: #1e293b;
+            padding: 12px;
+            background: #0f172a;
             position: relative;
-            z-index: 30; /* لضمان بقائه فوق التفاعلات الطائرة وقابل للضغط */
+            z-index: 30;
+            border-top: 1px solid var(--border-color);
         }
         .video-selector input {
             flex: 1;
-            padding: 8px 12px;
-            background: #0f172a;
-            border: 1px solid #334155;
+            padding: 10px 14px;
+            background: #070a12;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             color: white;
             font-size: 13px;
         }
         .video-selector button {
             width: auto;
-            padding: 8px 15px;
+            padding: 10px 18px;
             font-size: 13px;
             border-radius: 8px;
         }
@@ -125,22 +214,24 @@
         /* التفاعلات الطائرة */
         .reactions-bar {
             position: absolute;
-            bottom: 75px; /* رفعناه لفوق باش ما يغطيش على الـ video-selector */
+            bottom: 75px; 
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 12px;
-            background: rgba(15, 23, 42, 0.75);
-            padding: 8px 16px;
+            gap: 14px;
+            background: rgba(15, 23, 42, 0.65);
+            padding: 8px 18px;
             border-radius: 30px;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 20;
             user-select: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .react-btn {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
             width: auto;
             padding: 0;
@@ -151,7 +242,7 @@
         /* حاوية عناصر الإيموجي الطائرة */
         .floating-container {
             position: absolute;
-            bottom: 130px; /* تم رفعه لتبدأ الحركة من فوق شريط التفاعلات */
+            bottom: 130px; 
             width: 100%;
             height: 60%;
             pointer-events: none;
@@ -162,7 +253,7 @@
         .floating-emoji {
             position: absolute;
             bottom: 0;
-            font-size: 32px;
+            font-size: 30px;
             animation: floatUp 2.5s ease-out forwards;
         }
 
@@ -173,16 +264,31 @@
         }
 
         /* أزرار التحكم */
-        .controls { display: flex; gap: 15px; justify-content: center; width: 100%; margin-top: 10px; }
-        .btn-control { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer; }
-        .btn-mute { background: #334155; color: white; }
+        .controls { display: flex; gap: 16px; justify-content: center; width: 100%; margin-top: 15px; }
+        .btn-control { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: none; 
+            cursor: pointer; 
+            color: white;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-control:active { transform: scale(0.95); }
+        .btn-mute { background: #1e293b; }
+        .btn-mute:hover { background: #334155; }
         .btn-mute.active { background: var(--danger); }
-        .btn-hangup { background: var(--danger); color: white; }
-        .btn-accept { background: #10b981; color: white; }
+        .btn-hangup { background: var(--danger); }
+        .btn-hangup:hover { background: #dc2626; }
+        .btn-accept { background: #10b981; gap: 8px; border-radius: 30px; width: auto; padding: 0 20px; font-weight: 500; font-size: 14px; }
+        .btn-accept:hover { background: #059669; }
 
         @media (max-width: 480px) {
-            .cinema-room { height: 70%; }
-            #call-screen { padding: 10px; }
+            .cinema-room { height: 65%; }
+            #call-screen { padding: 15px 10px; }
         }
     </style>
 </head>
@@ -191,10 +297,12 @@
     <div class="container">
         <!-- 1. شاشة الدخول -->
         <div id="login-screen">
-            <h1>انضم إلى MyHouse Cinema 🎬</h1>
+            <h1>انضم إلى MyHouse Cinema</h1>
             <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
                 <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Avatar">
-                <div class="avatar-overlay">📸</div>
+                <div class="avatar-overlay">
+                    <i data-lucide="camera"></i>
+                </div>
                 <input type="file" id="file-input" accept="image/*">
             </div>
             <input type="text" id="username" placeholder="اكتب اسمك المستعار..." autocomplete="off">
@@ -203,7 +311,10 @@
 
         <!-- 2. شاشة المتواجدين -->
         <div id="app-screen">
-            <h1 style="font-size: 18px; text-align: right;">المتواجدون حالياً 🟢</h1>
+            <h1 style="font-size: 16px; text-align: right; display: flex; align-items: center; gap: 8px; justify-content: flex-start; flex-direction: row-reverse;">
+                <span style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%;"></span>
+                المتواجدون حالياً
+            </h1>
             <div class="users-list" id="users-list"></div>
         </div>
     </div>
@@ -211,7 +322,7 @@
     <!-- 3. شاشة السينما والمكالمة الصوتية المباشرة -->
     <div id="call-screen">
         <div style="text-align: center; color: white;">
-            <h3 id="call-user-name">اسم الطرف الآخر</h3>
+            <h3 id="call-user-name" style="font-weight: 500; font-size: 18px; margin-bottom: 4px;">اسم الطرف الآخر</h3>
             <p id="call-status-text" style="color: var(--text-muted); font-size: 13px;">جاري الاتصال الصوتي...</p>
         </div>
 
@@ -237,9 +348,16 @@
         </div>
         
         <div class="controls">
-            <button id="btn-mute" class="btn-control btn-mute">🎙️</button>
-            <button id="btn-accept" class="btn-control btn-accept" style="display: none;">📞 قبول</button>
-            <button id="btn-hangup" class="btn-control btn-hangup">❌</button>
+            <button id="btn-mute" class="btn-control btn-mute">
+                <i data-lucide="mic"></i>
+            </button>
+            <button id="btn-accept" class="btn-control btn-accept" style="display: none;">
+                <i data-lucide="phone"></i>
+                قبول
+            </button>
+            <button id="btn-hangup" class="btn-control btn-hangup">
+                <i data-lucide="phone-off"></i>
+            </button>
         </div>
     </div>
 
@@ -261,7 +379,9 @@
         let ignoreNextStateChange = false; 
         let lastActionSent = null;
 
-        // تحميل مكتبة مشغل يوتيوب برمجياً بطريقة آمنة لا تعطل الصفحة
+        // تفعيل مكتبة الأيقونات
+        lucide.createIcons();
+
         function loadYoutubeAPI() {
             if (!window.YT) {
                 const tag = document.createElement('script');
@@ -296,7 +416,6 @@
             ytPlayer.setVolume(80);
         }
 
-        // معالجة صورة الأفتار
         document.getElementById('file-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -320,7 +439,6 @@
                 return;
             }
 
-            // لضمان استقرار الاتصال نعتمد على الخوادم الافتراضية للـ PeerJS مع الـ STUN الأساسي لـ Google
             peer = new Peer({
                 config: {
                     iceServers: [
@@ -336,11 +454,9 @@
                 set(userRef, { name: myName, avatar: myAvatar });
                 onDisconnect(userRef).remove();
 
-                // إخفاء شاشة الدخول وإظهار شاشة الأصدقاء بسلاسة
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
                 
-                // تحميل مكتبة اليوتيوب فور الدخول بنجاح
                 loadYoutubeAPI();
                 
                 listenForUsers();
@@ -364,12 +480,13 @@
                     card.innerHTML = `
                         <div class="user-info">
                             <img class="user-avatar" src="${users[id].avatar}" alt="">
-                            <span>${users[id].name}</span>
+                            <span style="font-size: 14px; font-weight: 500;">${users[id].name}</span>
                         </div>
-                        <div class="call-icon">📞</div>
+                        <div class="call-icon"><i data-lucide="phone"></i></div>
                     `;
                     card.onclick = () => startCall(id, users[id].name);
                     listContainer.appendChild(card);
+                    lucide.createIcons(); // تحديث الأيقونات في العناصر الجديدة
                 }
             });
         }
@@ -557,7 +674,15 @@
             isMuted = !isMuted;
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
-            document.getElementById('btn-mute').innerText = isMuted ? "🔇" : "🎙️";
+            
+            // تحديث الأيقونة برمجياً عند كتم الصوت
+            const icon = document.querySelector('#btn-mute i');
+            if (isMuted) {
+                icon.setAttribute('data-lucide', 'mic-off');
+            } else {
+                icon.setAttribute('data-lucide', 'mic');
+            }
+            lucide.createIcons();
         });
     </script>
 </body>
