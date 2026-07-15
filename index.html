@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyHouse Cozy 2D Room</title>
+    <title>MyHouse Cozy Cinema</title>
+    <!-- PeerJS للمكالمات الصوتية المباشرة -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -12,6 +13,7 @@
             --accent: #3b82f6;
             --danger: #ef4444;
             --text: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         * { 
@@ -20,7 +22,6 @@
             padding: 0; 
             font-family: system-ui, -apple-system, sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
 
         body { 
@@ -30,20 +31,20 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            overflow: hidden;
+            padding: 15px; 
         }
         
-        /* شاشة الدخول */
-        .login-container { 
+        .container { 
             background: var(--card-bg); 
             width: 100%; 
-            max-width: 400px; 
-            padding: 30px; 
+            max-width: 420px; 
+            padding: 25px; 
             border-radius: 24px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
             text-align: center; 
-            z-index: 10;
         }
+        
+        h1 { font-size: 22px; margin-bottom: 20px; color: var(--text); }
         
         .avatar-picker { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; cursor: pointer; }
         .avatar-picker img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
@@ -51,234 +52,198 @@
         .avatar-overlay { position: absolute; bottom: 2px; right: 2px; background: var(--accent); padding: 6px; border-radius: 50%; font-size: 12px; }
         
         input[type="text"] { 
-            width: 100%; padding: 14px; background: #273549; border: 2px solid #334155; 
-            border-radius: 12px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; text-align: center;
+            width: 100%; padding: 12px 16px; background: #273549; border: 2px solid #334155; 
+            border-radius: 12px; color: white; font-size: 16px; margin-bottom: 15px; outline: none; text-align: center;
         }
         
         button { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; }
-
-        #app-screen { display: none; text-align: center; width: 100%; max-width: 400px; }
-        .users-list { margin-top: 15px; max-height: 300px; overflow-y: auto; }
-        .user-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--card-bg); margin-bottom: 10px; border-radius: 14px; cursor: pointer; }
+        
+        #app-screen { display: none; }
+        .users-list { margin-top: 15px; max-height: 350px; overflow-y: auto; text-align: right; }
+        .user-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #273549; margin-bottom: 10px; border-radius: 14px; cursor: pointer; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .call-icon { background: #10b981; padding: 8px; border-radius: 50%; display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; }
 
-        /* شاشة الغرفة الكبيرة */
-        #room-screen {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #0b0f19;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
+        /* شاشة السينما والمكالمة */
+        #call-screen { 
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0f19; z-index: 100; flex-direction: column; 
+            align-items: center; justify-content: space-between; padding: 15px;
         }
-
-        /* الغرفة الافتراضية 2D */
-        .room-canvas-container {
+        
+        /* مساحة الفيديو والسينما */
+        .cinema-room {
             position: relative;
             width: 100%;
-            max-width: 800px;
-            height: 50vh;
-            background: #1e1b4b; /* لون أرضية البيت الدافئ */
-            border-bottom: 8px solid #312e81;
-            overflow: hidden;
-        }
-
-        #room-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* شاشة السينما فوق الكانفاس */
-        .tv-screen {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 240px;
-            height: 135px;
+            height: 60%;
             background: #000;
-            border: 6px solid #475569;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            border-radius: 20px;
             overflow: hidden;
-            z-index: 5;
-        }
-        #player { width: 100%; height: 100%; }
-
-        /* أزرار التحكم في الفيديو */
-        .tv-controls {
-            position: absolute;
-            top: 155px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 5px;
-            z-index: 5;
-        }
-        .tv-controls input {
-            padding: 4px 8px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #475569;
-            border-radius: 6px;
-            color: white;
-            font-size: 11px;
-            width: 140px;
-        }
-        .tv-controls button {
-            width: auto;
-            padding: 4px 10px;
-            font-size: 11px;
-            border-radius: 6px;
-        }
-
-        /* لوحة التحكم السفلية وتفاعلات الأفاتار */
-        .bottom-panel {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            border-radius: 24px 24px 0 0;
-            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-            align-items: center;
+            justify-content: center;
         }
 
-        .interaction-btns {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+        #video-container {
             width: 100%;
-        }
-        .btn-interact {
-            flex: 1;
-            max-width: 120px;
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 12px;
-            background: #4f46e5;
-            display: none; /* تظهر فقط عند الاقتراب */
+            height: 100%;
         }
 
-        .controls-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+        #player {
             width: 100%;
-            justify-content: space-between;
-        }
-        .btn-round {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
+            height: 100%;
             border: none;
-            cursor: pointer;
-            background: #334155;
-            color: white;
         }
-        .btn-hangup { background: var(--danger); }
-        .btn-mute.active { background: var(--danger); }
 
-        /* عصا التحكم للهواتف (Touch Joystick) */
-        .joystick-container {
+        /* حقل إدخال رابط الفيديو */
+        .video-selector {
             display: flex;
             gap: 8px;
+            width: 100%;
+            padding: 10px;
+            background: #1e293b;
+            position: relative;
+            z-index: 30; /* لضمان بقائه فوق التفاعلات الطائرة وقابل للضغط */
         }
-        .joy-btn {
-            width: 45px;
-            height: 45px;
-            background: #334155;
-            border: none;
-            border-radius: 10px;
+        .video-selector input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
             color: white;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 13px;
+        }
+        .video-selector button {
+            width: auto;
+            padding: 8px 15px;
+            font-size: 13px;
+            border-radius: 8px;
         }
 
+        /* التفاعلات الطائرة */
+        .reactions-bar {
+            position: absolute;
+            bottom: 75px; /* رفعناه لفوق باش ما يغطيش على الـ video-selector */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.75);
+            padding: 8px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(8px);
+            z-index: 20;
+            user-select: none;
+        }
+        .react-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            width: auto;
+            padding: 0;
+            transition: transform 0.1s;
+        }
+        .react-btn:active { transform: scale(1.3); }
+
+        /* حاوية عناصر الإيموجي الطائرة */
+        .floating-container {
+            position: absolute;
+            bottom: 130px; /* تم رفعه لتبدأ الحركة من فوق شريط التفاعلات */
+            width: 100%;
+            height: 60%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 15;
+        }
+
+        .floating-emoji {
+            position: absolute;
+            bottom: 0;
+            font-size: 32px;
+            animation: floatUp 2.5s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            15% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { transform: translateY(-300px) scale(1) rotate(var(--rot)); opacity: 0; }
+        }
+
+        /* أزرار التحكم */
+        .controls { display: flex; gap: 15px; justify-content: center; width: 100%; margin-top: 10px; }
+        .btn-control { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer; }
+        .btn-mute { background: #334155; color: white; }
+        .btn-mute.active { background: var(--danger); }
+        .btn-hangup { background: var(--danger); color: white; }
+        .btn-accept { background: #10b981; color: white; }
+
         @media (max-width: 480px) {
-            .tv-screen { width: 180px; height: 101px; }
-            .tv-controls { top: 120px; }
-            .tv-controls input { width: 100px; }
+            .cinema-room { height: 70%; }
+            #call-screen { padding: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة الدخول -->
-    <div id="login-screen" class="login-container">
-        <h1>MyHouse Cozy Room 🏠</h1>
-        <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">بيت افتراضي ثنائي الأبعاد للسينما والمكالمات</p>
-        <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
-            <img id="avatar-preview" src="https://api.dicebear.com/7.x/adventurer/svg?seed=default" alt="Avatar">
-            <div class="avatar-overlay">📸</div>
-            <input type="file" id="file-input" accept="image/*">
+    <div class="container">
+        <!-- 1. شاشة الدخول -->
+        <div id="login-screen">
+            <h1>انضم إلى MyHouse Cinema 🎬</h1>
+            <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
+                <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Avatar">
+                <div class="avatar-overlay">📸</div>
+                <input type="file" id="file-input" accept="image/*">
+            </div>
+            <input type="text" id="username" placeholder="اكتب اسمك المستعار..." autocomplete="off">
+            <button id="btn-join">دخول الآن</button>
         </div>
-        <input type="text" id="username" placeholder="اكتب اسمك المستعار..." autocomplete="off">
-        <button id="btn-join">دخول الغرفة الافتراضية</button>
-    </div>
 
-    <!-- 2. شاشة المتواجدين للاتصال -->
-    <div id="app-screen">
-        <div class="login-container">
-            <h1 style="font-size: 18px; text-align: right;">المتواجدون حالياً في البيت 🟢</h1>
+        <!-- 2. شاشة المتواجدين -->
+        <div id="app-screen">
+            <h1 style="font-size: 18px; text-align: right;">المتواجدون حالياً 🟢</h1>
             <div class="users-list" id="users-list"></div>
         </div>
     </div>
 
-    <!-- 3. شاشة الغرفة والسينما والتفاعل 2D -->
-    <div id="room-screen">
-        <div style="padding: 10px; text-align: center; width: 100%;">
-            <span id="call-status-text" style="color: #10b981; font-weight: bold; font-size: 14px;">جاري تشغيل الغرفة...</span>
+    <!-- 3. شاشة السينما والمكالمة الصوتية المباشرة -->
+    <div id="call-screen">
+        <div style="text-align: center; color: white;">
+            <h3 id="call-user-name">اسم الطرف الآخر</h3>
+            <p id="call-status-text" style="color: var(--text-muted); font-size: 13px;">جاري الاتصال الصوتي...</p>
         </div>
 
-        <!-- الغرفة الافتراضية ثنائية الأبعاد -->
-        <div class="room-canvas-container">
-            <!-- التلفزة المعلقة -->
-            <div class="tv-screen">
+        <!-- غرفة السينما المشتركة -->
+        <div class="cinema-room">
+            <div id="video-container">
                 <div id="player"></div>
             </div>
 
-            <!-- مغير الفيديو -->
-            <div class="tv-controls">
-                <input type="text" id="video-url" placeholder="رابط يوتيوب...">
-                <button id="btn-load-video">عرض</button>
+            <div class="floating-container" id="floating-container"></div>
+
+            <div class="reactions-bar">
+                <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
+                <button class="react-btn" onclick="sendReaction('😂')">😂</button>
+                <button class="react-btn" onclick="sendReaction('😮')">😮</button>
+                <button class="react-btn" onclick="sendReaction('😭')">😭</button>
             </div>
 
-            <canvas id="room-canvas"></canvas>
+            <div class="video-selector">
+                <input type="text" id="video-url" placeholder="ألصق رابط فيديو يوتيوب هنا...">
+                <button id="btn-load-video">شغّل</button>
+            </div>
         </div>
-
-        <!-- اللوحة السفلية للتفاعلات والتحكم -->
-        <div class="bottom-panel">
-            <!-- تفاعلات عند الاقتراب -->
-            <div class="interaction-btns" id="interaction-zone">
-                <button class="btn-interact" id="btn-hug">🫂 عناق</button>
-                <button class="btn-interact" id="btn-pillow" style="background: #e11d48;">💥 مخذة</button>
-            </div>
-
-            <div class="controls-row">
-                <button id="btn-mute" class="btn-round btn-mute">🎙️</button>
-                
-                <!-- أزرار الحركة للهواتف -->
-                <div class="joystick-container">
-                    <button class="joy-btn" id="btn-left">◀</button>
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <button class="joy-btn" id="btn-up">▲</button>
-                        <button class="joy-btn" id="btn-down">▼</button>
-                    </div>
-                    <button class="joy-btn" id="btn-right">▶</button>
-                </div>
-
-                <button id="btn-hangup" class="btn-round btn-hangup">❌</button>
-            </div>
+        
+        <div class="controls">
+            <button id="btn-mute" class="btn-control btn-mute">🎙️</button>
+            <button id="btn-accept" class="btn-control btn-accept" style="display: none;">📞 قبول</button>
+            <button id="btn-hangup" class="btn-control btn-hangup">❌</button>
         </div>
     </div>
 
+    <!-- عنصر الصوت -->
     <audio id="remote-audio" autoplay playsinline></audio>
 
     <script type="module">
@@ -289,32 +254,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let myId, myName, myAvatar = "https://api.dicebear.com/7.x/adventurer/svg?seed=default";
+        let myId, myName, myAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
         let peer, localStream, currentCall, partnerId = null;
         let ytPlayer = null;
         
         let ignoreNextStateChange = false; 
         let lastActionSent = null;
 
-        // متغيرات الغرفة 2D الكانفاس
-        const canvas = document.getElementById('room-canvas');
-        const ctx = canvas.getContext('2d');
-        let players = {}; // لتخزين مواقع جميع اللاعبين فـ الغرفة
-
-        // إحداثيات الأفاتار الخاص بي الافتراضية
-        let myPos = { x: 200, y: 250 };
-        const speed = 12;
-
-        // لود أصول الصور في الكانفاس
-        const avatarImages = {};
-
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        // تحميل مكتبة يوتيوب
+        // تحميل مكتبة مشغل يوتيوب برمجياً بطريقة آمنة لا تعطل الصفحة
         function loadYoutubeAPI() {
             if (!window.YT) {
                 const tag = document.createElement('script');
@@ -331,15 +278,25 @@
                 height: '100%',
                 width: '100%',
                 videoId: '5qap5aO4i9A',
-                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'playsinline': 1 },
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 1,
+                    'rel': 0,
+                    'playsinline': 1
+                },
                 events: {
-                    'onReady': (e) => { ytPlayer.unMute(); ytPlayer.setVolume(80); },
+                    'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
                 }
             });
         };
 
-        // تغيير الأفاتار
+        function onPlayerReady(event) {
+            ytPlayer.unMute();
+            ytPlayer.setVolume(80);
+        }
+
+        // معالجة صورة الأفتار
         document.getElementById('file-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -352,7 +309,6 @@
             }
         });
 
-        // دخول الغرفة
         document.getElementById('btn-join').addEventListener('click', async () => {
             myName = document.getElementById('username').value.trim();
             if(!myName) return alert("الرجاء كتابة الاسم!");
@@ -360,26 +316,39 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                alert("يجب السماح بالوصول للمايكروفون للمكالمة!");
+                alert("يجب السماح بالوصول للمايكروفون للمكالمة الصوتية!");
                 return;
             }
 
+            // لضمان استقرار الاتصال نعتمد على الخوادم الافتراضية للـ PeerJS مع الـ STUN الأساسي لـ Google
             peer = new Peer({
-                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
             });
             
             peer.on('open', (id) => {
                 myId = id;
                 const userRef = ref(db, 'users/' + myId);
-                set(userRef, { name: myName, avatar: myAvatar, x: myPos.x, y: myPos.y });
+                set(userRef, { name: myName, avatar: myAvatar });
                 onDisconnect(userRef).remove();
 
+                // إخفاء شاشة الدخول وإظهار شاشة الأصدقاء بسلاسة
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
                 
+                // تحميل مكتبة اليوتيوب فور الدخول بنجاح
                 loadYoutubeAPI();
+                
                 listenForUsers();
                 listenForIncomingCalls();
+            });
+
+            peer.on('error', (err) => {
+                console.error("PeerJS Error:", err);
             });
         });
 
@@ -393,11 +362,11 @@
                     const card = document.createElement('div');
                     card.className = 'user-card';
                     card.innerHTML = `
-                        <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="user-info">
                             <img class="user-avatar" src="${users[id].avatar}" alt="">
                             <span>${users[id].name}</span>
                         </div>
-                        <button style="width:auto; padding:8px 15px;">دخول البيت 🏠</button>
+                        <div class="call-icon">📞</div>
                     `;
                     card.onclick = () => startCall(id, users[id].name);
                     listContainer.appendChild(card);
@@ -407,10 +376,9 @@
 
         function startCall(targetId, targetName) {
             partnerId = targetId;
-            document.getElementById('btn-hangup').style.display = 'block';
-            document.getElementById('room-screen').style.display = 'flex';
-            document.getElementById('app-screen').style.display = 'none';
-            resizeCanvas();
+            document.getElementById('call-user-name').innerText = targetName;
+            document.getElementById('btn-accept').style.display = 'none';
+            document.getElementById('call-screen').style.display = 'flex';
 
             const remoteAudio = document.getElementById('remote-audio');
             remoteAudio.play().catch(() => {});
@@ -418,7 +386,6 @@
             currentCall = peer.call(targetId, localStream);
             handleCallStreams(currentCall);
             setupCinemaSync();
-            startRoomSync();
         }
 
         function listenForIncomingCalls() {
@@ -426,241 +393,51 @@
                 currentCall = incomingCall;
                 partnerId = incomingCall.peer;
                 
-                const remoteAudio = document.getElementById('remote-audio');
-                remoteAudio.play().catch(() => {});
+                onValue(ref(db, 'users/' + partnerId), (snapshot) => {
+                    const caller = snapshot.val();
+                    document.getElementById('call-user-name').innerText = caller ? caller.name : "شخص مجهول";
+                }, { onlyOnce: true });
 
-                currentCall.answer(localStream);
-                document.getElementById('room-screen').style.display = 'flex';
-                document.getElementById('app-screen').style.display = 'none';
-                resizeCanvas();
+                document.getElementById('call-status-text').innerText = "مكالمة واردة...";
+                document.getElementById('btn-accept').style.display = 'inline-flex';
+                document.getElementById('call-screen').style.display = 'flex';
 
-                handleCallStreams(currentCall);
-                setupCinemaSync();
-                startRoomSync();
+                document.getElementById('btn-accept').onclick = () => {
+                    const remoteAudio = document.getElementById('remote-audio');
+                    remoteAudio.play().catch(() => {});
+
+                    currentCall.answer(localStream);
+                    document.getElementById('btn-accept').style.display = 'none';
+                    handleCallStreams(currentCall);
+                    setupCinemaSync();
+                };
             });
         }
 
-        // تحريك ومزامنة الغرفة ثنائية الأبعاد
-        function startRoomSync() {
-            // الاستماع لمواقع اللاعبين والتفاعلات
-            onValue(ref(db, `calls/${myId}_${partnerId}/room`), (snapshot) => {
-                if(snapshot.exists()) {
-                    players = snapshot.val();
-                }
-            });
+        window.sendReaction = function(emoji) {
+            if (!partnerId) return;
+            const reactionId = Date.now();
+            set(ref(db, `calls/${myId}_${partnerId}/reactions/${reactionId}`), { emoji: emoji });
+            set(ref(db, `calls/${partnerId}_${myId}/reactions/${reactionId}`), { emoji: emoji });
+            showFloatingEmoji(emoji);
+        };
 
-            // تحديث موقعي باستمرار فـ الـ Firebase
-            sendPosition();
-
-            // حلقة رسم الغرفة والأنيميشن (Game Loop)
-            requestAnimationFrame(drawRoom);
-        }
-
-        function sendPosition() {
-            if(partnerId) {
-                set(ref(db, `calls/${myId}_${partnerId}/room/${myId}`), {
-                    x: myPos.x,
-                    y: myPos.y,
-                    name: myName,
-                    avatar: myAvatar
-                });
-                set(ref(db, `calls/${partnerId}_${myId}/room/${myId}`), {
-                    x: myPos.x,
-                    y: myPos.y,
-                    name: myName,
-                    avatar: myAvatar
-                });
-            }
-        }
-
-        // رسم الغرفة والأثاث والأفاتارات
-        let pillowAnimation = null;
-        let hugAnimation = null;
-
-        function drawRoom() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 1. رسم أرضية خشبية دافئة (تأثير بسيط بالخطوط)
-            ctx.fillStyle = '#1e1b4b';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#312e81';
-            ctx.lineWidth = 2;
-            for(let i = 0; i < canvas.height; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i);
-                ctx.stroke();
-            }
-
-            // 2. رسم "الكنبة الكبيرة" تحت التلفزة مباشرة
-            ctx.fillStyle = '#475569'; // لون الكنبة الرمادي الدافئ
-            ctx.beginPath();
-            ctx.roundRect(canvas.width/2 - 100, 160, 200, 60, 15);
-            ctx.fill();
-            ctx.fillStyle = '#64748b'; // مسند الكنبة
-            ctx.fillRect(canvas.width/2 - 90, 150, 180, 15);
-
-            // كتابة توجيه صغير فوق الكنبة
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '11px sans-serif';
-            ctx.fillText("منطقة الجلوس للمشاهدة 🍿", canvas.width/2 - 60, 140);
-
-            // 3. رسم الأفاتارات (اللاعبين)
-            for(let id in players) {
-                const p = players[id];
-                
-                // رسم الأفاتار الدائري
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 25, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.clip();
-                
-                if (!avatarImages[id]) {
-                    avatarImages[id] = new Image();
-                    avatarImages[id].src = p.avatar;
-                }
-                
-                try {
-                    ctx.drawImage(avatarImages[id], p.x - 25, p.y - 25, 50, 50);
-                } catch(e) {
-                    ctx.fillStyle = '#3b82f6';
-                    ctx.fill();
-                }
-                ctx.restore();
-
-                // رسم إطار مضيء حول الأفاتار
-                ctx.strokeStyle = id === myId ? '#3b82f6' : '#10b981';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 25, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // اسم اللاعب
-                ctx.fillStyle = 'white';
-                ctx.font = '12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(p.name, p.x, p.y - 32);
-            }
-
-            // 4. معالجة ورسم أنيميشن "ضربة المخدة"
-            if (pillowAnimation) {
-                const elapsed = Date.now() - pillowAnimation.startTime;
-                const progress = Math.min(elapsed / 500, 1); // نصف ثانية للضربة
-                
-                const currentX = pillowAnimation.startX + (pillowAnimation.endX - pillowAnimation.startX) * progress;
-                const currentY = pillowAnimation.startY + (pillowAnimation.endY - pillowAnimation.startY) * progress;
-
-                ctx.fillStyle = '#f43f5e';
-                ctx.beginPath();
-                ctx.arc(currentX, currentY, 10, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // كتابة نص كوميدي عند الارتطام
-                if (progress >= 1) {
-                    ctx.fillStyle = '#f43f5e';
-                    ctx.font = 'bold 16px sans-serif';
-                    ctx.fillText("💥 طاااخ!", pillowAnimation.endX, pillowAnimation.endY - 40);
-                    if (elapsed > 1000) pillowAnimation = null; // إنهاء الأنيميشن بعد ثانية
-                }
-            }
-
-            // 5. معالجة ورسم أنيميشن "العناق"
-            if (hugAnimation) {
-                const elapsed = Date.now() - hugAnimation.time;
-                ctx.fillStyle = '#ec4899';
-                ctx.font = '24px sans-serif';
-                ctx.fillText("💖🫂💖", hugAnimation.x, hugAnimation.y - 45);
-                if (elapsed > 2000) hugAnimation = null;
-            }
-
-            // الاستمرار في الرندرة والتحريك
-            if (partnerId) {
-                checkInteractionDistance();
-                requestAnimationFrame(drawRoom);
-            }
-        }
-
-        // حساب المسافة بيني وبين اللاعب الآخر لتفعيل أزرار التفاعل
-        function checkInteractionDistance() {
-            if(!partnerId || !players[partnerId]) return;
-            const partner = players[partnerId];
-            const dist = Math.hypot(myPos.x - partner.x, myPos.y - partner.y);
+        function showFloatingEmoji(emoji) {
+            const container = document.getElementById('floating-container');
+            const el = document.createElement('div');
+            el.className = 'floating-emoji';
+            el.innerText = emoji;
             
-            const interactionZone = document.getElementById('interaction-zone');
-            if (dist < 80) {
-                document.getElementById('btn-hug').style.display = 'block';
-                document.getElementById('btn-pillow').style.display = 'block';
-            } else {
-                document.getElementById('btn-hug').style.display = 'none';
-                document.getElementById('btn-pillow').style.display = 'none';
-            }
+            const leftOffset = Math.random() * 80 + 10; 
+            const rotation = (Math.random() * 90 - 45) + "deg";
+            
+            el.style.left = `${leftOffset}%`;
+            el.style.setProperty('--rot', rotation);
+
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
         }
 
-        // أزرار الحركة والتنقل
-        function move(dir) {
-            if (dir === 'up' && myPos.y > 150) myPos.y -= speed;
-            if (dir === 'down' && myPos.y < canvas.height - 30) myPos.y += speed;
-            if (dir === 'left' && myPos.x > 30) myPos.x -= speed;
-            if (dir === 'right' && myPos.x < canvas.width - 30) myPos.x += speed;
-            sendPosition();
-        }
-
-        // دعم الكيبورد للتحريك
-        window.addEventListener('keydown', (e) => {
-            if (document.getElementById('room-screen').style.display !== 'flex') return;
-            if (e.key === 'ArrowUp' || e.key === 'w') move('up');
-            if (e.key === 'ArrowDown' || e.key === 's') move('down');
-            if (e.key === 'ArrowLeft' || e.key === 'a') move('left');
-            if (e.key === 'ArrowRight' || e.key === 'd') move('right');
-        });
-
-        // دعم اللمس فالهواتف عبر أزرار التحكم السفلية
-        document.getElementById('btn-up').onclick = () => move('up');
-        document.getElementById('btn-down').onclick = () => move('down');
-        document.getElementById('btn-left').onclick = () => move('left');
-        document.getElementById('btn-right').onclick = () => move('right');
-
-        // أحداث التفاعلات (الحضن والمخدة)
-        document.getElementById('btn-pillow').onclick = () => {
-            if (!partnerId || !players[partnerId]) return;
-            const target = players[partnerId];
-            const actionData = {
-                type: 'pillow',
-                startX: myPos.x, startY: myPos.y,
-                endX: target.x, endY: target.y,
-                startTime: Date.now()
-            };
-            set(ref(db, `calls/${myId}_${partnerId}/interaction`), actionData);
-            set(ref(db, `calls/${partnerId}_${myId}/interaction`), actionData);
-        };
-
-        document.getElementById('btn-hug').onclick = () => {
-            if (!partnerId || !players[partnerId]) return;
-            const target = players[partnerId];
-            const actionData = {
-                type: 'hug',
-                x: (myPos.x + target.x)/2, y: (myPos.y + target.y)/2,
-                time: Date.now()
-            };
-            set(ref(db, `calls/${myId}_${partnerId}/interaction`), actionData);
-            set(ref(db, `calls/${partnerId}_${myId}/interaction`), actionData);
-        };
-
-        // مزامنة التفاعلات الحركية
-        function listenToInteractions(callKey) {
-            onValue(ref(db, `calls/${callKey}/interaction`), (snapshot) => {
-                if (!snapshot.exists()) return;
-                const data = snapshot.val();
-                if (data.type === 'pillow') {
-                    pillowAnimation = data;
-                } else if (data.type === 'hug') {
-                    hugAnimation = data;
-                }
-            });
-        }
-
-        // تشغيل مغير الفيديو يوتيوب المشترك
         document.getElementById('btn-load-video').addEventListener('click', () => {
             const urlInput = document.getElementById('video-url').value;
             const videoId = extractYouTubeId(urlInput);
@@ -679,13 +456,18 @@
 
         function onPlayerStateChange(event) {
             if (ignoreNextStateChange) return;
+
             let action = '';
             if (event.data === YT.PlayerState.PLAYING) action = 'play';
             if (event.data === YT.PlayerState.PAUSED) action = 'pause';
 
             if (action !== '' && action !== lastActionSent) {
                 lastActionSent = action;
-                const videoState = { action: action, time: ytPlayer.getCurrentTime(), timestamp: Date.now() };
+                const videoState = {
+                    action: action,
+                    time: ytPlayer.getCurrentTime(),
+                    timestamp: Date.now()
+                };
                 if (partnerId) {
                     update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
                     update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
@@ -698,6 +480,7 @@
                 onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
                     if (!snapshot.exists() || !ytPlayer) return;
                     const data = snapshot.val();
+                    
                     ignoreNextStateChange = true;
 
                     if (data.action === 'load') {
@@ -710,29 +493,48 @@
                     const diff = Math.abs(localTime - data.time);
 
                     if (data.action === 'play') {
-                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
+                        if (diff > 1.5) {
+                            ytPlayer.seekTo(data.time, true);
+                        }
                         ytPlayer.playVideo();
                     } else if (data.action === 'pause') {
                         ytPlayer.pauseVideo();
-                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
+                        if (diff > 1.5) {
+                            ytPlayer.seekTo(data.time, true);
+                        }
                     }
 
-                    setTimeout(() => { ignoreNextStateChange = false; }, 500);
+                    setTimeout(() => {
+                        ignoreNextStateChange = false;
+                    }, 500);
+                });
+
+                onValue(ref(db, `calls/${callKey}/reactions`), (snapshot) => {
+                    if (snapshot.exists()) {
+                        const reactions = snapshot.val();
+                        const keys = Object.keys(reactions);
+                        const latestKey = keys[keys.length - 1];
+                        
+                        if (Date.now() - Number(latestKey) < 2000) {
+                            showFloatingEmoji(reactions[latestKey].emoji);
+                        }
+                    }
                 });
             };
 
             listenSync(`${myId}_${partnerId}`);
             listenSync(`${partnerId}_${myId}`);
-            listenToInteractions(`${myId}_${partnerId}`);
-            listenToInteractions(`${partnerId}_${myId}`);
         }
 
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
-                document.getElementById('call-status-text').innerText = "أنتما معاً الآن في البيت الافتراضي! 🍿🛋️";
+                document.getElementById('call-status-text').innerText = "أنتما تشاهدان معاً الآن! 🍿🎧";
                 const remoteAudio = document.getElementById('remote-audio');
+                
                 remoteAudio.srcObject = remoteStream;
-                remoteAudio.play().catch(() => {});
+                remoteAudio.play().catch(e => {
+                    console.log("Audio play deferred to user click.", e);
+                });
             });
             call.on('close', () => endCallInterface());
         }
@@ -745,8 +547,7 @@
         });
 
         function endCallInterface() {
-            document.getElementById('room-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('call-screen').style.display = 'none';
             document.getElementById('remote-audio').srcObject = null;
             if (ytPlayer) ytPlayer.stopVideo();
         }
