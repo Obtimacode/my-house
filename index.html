@@ -264,7 +264,6 @@
         let peer, localStream, currentCall, partnerId = null;
         let ytPlayer = null;
         
-        // متغيرات للتحكم ومنع التكرار والقلتشات
         let ignoreNextStateChange = false; 
         let lastActionSent = null;
 
@@ -273,13 +272,13 @@
             ytPlayer = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: '5qap5aO4i9A', // فيديو هادئ افتراضي
+                videoId: '5qap5aO4i9A',
                 playerVars: {
                     'autoplay': 1,
                     'controls': 1,
                     'rel': 0,
-                    'playsinline': 1, // مهم جداً للهواتف باش ما يفتحش الـ Fullscreen الافتراضي
-                    'mute': 1 // لتفادي بلوك المتصفح للـ Autoplay
+                    'playsinline': 1,
+                    'mute': 1 
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -289,7 +288,6 @@
         };
 
         function onPlayerReady(event) {
-            // فك كتم الصوت فوراً مع أول تفاعل للمستخدم على الصفحة
             document.body.addEventListener('click', () => {
                 if (ytPlayer && ytPlayer.isMuted()) {
                     ytPlayer.unMute();
@@ -322,7 +320,19 @@
                 return;
             }
 
-            peer = new Peer();
+            // إضافة سيرفرات STUN من Google لحل مشكلة الاتصال الخارجي عبر جدار الحماية (NAT Traversal)
+            const peerConfig = {
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' }
+                    ]
+                }
+            };
+
+            peer = new Peer(peerConfig);
+            
             peer.on('open', (id) => {
                 myId = id;
                 const userRef = ref(db, 'users/' + myId);
@@ -333,6 +343,11 @@
                 document.getElementById('app-screen').style.display = 'block';
                 listenForUsers();
                 listenForIncomingCalls();
+            });
+
+            // معالجة أخطاء الاتصال لمنع تشنج التطبيق
+            peer.on('error', (err) => {
+                console.error("PeerJS Error:", err);
             });
         });
 
@@ -392,7 +407,6 @@
             });
         }
 
-        // تفاعلات فورية
         window.sendReaction = function(emoji) {
             if (!partnerId) return;
             const reactionId = Date.now();
@@ -417,7 +431,6 @@
             setTimeout(() => el.remove(), 2500);
         }
 
-        // إدخال وتحميل فيديو جديد نيشان
         document.getElementById('btn-load-video').addEventListener('click', () => {
             const urlInput = document.getElementById('video-url').value;
             const videoId = extractYouTubeId(urlInput);
@@ -434,7 +447,6 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // مراقبة أحداث المشغل وإرسالها عند الحاجة فقط
         function onPlayerStateChange(event) {
             if (ignoreNextStateChange) return;
 
@@ -456,17 +468,14 @@
             }
         }
 
-        // المزامنة الذكية لمنع التكرار والتقطيع
         function setupCinemaSync() {
             const listenSync = (callKey) => {
                 onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
                     if (!snapshot.exists() || !ytPlayer) return;
                     const data = snapshot.val();
                     
-                    // منع الإرسال التلقائي أثناء تنفيذ المزامنة القادمة من الطرف الآخر
                     ignoreNextStateChange = true;
 
-                    // في حالة تم تحميل رابط جديد يشتغل نيشان
                     if (data.action === 'load') {
                         ytPlayer.loadVideoById(data.videoId, 0);
                         setTimeout(() => { ignoreNextStateChange = false; }, 1000);
@@ -477,7 +486,6 @@
                     const diff = Math.abs(localTime - data.time);
 
                     if (data.action === 'play') {
-                        // مزامنة الوقت فقط إن كان الفرق ملحوظاً لتجنب التقطيع المكرر
                         if (diff > 1.5) {
                             ytPlayer.seekTo(data.time, true);
                         }
@@ -489,13 +497,11 @@
                         }
                     }
 
-                    // إرجاع الصلاحية للتفاعل اليدوي بعد استقرار المشغل
                     setTimeout(() => {
                         ignoreNextStateChange = false;
                     }, 500);
                 });
 
-                // مزامنة التفاعلات
                 onValue(ref(db, `calls/${callKey}/reactions`), (snapshot) => {
                     if (snapshot.exists()) {
                         const reactions = snapshot.val();
