@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyHouse Cozy Cinema</title>
+    <!-- حماية ضد Clickjacking -->
+    <style id="antiClickjack">body{display:none !important;}</style>
+    <script type="text/javascript">
+        if (self === top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            antiClickjack.parentNode.removeChild(antiClickjack);
+        } else {
+            top.location = self.location;
+        }
+    </script>
+    
     <!-- PeerJS للمكالمات الصوتية المباشرة -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <!-- مكتبة Lucide للأيقونات العصرية الأنيقة -->
@@ -41,6 +52,7 @@
             padding: 20px;
             overflow: hidden;
             background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
+            user-select: none; /* منع تحديد النصوص لحماية المحتوى */
         }
 
         /* حاوية التنبيهات المنبثقة */
@@ -197,12 +209,12 @@
             font-weight: 700;
             color: var(--accent-blue);
             letter-spacing: 3px;
-            direction: ltr; /* لضمان عرض الكود بشكل صحيح بدون قلب الأرقام */
+            direction: ltr;
         }
 
         /* حقل إدخال الكود المستهدف */
         #target-code-input {
-            direction: ltr; /* حل مشكلة تداخل الأرقام والقلب */
+            direction: ltr;
             text-align: center;
         }
 
@@ -245,7 +257,7 @@
             background: #1f2937;
         }
 
-        /* فاصل خطي أنيق */
+        /* فاصل خطي */
         .divider {
             position: relative;
             margin: 28px 0;
@@ -276,7 +288,7 @@
             align-items: center; justify-content: space-between; padding: 25px 20px;
         }
 
-        /* شاشة الرنين / الاتصال الوارد */
+        /* شاشة الرنين */
         .calling-state-container {
             display: flex;
             flex-direction: column;
@@ -319,12 +331,12 @@
             100% { transform: scale(1.6); opacity: 0; }
         }
         
-        /* مساحة الفيديو والسينما */
+        /* غرفة السينما */
         .cinema-room {
             position: relative;
             width: 100%;
             max-width: 900px;
-            height: 65%;
+            height: 75%;
             background: #000;
             border-radius: 20px;
             overflow: hidden;
@@ -366,7 +378,7 @@
             font-size: 13px;
             margin-bottom: 0;
             text-align: right;
-            direction: ltr; /* لتسهيل لصق روابط يوتيوب دون انقلابها */
+            direction: ltr;
         }
         .video-selector button {
             width: auto;
@@ -375,57 +387,7 @@
             border-radius: 10px;
         }
 
-        .reactions-bar {
-            position: absolute;
-            bottom: 80px; 
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 16px;
-            background: rgba(13, 18, 33, 0.55);
-            padding: 10px 22px;
-            border-radius: 40px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 20;
-            user-select: none;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .react-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            width: auto;
-            padding: 0;
-            transition: transform 0.1s;
-        }
-        .react-btn:active { transform: scale(1.3); }
-
-        .floating-container {
-            position: absolute;
-            bottom: 140px; 
-            width: 100%;
-            height: 60%;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 15;
-        }
-
-        .floating-emoji {
-            position: absolute;
-            bottom: 0;
-            font-size: 32px;
-            animation: floatUp 2.5s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
-            15% { opacity: 1; transform: translateY(-20px) scale(1.2); }
-            100% { transform: translateY(-300px) scale(1) rotate(var(--rot)); opacity: 0; }
-        }
-
-        /* أزرار التحكم في المكالمة */
+        /* أزرار التحكم */
         .controls { 
             display: flex; 
             gap: 20px; 
@@ -463,8 +425,25 @@
             font-size: 14px; 
         }
 
+        /* حقوق تصميم Optima Code */
+        .optima-footer {
+            margin-top: 30px;
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+        .optima-brand {
+            color: var(--accent-blue);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
         @media (max-width: 480px) {
-            .cinema-room { height: 65%; }
+            .cinema-room { height: 75%; }
             #call-screen { padding: 20px 15px; }
         }
     </style>
@@ -485,11 +464,17 @@
                 </div>
                 <input type="file" id="file-input" accept="image/*">
             </div>
-            <input type="text" id="username" placeholder="اكتب اسمك المستعار..." autocomplete="off">
+            <input type="text" id="username" placeholder="اكتب اسمك المستعار..." autocomplete="off" maxlength="15">
             <button id="btn-join">
                 <i data-lucide="log-in"></i>
                 دخول الآن
             </button>
+            
+            <!-- حقوق Optima Code المضافة -->
+            <div class="optima-footer">
+                <span>الموقع مصمم من طرف</span>
+                <span class="optima-brand">Optima Code</span>
+            </div>
         </div>
 
         <!-- 2. شاشة البحث والاتصال بالكود -->
@@ -512,7 +497,7 @@
                 بحث عن الرمز
             </button>
 
-            <!-- كارت الطرف التاني المكتشف (مخفي افتراضياً) -->
+            <!-- كارت الطرف التاني المكتشف -->
             <div class="partner-found-card" id="partner-found-card">
                 <div class="partner-found-info">
                     <img class="partner-found-avatar" id="found-avatar" src="" alt="">
@@ -529,10 +514,10 @@
         </div>
     </div>
 
-    <!-- 3. شاشة المكالمة والسينما الموحدة -->
+    <!-- 3. شاشة المكالمة والسينما -->
     <div id="call-screen">
         
-        <!-- شاشة الرنين والطلب -->
+        <!-- شاشة الرنين -->
         <div class="calling-state-container" id="calling-state-view">
             <div class="avatar-ring">
                 <img id="partner-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="">
@@ -545,15 +530,6 @@
         <div class="cinema-room" id="cinema-room">
             <div id="video-container">
                 <div id="player"></div>
-            </div>
-
-            <div class="floating-container" id="floating-container"></div>
-
-            <div class="reactions-bar">
-                <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
-                <button class="react-btn" onclick="sendReaction('😂')">😂</button>
-                <button class="react-btn" onclick="sendReaction('😮')">😮</button>
-                <button class="react-btn" onclick="sendReaction('😭')">😭</button>
             </div>
 
             <div class="video-selector">
@@ -583,6 +559,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, onDisconnect, update, remove, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
+        // إعدادات الـ Firebase
         const firebaseConfig = { databaseURL: "https://my-house-672f0-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -595,10 +572,35 @@
         let ignoreNextStateChange = false; 
         let lastActionSent = null;
 
-        let searchedPartner = null; // تخزين الصديق الذي عثرنا عليه مؤقتاً
-        let callRejectedListener = null; // مراقبة رفض المكالمة
+        let searchedPartner = null; 
+        let callRejectedListener = null;
 
         lucide.createIcons();
+
+        // دالة حماية وتطهير النصوص لمنع هجمات XSS
+        function sanitizeInput(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                switch (m) {
+                    case '&': return '&amp;';
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '"': return '&quot;';
+                    case "'": return '&#x27;';
+                    default: return m;
+                }
+            }).trim();
+        }
+
+        // حظر Inspect Element وأدوات المطورين وكليك يمين
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) return false; // منع F12
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; // Ctrl+Shift+C
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+        };
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
@@ -609,9 +611,12 @@
             if (type === 'success') iconName = 'check-circle';
             if (type === 'danger') iconName = 'alert-triangle';
 
+            // تطهير رسالة التنبيه أيضاً
+            const cleanMessage = sanitizeInput(message);
+
             toast.innerHTML = `
                 <i data-lucide="${iconName}" style="color: ${type === 'danger' ? 'var(--danger-red)' : type === 'success' ? 'var(--success-green)' : 'var(--accent-blue)'}"></i>
-                <span>${message}</span>
+                <span>${cleanMessage}</span>
             `;
             container.appendChild(toast);
             lucide.createIcons();
@@ -626,7 +631,7 @@
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // تنسيق الكود تلقائياً أثناء كتابته بطريقة مريحة
+        // تنسيق مدخلات الكود وقبول الأرقام فقط لمنع الإدخال الخاطئ
         document.getElementById('target-code-input').addEventListener('input', (e) => {
             let val = e.target.value.replace(/\D/g, '');
             if (val.length > 3) {
@@ -672,6 +677,11 @@
         document.getElementById('file-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // فحص حجم الملف كإجراء أمني (أقل من 1 ميجابايت)
+                if (file.size > 1024 * 1024) {
+                    showToast("حجم الصورة يجب أن يكون أقل من 1 ميجابايت!", "danger");
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     myAvatar = event.target.result;
@@ -682,13 +692,13 @@
         });
 
         document.getElementById('btn-join').addEventListener('click', async () => {
-            myName = document.getElementById('username').value.trim();
-            if(!myName) return alert("الرجاء كتابة الاسم المستعار!");
+            myName = sanitizeInput(document.getElementById('username').value);
+            if(!myName || myName.length < 2) return showToast("الرجاء كتابة اسم مستعار صالح (حرفين على الأقل)!", "danger");
 
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                alert("يجب السماح بالوصول للمايكروفون للاتصال بالصوت!");
+                showToast("يجب السماح بالوصول للمايكروفون للاتصال بالصوت!", "danger");
                 return;
             }
 
@@ -730,11 +740,12 @@
             });
         });
 
-        // 1. مرحلة البحث عن الرمز أولاً دون الاتصال المباشر
+        // مرحلة البحث عن الرمز
         document.getElementById('btn-search-by-code').addEventListener('click', async () => {
             const rawCode = document.getElementById('target-code-input').value.replace(/\s+/g, '');
-            if (rawCode.length !== 6) {
-                return showToast("الرجاء إدخال كود صحيح من 6 أرقام!", "danger");
+            // فحص صحة المدخلات لمنع الرموز الخبيثة
+            if (!/^\d{6}$/.test(rawCode)) {
+                return showToast("الرجاء إدخال كود صحيح يتكون من 6 أرقام فقط!", "danger");
             }
 
             if (rawCode === my6DigitCode) {
@@ -749,10 +760,9 @@
                 return showToast("لم يتم العثور على هذا الرمز!", "danger");
             }
 
-            // تخزين بيانات الصديق المكتشف وعرض الكارت
             searchedPartner = codeSnapshot.val();
             document.getElementById('found-avatar').src = searchedPartner.avatar;
-            document.getElementById('found-name').innerText = searchedPartner.name;
+            document.getElementById('found-name').innerText = sanitizeInput(searchedPartner.name);
             
             document.getElementById('partner-found-card').style.display = 'flex';
             showToast("تم العثور على الصديق بنجاح", "success");
@@ -764,7 +774,7 @@
             searchedPartner = null;
         });
 
-        // 2. تفعيل الاتصال الفعلي بعد الضغط على زر الاتصال من الكارت
+        // تفعيل الاتصال الفعلي بعد الضغط على اتصال
         document.getElementById('btn-start-actual-call').addEventListener('click', () => {
             if (!searchedPartner) return;
             document.getElementById('partner-found-card').style.display = 'none';
@@ -774,7 +784,7 @@
         function startCall(targetId, targetName, targetAvatar) {
             partnerId = targetId;
             document.getElementById('partner-avatar-img').src = targetAvatar || "https://api.dicebear.com/7.x/bottts/svg?seed=default";
-            document.getElementById('call-user-name').innerText = targetName;
+            document.getElementById('call-user-name').innerText = sanitizeInput(targetName);
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
             document.getElementById('calling-state-view').style.display = 'flex';
@@ -785,18 +795,16 @@
             const remoteAudio = document.getElementById('remote-audio');
             remoteAudio.play().catch(() => {});
 
-            // إنشاء الاتصال الهاتفي عبر PeerJS
             currentCall = peer.call(targetId, localStream);
             handleCallStreams(currentCall);
 
-            // الاستماع لحالة الرفض من الطرف الآخر في Firebase
+            // الاستماع لحالة الرفض
             const rejectRef = ref(db, `calls/${myId}_${partnerId}/rejected`);
-            set(rejectRef, false); // تهيئة القيمة
+            set(rejectRef, false);
             
             callRejectedListener = onValue(rejectRef, (snapshot) => {
                 if (snapshot.exists() && snapshot.val() === true) {
                     showToast("رفض الطرف الآخر الاتصال", "danger");
-                    // إغلاق الاتصال وتنظيف الواجهة فوراً
                     if(currentCall) currentCall.close();
                     endCallInterface();
                 }
@@ -814,7 +822,7 @@
                     const caller = snapshot.val();
                     if (caller) {
                         document.getElementById('partner-avatar-img').src = caller.avatar;
-                        document.getElementById('call-user-name').innerText = caller.name;
+                        document.getElementById('call-user-name').innerText = sanitizeInput(caller.name);
                         showToast(`مكالمة واردة من ${caller.name}`, "success");
                     }
                 }, { onlyOnce: true });
@@ -837,37 +845,15 @@
             });
         }
 
-        window.sendReaction = function(emoji) {
-            if (!partnerId) return;
-            const reactionId = Date.now();
-            set(ref(db, `calls/${myId}_${partnerId}/reactions/${reactionId}`), { emoji: emoji });
-            set(ref(db, `calls/${partnerId}_${myId}/reactions/${reactionId}`), { emoji: emoji });
-            showFloatingEmoji(emoji);
-        };
-
-        function showFloatingEmoji(emoji) {
-            const container = document.getElementById('floating-container');
-            const el = document.createElement('div');
-            el.className = 'floating-emoji';
-            el.innerText = emoji;
-            
-            const leftOffset = Math.random() * 80 + 10; 
-            const rotation = (Math.random() * 90 - 45) + "deg";
-            
-            el.style.left = `${leftOffset}%`;
-            el.style.setProperty('--rot', rotation);
-
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 2500);
-        }
-
         document.getElementById('btn-load-video').addEventListener('click', () => {
-            const urlInput = document.getElementById('video-url').value;
+            const urlInput = sanitizeInput(document.getElementById('video-url').value);
             const videoId = extractYouTubeId(urlInput);
             if (videoId && partnerId) {
                 const videoData = { videoId: videoId, action: 'load', time: 0, timestamp: Date.now() };
                 set(ref(db, `calls/${myId}_${partnerId}/videoState`), videoData);
                 set(ref(db, `calls/${partnerId}_${myId}/videoState`), videoData);
+            } else {
+                showToast("رابط يوتيوب غير صحيح!", "danger");
             }
         });
 
@@ -907,7 +893,9 @@
                     ignoreNextStateChange = true;
 
                     if (data.action === 'load') {
-                        ytPlayer.loadVideoById(data.videoId, 0);
+                        // تطهير المعرف لمنع محاولات الحقن داخل الـ Iframe
+                        const safeVideoId = sanitizeInput(data.videoId);
+                        ytPlayer.loadVideoById(safeVideoId, 0);
                         setTimeout(() => { ignoreNextStateChange = false; }, 1000);
                         return;
                     }
@@ -930,18 +918,6 @@
                     setTimeout(() => {
                         ignoreNextStateChange = false;
                     }, 500);
-                });
-
-                onValue(ref(db, `calls/${callKey}/reactions`), (snapshot) => {
-                    if (snapshot.exists()) {
-                        const reactions = snapshot.val();
-                        const keys = Object.keys(reactions);
-                        const latestKey = keys[keys.length - 1];
-                        
-                        if (Date.now() - Number(latestKey) < 2000) {
-                            showFloatingEmoji(reactions[latestKey].emoji);
-                        }
-                    }
                 });
             };
 
@@ -969,10 +945,9 @@
             });
         }
 
-        // عند الضغط على زر قطع الاتصال / الرفض
+        // عند الضغط على قطع الاتصال
         document.getElementById('btn-hangup').addEventListener('click', async () => {
             if (partnerId) {
-                // إبلاغ الطرف الآخر بحدوث الرفض/القطع لغلق شاشته تلقائياً
                 await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
                 
                 remove(ref(db, `calls/${myId}_${partnerId}`));
@@ -984,7 +959,6 @@
         });
 
         function endCallInterface() {
-            // إيقاف مستمع الرفض لمنع التكرار
             if (callRejectedListener) {
                 callRejectedListener();
                 callRejectedListener = null;
