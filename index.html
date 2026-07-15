@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyHouse Call</title>
+    <title>MyHouse Interactive Call</title>
     <!-- PeerJS للمكالمات الصوتية -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- Model Viewer لعرض مجسمات الـ 3D والـ AR -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -22,7 +24,7 @@
             margin: 0; 
             padding: 0; 
             font-family: system-ui, -apple-system, sans-serif; 
-            -webkit-tap-highlight-color: transparent; /* إزالة اللون الأزرق عند الضغط في الهاتف */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body { 
@@ -32,12 +34,7 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            min-height: -webkit-fill-available; /* حل مشكلة الارتفاع في متصفحات الهواتف */
             padding: 20px; 
-        }
-
-        html {
-            height: -webkit-fill-available;
         }
         
         .container { 
@@ -48,219 +45,90 @@
             border-radius: 24px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
             text-align: center; 
-            transition: all 0.3s ease;
         }
         
-        h1 { 
-            font-size: 24px; 
-            margin-bottom: 25px; 
-            color: var(--text); 
-            font-weight: 700; 
-        }
+        h1 { font-size: 24px; margin-bottom: 25px; color: var(--text); }
         
-        /* شاشة الدخول */
-        .avatar-picker { 
-            position: relative; 
-            width: 110px; 
-            height: 110px; 
-            margin: 0 auto 25px; 
-            cursor: pointer; 
-        }
-        .avatar-picker img { 
-            width: 100%; 
-            height: 100%; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 3px solid var(--accent); 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
+        .avatar-picker { position: relative; width: 110px; height: 110px; margin: 0 auto 25px; cursor: pointer; }
+        .avatar-picker img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
         .avatar-picker input { display: none; }
-        .avatar-overlay { 
-            position: absolute; 
-            bottom: 2px; 
-            right: 2px; 
-            background: var(--accent); 
-            padding: 8px; 
-            border-radius: 50%; 
-            font-size: 14px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
+        .avatar-overlay { position: absolute; bottom: 2px; right: 2px; background: var(--accent); padding: 8px; border-radius: 50%; font-size: 14px; }
         
         input[type="text"] { 
-            width: 100%; 
-            padding: 14px 18px; 
-            background: #273549; 
-            border: 2px solid #334155; 
-            border-radius: 14px; 
-            color: white; 
-            font-size: 16px; 
-            margin-bottom: 20px; 
-            outline: none; 
-            transition: 0.2s; 
-            text-align: center;
-        }
-        input[type="text"]:focus { 
-            border-color: var(--accent); 
-            background: #2e3d54;
+            width: 100%; padding: 14px 18px; background: #273549; border: 2px solid #334155; 
+            border-radius: 14px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; text-align: center;
         }
         
-        button { 
-            width: 100%; 
-            padding: 16px; 
-            background: var(--accent); 
-            border: none; 
-            border-radius: 14px; 
-            color: white; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        button:hover { background: var(--accent-hover); }
+        button { width: 100%; padding: 16px; background: var(--accent); border: none; border-radius: 14px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; }
         
-        /* شاشة التطبيق الرئيسية */
         #app-screen { display: none; }
-        .users-list { 
-            margin-top: 15px; 
-            max-height: 350px; 
-            overflow-y: auto; 
-            text-align: right; 
-            padding-right: 5px;
-        }
+        .users-list { margin-top: 15px; max-height: 350px; overflow-y: auto; text-align: right; }
+        .user-card { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: #273549; margin-bottom: 12px; border-radius: 16px; cursor: pointer; }
+        .user-avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; }
+        .call-icon { background: #10b981; padding: 8px; border-radius: 50%; display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; }
 
-        /* تخصيص السكرول بار ليظهر بشكل جمالي */
-        .users-list::-webkit-scrollbar { width: 6px; }
-        .users-list::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
-
-        .user-card { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 14px; 
-            background: #273549; 
-            margin-bottom: 12px; 
-            border-radius: 16px; 
-            transition: 0.2s ease; 
-            cursor: pointer; 
-            border: 1px solid transparent;
-        }
-        .user-card:hover { 
-            background: #334155; 
-            border-color: #475569;
-        }
-        .user-info { display: flex; align-items: center; gap: 14px; }
-        .user-avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; background: #ccc; }
-        .call-icon { 
-            background: #10b981; 
-            padding: 8px; 
-            border-radius: 50%; 
-            display: flex; 
-            width: 36px; 
-            height: 36px; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 16px;
-        }
-
-        /* شاشة الاتصال والتحكم المتجاوبة */
+        /* شاشة الاتصال والـ AR المشترك */
         #call-screen { 
             display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(15, 23, 42, 0.98); 
-            z-index: 100; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: space-evenly; 
-            padding: 40px 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0f19; z-index: 100; flex-direction: column; 
+            align-items: center; justify-content: space-between; padding: 20px;
         }
         
-        .call-user-box {
-            text-align: center;
-        }
-
-        .call-avatar { 
-            width: 140px; 
-            height: 140px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            margin-bottom: 20px; 
-            border: 4px solid var(--accent); 
-            animation: pulse 2s infinite; 
-        }
-        @keyframes pulse { 
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); } 
-            70% { box-shadow: 0 0 0 25px rgba(59, 130, 246, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } 
-        }
-        
-        #call-user-name {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .call-status { 
-            color: var(--text-muted); 
-            font-size: 18px; 
-        }
-        
-        .controls { 
-            display: flex; 
-            gap: 25px; 
-            justify-content: center;
+        /* مساحة العمل والتفاعل المشترك */
+        .workspace {
+            position: relative;
             width: 100%;
+            height: 55%;
+            background: #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px dashed #475569;
+            touch-action: none; /* لمنع تشتت اللمس على الهاتف */
         }
-        .btn-control { 
-            width: 70px; 
-            height: 70px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 26px; 
-            transition: transform 0.1s ease;
-        }
-        .btn-control:active {
-            transform: scale(0.9); /* تأثير ضغط حركي على الموبايل */
-        }
-        .btn-mute { background: #334155; }
-        .btn-mute.active { background: var(--danger); }
-        .btn-hangup { background: var(--danger); }
-        .btn-accept { background: #10b981; }
 
-        /* تكييف الواجهة للهواتف والشاشات الصغيرة جداً */
+        /* مؤشر الشريك التفاعلي */
+        .partner-pointer {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff4757;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px #ff4757;
+            transition: transform 0.1s linear;
+            display: none;
+            z-index: 10;
+        }
+        .partner-pointer::after {
+            content: attr(data-name);
+            position: absolute;
+            top: 25px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white; padding: 2px 8px;
+            font-size: 10px; border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        /* عارض الـ 3D / AR */
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+        }
+
+        .controls { display: flex; gap: 20px; justify-content: center; width: 100%; margin-top: 10px; }
+        .btn-control { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: none; cursor: pointer; }
+        .btn-mute { background: #334155; color: white; }
+        .btn-mute.active { background: var(--danger); }
+        .btn-hangup { background: var(--danger); color: white; }
+        .btn-accept { background: #10b981; color: white; }
+        .btn-ar { background: #eab308; color: white; } /* زر تفعيل الـ AR على الموبايل */
+
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                padding: 20px 15px;
-                border-radius: 20px;
-                box-shadow: none; /* إزالة الظل الكبير على الموبايل ليبدو مدمجاً */
-                background: transparent; /* خلفية متناسقة خفيفة على الموبايل */
-            }
-            h1 {
-                font-size: 22px;
-            }
-            .user-card {
-                padding: 12px;
-            }
-            .btn-control {
-                width: 65px;
-                height: 65px;
-                font-size: 22px;
-            }
-            .call-avatar {
-                width: 120px;
-                height: 120px;
-            }
+            .workspace { height: 65%; }
+            #call-screen { padding: 10px; }
         }
     </style>
 </head>
@@ -281,42 +149,54 @@
 
         <!-- 2. شاشة المتواجدين -->
         <div id="app-screen">
-            <h1 style="font-size: 20px; text-align: right; margin-bottom: 15px;">المتواجدون حالياً 🟢</h1>
+            <h1 style="font-size: 20px; text-align: right;">المتواجدون حالياً 🟢</h1>
             <div class="users-list" id="users-list"></div>
         </div>
     </div>
 
-    <!-- 3. شاشة المكالمة (بثق تلقائي عند الاتصال أو الاستقبال) -->
+    <!-- 3. شاشة المكالمة ومساحة العمل التفاعلية AR -->
     <div id="call-screen">
-        <div class="call-user-box">
-            <img id="call-user-img" class="call-avatar" src="" alt="User">
-            <h2 id="call-user-name">اسم الشخص</h2>
-            <p id="call-status-text" class="call-status">يرن للطرف الآخر...</p>
+        <div style="text-align: center; color: white;">
+            <h3 id="call-user-name">اسم الطرف الآخر</h3>
+            <p id="call-status-text" style="color: var(--text-muted); font-size: 14px;">جاري الاتصال...</p>
+        </div>
+
+        <!-- مساحة التفاعل والمؤشر المشترك والـ AR -->
+        <div class="workspace" id="interactive-workspace">
+            <div id="partner-pointer" class="partner-pointer" data-name="جاري التتبع..."></div>
+            
+            <!-- مجسم 3D تفاعلي (أريكة كمثال لتأثيث الغرفة) قابل للعرض في واقعك المعزز (AR) -->
+            <model-viewer id="ar-viewer" 
+                src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" 
+                ar ar-modes="webxr scene-viewer quick-look" 
+                camera-controls touch-action="pan-y" 
+                shadow-intensity="1">
+                <button slot="ar-button" id="ar-trigger" style="display:none;"></button>
+            </model-viewer>
         </div>
         
         <div class="controls">
             <button id="btn-mute" class="btn-control btn-mute">🎙️</button>
+            <button id="btn-ar" class="btn-control btn-ar">🕶️ AR</button>
             <button id="btn-accept" class="btn-control btn-accept" style="display: none;">📞</button>
             <button id="btn-hangup" class="btn-control btn-hangup">❌</button>
         </div>
     </div>
 
-    <!-- عنصر صوتي مخفي لتشغيل صوت المتصل -->
     <audio id="remote-audio" autoplay></audio>
 
-    <!-- ربط Firebase و الـ Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, onDisconnect, update, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://my-house-672f0-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         let myId, myName, myAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
-        let peer, localStream, currentCall;
+        let peer, localStream, currentCall, partnerId = null;
 
-        // معالجة اختيار الصورة وتحويلها لـ Base64 للحفظ السريع
+        // معالجة الصورة الشخصية
         document.getElementById('file-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -329,7 +209,6 @@
             }
         });
 
-        // عند الضغط على زر الدخول
         document.getElementById('btn-join').addEventListener('click', async () => {
             myName = document.getElementById('username').value.trim();
             if(!myName) return alert("الرجاء كتابة الاسم!");
@@ -337,19 +216,16 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                alert("يجب السماح بصلاحية المايكروفون للعمل!");
+                alert("يجب السماح بالمايكروفون!");
                 return;
             }
 
-            // إعداد خادم الاتصال PeerJS
             peer = new Peer();
-            
             peer.on('open', (id) => {
                 myId = id;
-                // رفع البيانات إلى Firebase
                 const userRef = ref(db, 'users/' + myId);
                 set(userRef, { name: myName, avatar: myAvatar });
-                onDisconnect(userRef).remove(); // مسح تلقائي عند الخروج أو إغلاق الصفحة
+                onDisconnect(userRef).remove();
 
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
@@ -358,22 +234,19 @@
             });
         });
 
-        // مراقبة وتحديث قائمة المستخدمين النشطين فوراً
         function listenForUsers() {
             onValue(ref(db, 'users/'), (snapshot) => {
                 const users = snapshot.val();
                 const listContainer = document.getElementById('users-list');
                 listContainer.innerHTML = "";
-                
                 for(let id in users) {
-                    if(id === myId) continue; // عدم إظهار حسابك الشخصي في القائمة
-                    
+                    if(id === myId) continue;
                     const card = document.createElement('div');
                     card.className = 'user-card';
                     card.innerHTML = `
                         <div class="user-info">
                             <img class="user-avatar" src="${users[id].avatar}" alt="">
-                            <span style="font-weight: 500;">${users[id].name}</span>
+                            <span>${users[id].name}</span>
                         </div>
                         <div class="call-icon">📞</div>
                     `;
@@ -383,28 +256,28 @@
             });
         }
 
-        // بدء اتصال بالطرف الآخر
+        // بدء المكالمة
         function startCall(targetId, targetName, targetAvatar) {
+            partnerId = targetId;
             document.getElementById('call-user-name').innerText = targetName;
-            document.getElementById('call-user-img').src = targetAvatar;
-            document.getElementById('call-status-text').innerText = "جاري الاتصال...";
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('call-screen').style.display = 'flex';
 
             currentCall = peer.call(targetId, localStream);
             handleCallStreams(currentCall);
+            setupInteractivePointer();
+            setup3DModelSync();
         }
 
-        // استقبال مكالمة واردة من شخص آخر
+        // استقبال المكالمة
         function listenForIncomingCalls() {
             peer.on('call', (incomingCall) => {
                 currentCall = incomingCall;
+                partnerId = incomingCall.peer;
                 
-                // جلب بيانات المتصل من Firebase لمعرفة اسمه وصورته
-                onValue(ref(db, 'users/' + incomingCall.peer), (snapshot) => {
+                onValue(ref(db, 'users/' + partnerId), (snapshot) => {
                     const caller = snapshot.val();
                     document.getElementById('call-user-name').innerText = caller ? caller.name : "شخص مجهول";
-                    document.getElementById('call-user-img').src = caller ? caller.avatar : myAvatar;
                 }, { onlyOnce: true });
 
                 document.getElementById('call-status-text').innerText = "مكالمة واردة...";
@@ -415,35 +288,114 @@
                     currentCall.answer(localStream);
                     document.getElementById('btn-accept').style.display = 'none';
                     handleCallStreams(currentCall);
+                    setupInteractivePointer();
+                    setup3DModelSync();
                 };
             });
         }
 
-        // معالجة تدفق الصوت بين الطرفين
-        function handleCallStreams(call) {
-            call.on('stream', (remoteStream) => {
-                document.getElementById('call-status-text').innerText = "متصل الآن 🎙️";
-                const audioEl = document.getElementById('remote-audio');
-                audioEl.srcObject = remoteStream;
+        // الميزة 1: مزامنة إحداثيات المؤشر وحركته لحظياً
+        function setupInteractivePointer() {
+            const workspace = document.getElementById('interactive-workspace');
+            const partnerPointer = document.getElementById('partner-pointer');
+
+            // جلب اسم الشريك لعرضه فوق المؤشر
+            onValue(ref(db, `users/${partnerId}/name`), (snap) => {
+                if(snap.exists()) partnerPointer.setAttribute('data-name', snap.val());
             });
 
-            call.on('close', () => endCallInterface());
-            call.on('error', () => endCallInterface());
+            // تتبع حركة إصبعك أو الماوس داخل مساحة التفاعل وإرسالها
+            const handlePointerMove = (e) => {
+                const rect = workspace.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                // تحويل الإحداثيات لنسب مئوية لتعمل بشكل متطابق على جميع أحجام الشاشات (الهواتف والبيسي)
+                const xPercent = ((clientX - rect.left) / rect.width) * 100;
+                const yPercent = ((clientY - rect.top) / rect.height) * 100;
+
+                if (partnerId) {
+                    set(ref(db, `calls/${myId}_${partnerId}/pointers/${myId}`), { x: xPercent, y: yPercent });
+                    // دعم الاتجاه المعاكس
+                    set(ref(db, `calls/${partnerId}_${myId}/pointers/${myId}`), { x: xPercent, y: yPercent });
+                }
+            };
+
+            workspace.addEventListener('mousemove', handlePointerMove);
+            workspace.addEventListener('touchmove', handlePointerMove);
+
+            // الاستماع لحركة مؤشر الطرف الآخر وعرضها فوراً
+            const listenPointer = (callKey) => {
+                onValue(ref(db, `calls/${callKey}/pointers/${partnerId}`), (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        partnerPointer.style.display = 'block';
+                        partnerPointer.style.left = `${data.x}%`;
+                        partnerPointer.style.top = `${data.y}%`;
+                    }
+                });
+            };
+
+            listenPointer(`${myId}_${partnerId}`);
+            listenPointer(`${partnerId}_${myId}`);
         }
 
-        // إغلاق المكالمة
+        // الميزة 2: مزامنة زاوية رؤية مجسم الـ 3D بين الطرفين
+        function setup3DModelSync() {
+            const viewer = document.getElementById('ar-viewer');
+
+            // إرسال زاوية الدوران عند تحريكك للمجسم
+            viewer.addEventListener('camera-change', () => {
+                const orbit = viewer.getCameraOrbit();
+                if (partnerId) {
+                    update(ref(db, `calls/${myId}_${partnerId}/model`), { orbit: `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius}m` });
+                    update(ref(db, `calls/${partnerId}_${myId}/model`), { orbit: `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius}m` });
+                }
+            });
+
+            // استقبال الدوران من الطرف الآخر والمزامنة في نفس الوقت
+            const listenModel = (callKey) => {
+                onValue(ref(db, `calls/${callKey}/model/orbit`), (snapshot) => {
+                    if (snapshot.exists()) {
+                        viewer.cameraOrbit = snapshot.val();
+                    }
+                });
+            };
+
+            listenModel(`${myId}_${partnerId}`);
+            listenModel(`${partnerId}_${myId}`);
+        }
+
+        // تشغيل تدفق الصوت
+        function handleCallStreams(call) {
+            call.on('stream', (remoteStream) => {
+                document.getElementById('call-status-text').innerText = "في مساحة تفاعلية نشطة 🕶️";
+                document.getElementById('remote-audio').srcObject = remoteStream;
+            });
+            call.on('close', () => endCallInterface());
+        }
+
+        // تفعيل الـ AR على الهواتف الذكية
+        document.getElementById('btn-ar').addEventListener('click', () => {
+            const arButton = document.getElementById('ar-trigger');
+            if (arButton) arButton.click(); // سيفتح كاميرا الهاتف لعرض المجسم في غرفتك
+        });
+
+        // إنهاء الاتصال وتنظيف البيانات من Firebase
         document.getElementById('btn-hangup').addEventListener('click', () => {
             if(currentCall) currentCall.close();
+            remove(ref(db, `calls/${myId}_${partnerId}`));
+            remove(ref(db, `calls/${partnerId}_${myId}`));
             endCallInterface();
         });
 
         function endCallInterface() {
             document.getElementById('call-screen').style.display = 'none';
-            const audioEl = document.getElementById('remote-audio');
-            audioEl.srcObject = null;
+            document.getElementById('remote-audio').srcObject = null;
+            document.getElementById('partner-pointer').style.display = 'none';
         }
 
-        // تفعيل أو إلغاء كتم الصوت (Mute)
+        // كتم المايكروفون
         let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = !isMuted;
