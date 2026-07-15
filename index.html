@@ -10,14 +10,17 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-color: #090d16;
-            --card-bg: #111827;
-            --accent: #0066ff;
+            --bg-dark: #05070f;
+            --card-bg: rgba(13, 18, 33, 0.75);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --accent-blue: #0066ff;
             --accent-hover: #0052cc;
-            --danger: #ef4444;
-            --text: #f3f4f6;
-            --text-muted: #9ca3af;
-            --border-color: #1f2937;
+            --danger-red: #ef4444;
+            --danger-hover: #dc2626;
+            --success-green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #6b7280;
+            --text-secondary: #9ca3af;
         }
 
         * { 
@@ -29,39 +32,84 @@
         }
 
         body { 
-            background-color: var(--bg-color); 
-            color: var(--text); 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            padding: 15px; 
+            padding: 20px;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
+        }
+
+        /* حاوية التنبيهات المنبثقة (Toast Notification) */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .container { 
             background: var(--card-bg); 
             width: 100%; 
             max-width: 400px; 
-            padding: 30px 24px; 
-            border-radius: 20px; 
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); 
+            padding: 35px 28px; 
+            border-radius: 28px; 
+            border: 1px solid var(--card-border);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             text-align: center; 
+            transition: all 0.4s ease;
         }
         
         h1 { 
-            font-size: 20px; 
-            font-weight: 600; 
-            margin-bottom: 24px; 
-            color: var(--text); 
+            font-size: 22px; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            color: var(--text-main); 
             letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
         }
         
         .avatar-picker { 
             position: relative; 
-            width: 90px; 
-            height: 90px; 
-            margin: 0 auto 24px; 
+            width: 100px; 
+            height: 100px; 
+            margin: 0 auto 28px; 
             cursor: pointer; 
         }
         .avatar-picker img { 
@@ -69,108 +117,185 @@
             height: 100%; 
             border-radius: 50%; 
             object-fit: cover; 
-            border: 2px solid var(--accent); 
-            box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
+            border: 2px solid var(--accent-blue); 
+            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.15);
+            transition: transform 0.3s;
+        }
+        .avatar-picker:hover img {
+            transform: scale(1.04);
         }
         .avatar-picker input { display: none; }
         .avatar-overlay { 
             position: absolute; 
-            bottom: 0; 
-            right: 0; 
-            background: var(--accent); 
-            padding: 6px; 
+            bottom: 2px; 
+            right: 2px; 
+            background: var(--accent-blue); 
+            padding: 7px; 
             border-radius: 50%; 
             color: white; 
             display: flex; 
             align-items: center; 
             justify-content: center;
+            border: 2px solid #0d1221;
         }
         .avatar-overlay svg { width: 14px; height: 14px; }
         
         input[type="text"] { 
             width: 100%; 
-            padding: 12px 16px; 
-            background: #1f2937; 
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; 
+            padding: 14px 18px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 14px; 
             color: white; 
             font-size: 15px; 
-            margin-bottom: 16px; 
+            margin-bottom: 20px; 
             outline: none; 
             text-align: center;
-            transition: border-color 0.2s;
+            transition: all 0.3s ease;
         }
         input[type="text"]:focus {
-            border-color: var(--accent);
+            border-color: var(--accent-blue);
+            background: rgba(0, 102, 255, 0.02);
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.15);
         }
         
         button { 
             width: 100%; 
             padding: 14px; 
-            background: var(--accent); 
+            background: var(--accent-blue); 
             border: none; 
-            border-radius: 12px; 
+            border-radius: 14px; 
             color: white; 
             font-size: 15px; 
-            font-weight: 500; 
+            font-weight: 600; 
             cursor: pointer; 
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        button:hover { background: var(--accent-hover); }
+        button:hover { 
+            background: var(--accent-hover); 
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
         
         #app-screen { display: none; }
-        .users-list { margin-top: 15px; max-height: 320px; overflow-y: auto; text-align: right; }
-        .user-card { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 12px 16px; 
-            background: #151f32; 
-            margin-bottom: 10px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            border: 1px solid transparent;
-            transition: all 0.2s;
+
+        /* مظهر لوحة الكود الشخصي */
+        .my-code-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 28px;
         }
-        .user-card:hover {
-            border-color: #2a3a55;
-            background: #1b283f;
+        .my-code-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
         }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-        .call-icon { 
-            background: var(--accent); 
-            color: white;
-            padding: 8px; 
-            border-radius: 50%; 
-            display: flex; 
-            width: 32px; 
-            height: 32px; 
-            align-items: center; 
-            justify-content: center; 
+        .my-code-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            letter-spacing: 3px;
         }
-        .call-icon svg { width: 16px; height: 16px; }
+
+        /* فاصل خطي أنيق */
+        .divider {
+            position: relative;
+            margin: 28px 0;
+            text-align: center;
+        }
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1;
+        }
+        .divider span {
+            position: relative;
+            background: #0b0f19;
+            padding: 0 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+            z-index: 2;
+        }
 
         /* شاشة السينما والمكالمة */
         #call-screen { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #05070c; z-index: 100; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 20px 15px;
+            background: #030408; z-index: 100; flex-direction: column; 
+            align-items: center; justify-content: space-between; padding: 25px 20px;
+        }
+
+        /* شاشة الرنين / الاتصال الوارد */
+        .calling-state-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .avatar-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+        }
+        .avatar-ring img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-blue);
+            z-index: 10;
+            position: relative;
+        }
+        /* تموجات الحركة الدائرية للأفتار أثناء الرنين */
+        .avatar-ring::before, .avatar-ring::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            opacity: 0.3;
+            z-index: 1;
+            animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        .avatar-ring::after {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            100% { transform: scale(1.6); opacity: 0; }
         }
         
         /* مساحة الفيديو والسينما */
         .cinema-room {
             position: relative;
             width: 100%;
-            height: 60%;
+            max-width: 900px;
+            height: 65%;
             background: #000;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
-            display: flex;
+            display: none; /* تظهر فقط بعد الاتصال الفعلي */
             flex-direction: column;
             justify-content: center;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
         }
 
         #video-container {
@@ -187,51 +312,53 @@
         /* حقل إدخال رابط الفيديو */
         .video-selector {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             width: 100%;
-            padding: 12px;
-            background: #0f172a;
+            padding: 14px;
+            background: #080c14;
             position: relative;
             z-index: 30;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
         .video-selector input {
             flex: 1;
-            padding: 10px 14px;
-            background: #070a12;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            padding: 12px 16px;
+            background: #03050a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
             color: white;
             font-size: 13px;
+            margin-bottom: 0;
+            text-align: right;
         }
         .video-selector button {
             width: auto;
-            padding: 10px 18px;
+            padding: 12px 20px;
             font-size: 13px;
-            border-radius: 8px;
+            border-radius: 10px;
         }
 
         /* التفاعلات الطائرة */
         .reactions-bar {
             position: absolute;
-            bottom: 75px; 
+            bottom: 80px; 
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 14px;
-            background: rgba(15, 23, 42, 0.65);
-            padding: 8px 18px;
-            border-radius: 30px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            gap: 16px;
+            background: rgba(13, 18, 33, 0.55);
+            padding: 10px 22px;
+            border-radius: 40px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 20;
             user-select: none;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
         .react-btn {
             background: none;
             border: none;
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
             width: auto;
             padding: 0;
@@ -242,7 +369,7 @@
         /* حاوية عناصر الإيموجي الطائرة */
         .floating-container {
             position: absolute;
-            bottom: 130px; 
+            bottom: 140px; 
             width: 100%;
             height: 60%;
             pointer-events: none;
@@ -253,7 +380,7 @@
         .floating-emoji {
             position: absolute;
             bottom: 0;
-            font-size: 30px;
+            font-size: 32px;
             animation: floatUp 2.5s ease-out forwards;
         }
 
@@ -263,11 +390,18 @@
             100% { transform: translateY(-300px) scale(1) rotate(var(--rot)); opacity: 0; }
         }
 
-        /* أزرار التحكم */
-        .controls { display: flex; gap: 16px; justify-content: center; width: 100%; margin-top: 15px; }
+        /* أزرار التحكم في المكالمة */
+        .controls { 
+            display: flex; 
+            gap: 20px; 
+            justify-content: center; 
+            width: 100%; 
+            margin-top: 20px; 
+            z-index: 40;
+        }
         .btn-control { 
-            width: 52px; 
-            height: 52px; 
+            width: 56px; 
+            height: 56px; 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
@@ -275,29 +409,45 @@
             border: none; 
             cursor: pointer; 
             color: white;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .btn-control:hover {
+            transform: scale(1.08);
         }
         .btn-control:active { transform: scale(0.95); }
-        .btn-mute { background: #1e293b; }
-        .btn-mute:hover { background: #334155; }
-        .btn-mute.active { background: var(--danger); }
-        .btn-hangup { background: var(--danger); }
-        .btn-hangup:hover { background: #dc2626; }
-        .btn-accept { background: #10b981; gap: 8px; border-radius: 30px; width: auto; padding: 0 20px; font-weight: 500; font-size: 14px; }
+        .btn-mute { background: #1f2937; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .btn-mute:hover { background: #374151; }
+        .btn-mute.active { background: var(--danger-red); }
+        .btn-hangup { background: var(--danger-red); }
+        .btn-hangup:hover { background: var(--danger-hover); }
+        .btn-accept { 
+            background: var(--success-green); 
+            gap: 10px; 
+            border-radius: 30px; 
+            width: auto; 
+            padding: 0 24px; 
+            font-weight: 600; 
+            font-size: 14px; 
+        }
         .btn-accept:hover { background: #059669; }
 
         @media (max-width: 480px) {
             .cinema-room { height: 65%; }
-            #call-screen { padding: 15px 10px; }
+            #call-screen { padding: 20px 15px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <!-- حاوية التنبيهات السريعة -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <div class="container" id="main-container">
         <!-- 1. شاشة الدخول -->
         <div id="login-screen">
             <h1>انضم إلى MyHouse Cinema</h1>
+            <p class="subtitle">تواصل بالصوت وشاهد فيديوهات يوتيوب بالتزامن</p>
             <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
                 <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Avatar">
                 <div class="avatar-overlay">
@@ -306,28 +456,48 @@
                 <input type="file" id="file-input" accept="image/*">
             </div>
             <input type="text" id="username" placeholder="اكتب اسمك المستعار..." autocomplete="off">
-            <button id="btn-join">دخول الآن</button>
+            <button id="btn-join">
+                <i data-lucide="log-in"></i>
+                دخول الآن
+            </button>
         </div>
 
-        <!-- 2. شاشة المتواجدين -->
+        <!-- 2. شاشة توليد الكود والاتصال -->
         <div id="app-screen">
-            <h1 style="font-size: 16px; text-align: right; display: flex; align-items: center; gap: 8px; justify-content: flex-start; flex-direction: row-reverse;">
-                <span style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%;"></span>
-                المتواجدون حالياً
-            </h1>
-            <div class="users-list" id="users-list"></div>
+            <h1>غرفتك الخاصة 🔑</h1>
+            <p class="subtitle" style="margin-bottom: 20px;">شارك كود غرفتك للاتصال السريع</p>
+            
+            <div class="my-code-panel">
+                <div class="my-code-title">رمز الاتصال الخاص بك</div>
+                <div class="my-code-value" id="my-6digit-code">------</div>
+            </div>
+
+            <div class="divider">
+                <span>تواصل مع صديق</span>
+            </div>
+
+            <input type="text" id="target-code-input" placeholder="اكتب رمز صديقك المكون من 6 أرقام..." maxlength="7" autocomplete="off" style="font-size: 18px; font-weight: 600; letter-spacing: 1px;">
+            <button id="btn-call-by-code">
+                <i data-lucide="phone-call"></i>
+                اتصال الآن
+            </button>
         </div>
     </div>
 
-    <!-- 3. شاشة السينما والمكالمة الصوتية المباشرة -->
+    <!-- 3. شاشة السينما والمكالمة الصوتية المباشرة الموحدة -->
     <div id="call-screen">
-        <div style="text-align: center; color: white;">
-            <h3 id="call-user-name" style="font-weight: 500; font-size: 18px; margin-bottom: 4px;">اسم الطرف الآخر</h3>
-            <p id="call-status-text" style="color: var(--text-muted); font-size: 13px;">جاري الاتصال الصوتي...</p>
+        
+        <!-- حالة الانتظار (الرنين والاتصال) -->
+        <div class="calling-state-container" id="calling-state-view">
+            <div class="avatar-ring">
+                <img id="partner-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="">
+            </div>
+            <h3 id="call-user-name" style="font-weight: 600; font-size: 22px; margin-bottom: 8px;">اسم الطرف الآخر</h3>
+            <p id="call-status-text" style="color: var(--text-secondary); font-size: 14px;">جاري إنشاء الاتصال الآمن...</p>
         </div>
 
-        <!-- غرفة السينما المشتركة -->
-        <div class="cinema-room">
+        <!-- غرفة السينما المشتركة (تخفى في وضع الاتصال وتظهر عند قبول المكالمة) -->
+        <div class="cinema-room" id="cinema-room">
             <div id="video-container">
                 <div id="player"></div>
             </div>
@@ -353,7 +523,7 @@
             </button>
             <button id="btn-accept" class="btn-control btn-accept" style="display: none;">
                 <i data-lucide="phone"></i>
-                قبول
+                قبول الاتصال
             </button>
             <button id="btn-hangup" class="btn-control btn-hangup">
                 <i data-lucide="phone-off"></i>
@@ -366,21 +536,59 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, onDisconnect, update, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, onDisconnect, update, remove, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://my-house-672f0-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         let myId, myName, myAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
+        let my6DigitCode = "";
         let peer, localStream, currentCall, partnerId = null;
         let ytPlayer = null;
         
         let ignoreNextStateChange = false; 
         let lastActionSent = null;
 
-        // تفعيل مكتبة الأيقونات
+        // تفعيل الأيقونات الأساسية
         lucide.createIcons();
+
+        // نظام تنبيهات التوست
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let iconName = 'info';
+            if (type === 'success') iconName = 'check-circle';
+            if (type === 'danger') iconName = 'alert-triangle';
+
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" style="color: ${type === 'danger' ? 'var(--danger-red)' : type === 'success' ? 'var(--success-green)' : 'var(--accent-blue)'}"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.animation = 'slideUpFade 0.3s reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // توليد رمز مكون من 6 أرقام فريد
+        function generate6DigitCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // تحسين تنسيق حقل الكود أثناء الكتابة
+        document.getElementById('target-code-input').addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length > 3) {
+                val = val.slice(0, 3) + ' ' + val.slice(3, 6);
+            }
+            e.target.value = val;
+        });
 
         function loadYoutubeAPI() {
             if (!window.YT) {
@@ -430,12 +638,12 @@
 
         document.getElementById('btn-join').addEventListener('click', async () => {
             myName = document.getElementById('username').value.trim();
-            if(!myName) return alert("الرجاء كتابة الاسم!");
+            if(!myName) return alert("الرجاء كتابة الاسم المستعار!");
 
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                alert("يجب السماح بالوصول للمايكروفون للمكالمة الصوتية!");
+                alert("يجب السماح بالوصول للمايكروفون للاتصال بالصوت!");
                 return;
             }
 
@@ -448,54 +656,70 @@
                 }
             });
             
-            peer.on('open', (id) => {
+            peer.on('open', async (id) => {
                 myId = id;
+                my6DigitCode = generate6DigitCode();
+
+                // حفظ بيانات المستخدم والرمز في Firebase
                 const userRef = ref(db, 'users/' + myId);
-                set(userRef, { name: myName, avatar: myAvatar });
+                const codeRef = ref(db, 'codes/' + my6DigitCode);
+
+                await set(userRef, { name: myName, avatar: myAvatar, code: my6DigitCode });
+                await set(codeRef, { peerId: myId, name: myName, avatar: myAvatar });
+
                 onDisconnect(userRef).remove();
+                onDisconnect(codeRef).remove();
+
+                // عرض الكود الشخصي للمستخدم
+                const formattedCode = my6DigitCode.slice(0, 3) + ' ' + my6DigitCode.slice(3, 6);
+                document.getElementById('my-6digit-code').innerText = formattedCode;
 
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
                 
                 loadYoutubeAPI();
-                
-                listenForUsers();
                 listenForIncomingCalls();
             });
 
             peer.on('error', (err) => {
                 console.error("PeerJS Error:", err);
+                showToast("حدث خطأ في الاتصال بالسيرفر", "danger");
             });
         });
 
-        function listenForUsers() {
-            onValue(ref(db, 'users/'), (snapshot) => {
-                const users = snapshot.val();
-                const listContainer = document.getElementById('users-list');
-                listContainer.innerHTML = "";
-                for(let id in users) {
-                    if(id === myId) continue;
-                    const card = document.createElement('div');
-                    card.className = 'user-card';
-                    card.innerHTML = `
-                        <div class="user-info">
-                            <img class="user-avatar" src="${users[id].avatar}" alt="">
-                            <span style="font-size: 14px; font-weight: 500;">${users[id].name}</span>
-                        </div>
-                        <div class="call-icon"><i data-lucide="phone"></i></div>
-                    `;
-                    card.onclick = () => startCall(id, users[id].name);
-                    listContainer.appendChild(card);
-                    lucide.createIcons(); // تحديث الأيقونات في العناصر الجديدة
-                }
-            });
-        }
+        // الاتصال عبر الكود السري
+        document.getElementById('btn-call-by-code').addEventListener('click', async () => {
+            const rawCode = document.getElementById('target-code-input').value.replace(/\s+/g, '');
+            if (rawCode.length !== 6) {
+                return showToast("الرجاء إدخال كود صحيح من 6 أرقام!", "danger");
+            }
 
-        function startCall(targetId, targetName) {
+            if (rawCode === my6DigitCode) {
+                return showToast("لا يمكنك الاتصال برمزك الشخصي!", "danger");
+            }
+
+            showToast("جاري البحث عن الكود...", "info");
+
+            // البحث عن كود الطرف الآخر في Firebase
+            const codeSnapshot = await get(ref(db, 'codes/' + rawCode));
+            if (!codeSnapshot.exists()) {
+                return showToast("لم يتم العثور على أي شخص بهذا الرمز!", "danger");
+            }
+
+            const targetUser = codeSnapshot.val();
+            startCall(targetUser.peerId, targetUser.name, targetUser.avatar);
+        });
+
+        function startCall(targetId, targetName, targetAvatar) {
             partnerId = targetId;
+            document.getElementById('partner-avatar-img').src = targetAvatar || "https://api.dicebear.com/7.x/bottts/svg?seed=default";
             document.getElementById('call-user-name').innerText = targetName;
             document.getElementById('btn-accept').style.display = 'none';
+            document.getElementById('cinema-room').style.display = 'none';
+            document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('call-screen').style.display = 'flex';
+
+            document.getElementById('call-status-text').innerText = "جاري الاتصال الصوتي وصنع السينما...";
 
             const remoteAudio = document.getElementById('remote-audio');
             remoteAudio.play().catch(() => {});
@@ -512,11 +736,17 @@
                 
                 onValue(ref(db, 'users/' + partnerId), (snapshot) => {
                     const caller = snapshot.val();
-                    document.getElementById('call-user-name').innerText = caller ? caller.name : "شخص مجهول";
+                    if (caller) {
+                        document.getElementById('partner-avatar-img').src = caller.avatar;
+                        document.getElementById('call-user-name').innerText = caller.name;
+                        showToast(`مكالمة واردة من ${caller.name}`, "success");
+                    }
                 }, { onlyOnce: true });
 
                 document.getElementById('call-status-text').innerText = "مكالمة واردة...";
                 document.getElementById('btn-accept').style.display = 'inline-flex';
+                document.getElementById('cinema-room').style.display = 'none';
+                document.getElementById('calling-state-view').style.display = 'flex';
                 document.getElementById('call-screen').style.display = 'flex';
 
                 document.getElementById('btn-accept').onclick = () => {
@@ -645,28 +875,41 @@
 
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
-                document.getElementById('call-status-text').innerText = "أنتما تشاهدان معاً الآن! 🍿🎧";
+                // إظهار تنبيه نجاح الاتصال
+                showToast("تم الاتصال بنجاح!", "success");
+
+                // إخفاء واجهة الرنين وإظهار السينما
+                document.getElementById('calling-state-view').style.display = 'none';
+                document.getElementById('cinema-room').style.display = 'flex';
+
                 const remoteAudio = document.getElementById('remote-audio');
-                
                 remoteAudio.srcObject = remoteStream;
                 remoteAudio.play().catch(e => {
                     console.log("Audio play deferred to user click.", e);
                 });
             });
-            call.on('close', () => endCallInterface());
+
+            call.on('close', () => {
+                showToast("قطع الطرف الآخر الاتصال", "danger");
+                endCallInterface();
+            });
         }
 
         document.getElementById('btn-hangup').addEventListener('click', () => {
             if(currentCall) currentCall.close();
             remove(ref(db, `calls/${myId}_${partnerId}`));
             remove(ref(db, `calls/${partnerId}_${myId}`));
+            showToast("قمت بإنهاء المكالمة", "info");
             endCallInterface();
         });
 
         function endCallInterface() {
             document.getElementById('call-screen').style.display = 'none';
+            document.getElementById('cinema-room').style.display = 'none';
+            document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('remote-audio').srcObject = null;
             if (ytPlayer) ytPlayer.stopVideo();
+            partnerId = null;
         }
 
         let isMuted = false;
@@ -675,12 +918,13 @@
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
             
-            // تحديث الأيقونة برمجياً عند كتم الصوت
             const icon = document.querySelector('#btn-mute i');
             if (isMuted) {
                 icon.setAttribute('data-lucide', 'mic-off');
+                showToast("تم كتم الصوت", "info");
             } else {
                 icon.setAttribute('data-lucide', 'mic');
+                showToast("تم إلغاء كتم الصوت", "success");
             }
             lucide.createIcons();
         });
