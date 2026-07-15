@@ -43,7 +43,7 @@
             background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
         }
 
-        /* حاوية التنبيهات المنبثقة (Toast Notification) */
+        /* حاوية التنبيهات المنبثقة */
         .toast-container {
             position: fixed;
             bottom: 24px;
@@ -57,7 +57,7 @@
         }
 
         .toast {
-            background: rgba(17, 24, 39, 0.9);
+            background: rgba(17, 24, 39, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
             padding: 12px 20px;
@@ -119,10 +119,6 @@
             object-fit: cover; 
             border: 2px solid var(--accent-blue); 
             box-shadow: 0 10px 25px rgba(0, 102, 255, 0.15);
-            transition: transform 0.3s;
-        }
-        .avatar-picker:hover img {
-            transform: scale(1.04);
         }
         .avatar-picker input { display: none; }
         .avatar-overlay { 
@@ -138,7 +134,6 @@
             justify-content: center;
             border: 2px solid #0d1221;
         }
-        .avatar-overlay svg { width: 14px; height: 14px; }
         
         input[type="text"] { 
             width: 100%; 
@@ -179,9 +174,6 @@
             background: var(--accent-hover); 
             transform: translateY(-1px);
         }
-        button:active {
-            transform: translateY(1px);
-        }
         
         #app-screen { display: none; }
 
@@ -205,6 +197,52 @@
             font-weight: 700;
             color: var(--accent-blue);
             letter-spacing: 3px;
+            direction: ltr; /* لضمان عرض الكود بشكل صحيح بدون قلب الأرقام */
+        }
+
+        /* حقل إدخال الكود المستهدف */
+        #target-code-input {
+            direction: ltr; /* حل مشكلة تداخل الأرقام والقلب */
+            text-align: center;
+        }
+
+        /* كارت إظهار تفاصيل الصديق بعد البحث */
+        .partner-found-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 15px;
+            align-items: center;
+            justify-content: space-between;
+            text-align: right;
+            animation: slideUpFade 0.3s ease;
+        }
+        .partner-found-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .partner-found-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--accent-blue);
+        }
+        .partner-found-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-mini {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+        .btn-mini-cancel {
+            background: #1f2937;
         }
 
         /* فاصل خطي أنيق */
@@ -262,7 +300,6 @@
             z-index: 10;
             position: relative;
         }
-        /* تموجات الحركة الدائرية للأفتار أثناء الرنين */
         .avatar-ring::before, .avatar-ring::after {
             content: '';
             position: absolute;
@@ -291,7 +328,7 @@
             background: #000;
             border-radius: 20px;
             overflow: hidden;
-            display: none; /* تظهر فقط بعد الاتصال الفعلي */
+            display: none;
             flex-direction: column;
             justify-content: center;
             border: 1px solid var(--card-border);
@@ -309,7 +346,6 @@
             border: none;
         }
 
-        /* حقل إدخال رابط الفيديو */
         .video-selector {
             display: flex;
             gap: 10px;
@@ -330,6 +366,7 @@
             font-size: 13px;
             margin-bottom: 0;
             text-align: right;
+            direction: ltr; /* لتسهيل لصق روابط يوتيوب دون انقلابها */
         }
         .video-selector button {
             width: auto;
@@ -338,7 +375,6 @@
             border-radius: 10px;
         }
 
-        /* التفاعلات الطائرة */
         .reactions-bar {
             position: absolute;
             bottom: 80px; 
@@ -366,7 +402,6 @@
         }
         .react-btn:active { transform: scale(1.3); }
 
-        /* حاوية عناصر الإيموجي الطائرة */
         .floating-container {
             position: absolute;
             bottom: 140px; 
@@ -412,12 +447,9 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        .btn-control:hover {
-            transform: scale(1.08);
-        }
+        .btn-control:hover { transform: scale(1.08); }
         .btn-control:active { transform: scale(0.95); }
         .btn-mute { background: #1f2937; border: 1px solid rgba(255, 255, 255, 0.05); }
-        .btn-mute:hover { background: #374151; }
         .btn-mute.active { background: var(--danger-red); }
         .btn-hangup { background: var(--danger-red); }
         .btn-hangup:hover { background: var(--danger-hover); }
@@ -430,7 +462,6 @@
             font-weight: 600; 
             font-size: 14px; 
         }
-        .btn-accept:hover { background: #059669; }
 
         @media (max-width: 480px) {
             .cinema-room { height: 65%; }
@@ -440,7 +471,6 @@
 </head>
 <body>
 
-    <!-- حاوية التنبيهات السريعة -->
     <div id="toast-container" class="toast-container"></div>
 
     <div class="container" id="main-container">
@@ -462,7 +492,7 @@
             </button>
         </div>
 
-        <!-- 2. شاشة توليد الكود والاتصال -->
+        <!-- 2. شاشة البحث والاتصال بالكود -->
         <div id="app-screen">
             <h1>غرفتك الخاصة 🔑</h1>
             <p class="subtitle" style="margin-bottom: 20px;">شارك كود غرفتك للاتصال السريع</p>
@@ -476,18 +506,33 @@
                 <span>تواصل مع صديق</span>
             </div>
 
-            <input type="text" id="target-code-input" placeholder="اكتب رمز صديقك المكون من 6 أرقام..." maxlength="7" autocomplete="off" style="font-size: 18px; font-weight: 600; letter-spacing: 1px;">
-            <button id="btn-call-by-code">
-                <i data-lucide="phone-call"></i>
-                اتصال الآن
+            <input type="text" id="target-code-input" placeholder="000 000" maxlength="7" autocomplete="off" style="font-size: 22px; font-weight: 700; letter-spacing: 2px;">
+            <button id="btn-search-by-code">
+                <i data-lucide="search"></i>
+                بحث عن الرمز
             </button>
+
+            <!-- كارت الطرف التاني المكتشف (مخفي افتراضياً) -->
+            <div class="partner-found-card" id="partner-found-card">
+                <div class="partner-found-info">
+                    <img class="partner-found-avatar" id="found-avatar" src="" alt="">
+                    <div>
+                        <div id="found-name" style="font-weight: 600; font-size: 14px;">اسم الصديق</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">متصل الآن ومستعد</div>
+                    </div>
+                </div>
+                <div class="partner-found-buttons">
+                    <button class="btn-mini btn-mini-cancel" id="btn-cancel-search">إلغاء</button>
+                    <button class="btn-mini" id="btn-start-actual-call" style="background: var(--success-green);">اتصال</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 3. شاشة السينما والمكالمة الصوتية المباشرة الموحدة -->
+    <!-- 3. شاشة المكالمة والسينما الموحدة -->
     <div id="call-screen">
         
-        <!-- حالة الانتظار (الرنين والاتصال) -->
+        <!-- شاشة الرنين والطلب -->
         <div class="calling-state-container" id="calling-state-view">
             <div class="avatar-ring">
                 <img id="partner-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="">
@@ -496,7 +541,7 @@
             <p id="call-status-text" style="color: var(--text-secondary); font-size: 14px;">جاري إنشاء الاتصال الآمن...</p>
         </div>
 
-        <!-- غرفة السينما المشتركة (تخفى في وضع الاتصال وتظهر عند قبول المكالمة) -->
+        <!-- غرفة السينما المشتركة -->
         <div class="cinema-room" id="cinema-room">
             <div id="video-container">
                 <div id="player"></div>
@@ -531,7 +576,7 @@
         </div>
     </div>
 
-    <!-- عنصر الصوت -->
+    <!-- عنصر الصوت المباشر -->
     <audio id="remote-audio" autoplay playsinline></audio>
 
     <script type="module">
@@ -550,10 +595,11 @@
         let ignoreNextStateChange = false; 
         let lastActionSent = null;
 
-        // تفعيل الأيقونات الأساسية
+        let searchedPartner = null; // تخزين الصديق الذي عثرنا عليه مؤقتاً
+        let callRejectedListener = null; // مراقبة رفض المكالمة
+
         lucide.createIcons();
 
-        // نظام تنبيهات التوست
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -576,12 +622,11 @@
             }, 3000);
         }
 
-        // توليد رمز مكون من 6 أرقام فريد
         function generate6DigitCode() {
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // تحسين تنسيق حقل الكود أثناء الكتابة
+        // تنسيق الكود تلقائياً أثناء كتابته بطريقة مريحة
         document.getElementById('target-code-input').addEventListener('input', (e) => {
             let val = e.target.value.replace(/\D/g, '');
             if (val.length > 3) {
@@ -660,7 +705,6 @@
                 myId = id;
                 my6DigitCode = generate6DigitCode();
 
-                // حفظ بيانات المستخدم والرمز في Firebase
                 const userRef = ref(db, 'users/' + myId);
                 const codeRef = ref(db, 'codes/' + my6DigitCode);
 
@@ -670,7 +714,6 @@
                 onDisconnect(userRef).remove();
                 onDisconnect(codeRef).remove();
 
-                // عرض الكود الشخصي للمستخدم
                 const formattedCode = my6DigitCode.slice(0, 3) + ' ' + my6DigitCode.slice(3, 6);
                 document.getElementById('my-6digit-code').innerText = formattedCode;
 
@@ -687,8 +730,8 @@
             });
         });
 
-        // الاتصال عبر الكود السري
-        document.getElementById('btn-call-by-code').addEventListener('click', async () => {
+        // 1. مرحلة البحث عن الرمز أولاً دون الاتصال المباشر
+        document.getElementById('btn-search-by-code').addEventListener('click', async () => {
             const rawCode = document.getElementById('target-code-input').value.replace(/\s+/g, '');
             if (rawCode.length !== 6) {
                 return showToast("الرجاء إدخال كود صحيح من 6 أرقام!", "danger");
@@ -698,16 +741,34 @@
                 return showToast("لا يمكنك الاتصال برمزك الشخصي!", "danger");
             }
 
-            showToast("جاري البحث عن الكود...", "info");
+            showToast("جاري البحث...", "info");
 
-            // البحث عن كود الطرف الآخر في Firebase
             const codeSnapshot = await get(ref(db, 'codes/' + rawCode));
             if (!codeSnapshot.exists()) {
-                return showToast("لم يتم العثور على أي شخص بهذا الرمز!", "danger");
+                document.getElementById('partner-found-card').style.display = 'none';
+                return showToast("لم يتم العثور على هذا الرمز!", "danger");
             }
 
-            const targetUser = codeSnapshot.val();
-            startCall(targetUser.peerId, targetUser.name, targetUser.avatar);
+            // تخزين بيانات الصديق المكتشف وعرض الكارت
+            searchedPartner = codeSnapshot.val();
+            document.getElementById('found-avatar').src = searchedPartner.avatar;
+            document.getElementById('found-name').innerText = searchedPartner.name;
+            
+            document.getElementById('partner-found-card').style.display = 'flex';
+            showToast("تم العثور على الصديق بنجاح", "success");
+        });
+
+        // زر إلغاء كارت البحث
+        document.getElementById('btn-cancel-search').addEventListener('click', () => {
+            document.getElementById('partner-found-card').style.display = 'none';
+            searchedPartner = null;
+        });
+
+        // 2. تفعيل الاتصال الفعلي بعد الضغط على زر الاتصال من الكارت
+        document.getElementById('btn-start-actual-call').addEventListener('click', () => {
+            if (!searchedPartner) return;
+            document.getElementById('partner-found-card').style.display = 'none';
+            startCall(searchedPartner.peerId, searchedPartner.name, searchedPartner.avatar);
         });
 
         function startCall(targetId, targetName, targetAvatar) {
@@ -724,8 +785,23 @@
             const remoteAudio = document.getElementById('remote-audio');
             remoteAudio.play().catch(() => {});
 
+            // إنشاء الاتصال الهاتفي عبر PeerJS
             currentCall = peer.call(targetId, localStream);
             handleCallStreams(currentCall);
+
+            // الاستماع لحالة الرفض من الطرف الآخر في Firebase
+            const rejectRef = ref(db, `calls/${myId}_${partnerId}/rejected`);
+            set(rejectRef, false); // تهيئة القيمة
+            
+            callRejectedListener = onValue(rejectRef, (snapshot) => {
+                if (snapshot.exists() && snapshot.val() === true) {
+                    showToast("رفض الطرف الآخر الاتصال", "danger");
+                    // إغلاق الاتصال وتنظيف الواجهة فوراً
+                    if(currentCall) currentCall.close();
+                    endCallInterface();
+                }
+            });
+
             setupCinemaSync();
         }
 
@@ -875,10 +951,8 @@
 
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
-                // إظهار تنبيه نجاح الاتصال
                 showToast("تم الاتصال بنجاح!", "success");
 
-                // إخفاء واجهة الرنين وإظهار السينما
                 document.getElementById('calling-state-view').style.display = 'none';
                 document.getElementById('cinema-room').style.display = 'flex';
 
@@ -890,26 +964,39 @@
             });
 
             call.on('close', () => {
-                showToast("قطع الطرف الآخر الاتصال", "danger");
+                showToast("انتهت المكالمة", "danger");
                 endCallInterface();
             });
         }
 
-        document.getElementById('btn-hangup').addEventListener('click', () => {
+        // عند الضغط على زر قطع الاتصال / الرفض
+        document.getElementById('btn-hangup').addEventListener('click', async () => {
+            if (partnerId) {
+                // إبلاغ الطرف الآخر بحدوث الرفض/القطع لغلق شاشته تلقائياً
+                await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
+                
+                remove(ref(db, `calls/${myId}_${partnerId}`));
+                remove(ref(db, `calls/${partnerId}_${myId}`));
+            }
             if(currentCall) currentCall.close();
-            remove(ref(db, `calls/${myId}_${partnerId}`));
-            remove(ref(db, `calls/${partnerId}_${myId}`));
-            showToast("قمت بإنهاء المكالمة", "info");
+            showToast("تم إنهاء الاتصال", "info");
             endCallInterface();
         });
 
         function endCallInterface() {
+            // إيقاف مستمع الرفض لمنع التكرار
+            if (callRejectedListener) {
+                callRejectedListener();
+                callRejectedListener = null;
+            }
+
             document.getElementById('call-screen').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
             document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('remote-audio').srcObject = null;
             if (ytPlayer) ytPlayer.stopVideo();
             partnerId = null;
+            searchedPartner = null;
         }
 
         let isMuted = false;
