@@ -6,7 +6,7 @@
     <title>MyHouse Cozy Cinema</title>
     <!-- PeerJS للمكالمات الصوتية المباشرة -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- مكتبة مشغل يوتيوب -->
+    <!-- مكتبة مشغل يوتيوب الرسمية -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         :root {
@@ -90,7 +90,7 @@
         #video-container {
             width: 100%;
             height: 100%;
-            pointer-events: auto; /* التحكم المباشر بالفيديو */
+            pointer-events: auto;
         }
 
         /* حقل إدخال رابط الفيديو */
@@ -263,25 +263,40 @@
         let myId, myName, myAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
         let peer, localStream, currentCall, partnerId = null;
         let ytPlayer = null;
-        let isSyncing = false; // لمنع تكرار الإرسال اللا نهائي بين الطرفين
+        
+        // متغيرات للتحكم ومنع التكرار والقلتشات
+        let ignoreNextStateChange = false; 
+        let lastActionSent = null;
 
         // تهيئة مشغل يوتيوب
         window.onYouTubeIframeAPIReady = function() {
             ytPlayer = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: '5qap5aO4i9A', // فيديو افتراضي (موسيقى هادئة مثلاً)
+                videoId: '5qap5aO4i9A', // فيديو هادئ افتراضي
                 playerVars: {
-                    'autoplay': 0,
+                    'autoplay': 1,
                     'controls': 1,
                     'rel': 0,
-                    'showinfo': 0
+                    'playsinline': 1, // مهم جداً للهواتف باش ما يفتحش الـ Fullscreen الافتراضي
+                    'mute': 1 // لتفادي بلوك المتصفح للـ Autoplay
                 },
                 events: {
+                    'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
                 }
             });
         };
+
+        function onPlayerReady(event) {
+            // فك كتم الصوت فوراً مع أول تفاعل للمستخدم على الصفحة
+            document.body.addEventListener('click', () => {
+                if (ytPlayer && ytPlayer.isMuted()) {
+                    ytPlayer.unMute();
+                    ytPlayer.setVolume(80);
+                }
+            }, { once: true });
+        }
 
         // معالجة صورة الأفتار
         document.getElementById('file-input').addEventListener('change', function(e) {
@@ -303,7 +318,7 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                alert("يجب السماح بالوصول للمايكروفون للمحادثة الصوتية أثناء المشاهدة!");
+                alert("يجب السماح بالوصول للمايكروفون للمكالمة الصوتية!");
                 return;
             }
 
@@ -377,7 +392,7 @@
             });
         }
 
-        // تحريك التفاعل محلياً وإرساله
+        // تفاعلات فورية
         window.sendReaction = function(emoji) {
             if (!partnerId) return;
             const reactionId = Date.now();
@@ -392,7 +407,6 @@
             el.className = 'floating-emoji';
             el.innerText = emoji;
             
-            // توزيع عشوائي طفيف
             const leftOffset = Math.random() * 80 + 10; 
             const rotation = (Math.random() * 90 - 45) + "deg";
             
@@ -403,7 +417,7 @@
             setTimeout(() => el.remove(), 2500);
         }
 
-        // تغيير الفيديو للطرفين
+        // إدخال وتحميل فيديو جديد نيشان
         document.getElementById('btn-load-video').addEventListener('click', () => {
             const urlInput = document.getElementById('video-url').value;
             const videoId = extractYouTubeId(urlInput);
@@ -420,65 +434,74 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // مراقبة أحداث المشغل وإرسالها عند التغيير اليدوي فقط
+        // مراقبة أحداث المشغل وإرسالها عند الحاجة فقط
         function onPlayerStateChange(event) {
-            if (isSyncing || !partnerId) return;
+            if (ignoreNextStateChange) return;
 
             let action = '';
             if (event.data === YT.PlayerState.PLAYING) action = 'play';
             if (event.data === YT.PlayerState.PAUSED) action = 'pause';
 
-            if (action !== '') {
+            if (action !== '' && action !== lastActionSent) {
+                lastActionSent = action;
                 const videoState = {
                     action: action,
                     time: ytPlayer.getCurrentTime(),
                     timestamp: Date.now()
                 };
-                update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
-                update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
+                if (partnerId) {
+                    update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
+                    update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
+                }
             }
         }
 
-        // المزامنة الذكية عبر Firebase
+        // المزامنة الذكية لمنع التكرار والتقطيع
         function setupCinemaSync() {
             const listenSync = (callKey) => {
-                // 1. مزامنة حالة الفيديو (تشغيل، إيقاف مؤقت، تغيير الفيديو)
                 onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
-                    if (!snapshot.exists()) return;
+                    if (!snapshot.exists() || !ytPlayer) return;
                     const data = snapshot.val();
                     
-                    isSyncing = true;
-                    
-                    // إذا كان فيديو جديد
-                    if (data.action === 'load' && ytPlayer) {
-                        ytPlayer.loadVideoById(data.videoId);
-                    }
-                    
-                    // تحكم بالتشغيل/الإيقاف مع مراعاة فارق التوقيت البسيط
-                    if (ytPlayer) {
-                        const localTime = ytPlayer.getCurrentTime();
-                        const diff = Math.abs(localTime - data.time);
+                    // منع الإرسال التلقائي أثناء تنفيذ المزامنة القادمة من الطرف الآخر
+                    ignoreNextStateChange = true;
 
-                        if (data.action === 'play') {
-                            if (diff > 1.5) ytPlayer.seekTo(data.time, true);
-                            ytPlayer.playVideo();
-                        } else if (data.action === 'pause') {
-                            ytPlayer.pauseVideo();
-                            if (diff > 1.5) ytPlayer.seekTo(data.time, true);
+                    // في حالة تم تحميل رابط جديد يشتغل نيشان
+                    if (data.action === 'load') {
+                        ytPlayer.loadVideoById(data.videoId, 0);
+                        setTimeout(() => { ignoreNextStateChange = false; }, 1000);
+                        return;
+                    }
+
+                    const localTime = ytPlayer.getCurrentTime();
+                    const diff = Math.abs(localTime - data.time);
+
+                    if (data.action === 'play') {
+                        // مزامنة الوقت فقط إن كان الفرق ملحوظاً لتجنب التقطيع المكرر
+                        if (diff > 1.5) {
+                            ytPlayer.seekTo(data.time, true);
+                        }
+                        ytPlayer.playVideo();
+                    } else if (data.action === 'pause') {
+                        ytPlayer.pauseVideo();
+                        if (diff > 1.5) {
+                            ytPlayer.seekTo(data.time, true);
                         }
                     }
 
-                    setTimeout(() => { isSyncing = false; }, 800);
+                    // إرجاع الصلاحية للتفاعل اليدوي بعد استقرار المشغل
+                    setTimeout(() => {
+                        ignoreNextStateChange = false;
+                    }, 500);
                 });
 
-                // 2. مزامنة الاستقبال للتفاعلات الطائرة
+                // مزامنة التفاعلات
                 onValue(ref(db, `calls/${callKey}/reactions`), (snapshot) => {
                     if (snapshot.exists()) {
                         const reactions = snapshot.val();
                         const keys = Object.keys(reactions);
                         const latestKey = keys[keys.length - 1];
                         
-                        // عرض التفاعل فقط إذا كان مضافاً في آخر ثانيتين لتجنب تكرار التفاعلات القديمة
                         if (Date.now() - Number(latestKey) < 2000) {
                             showFloatingEmoji(reactions[latestKey].emoji);
                         }
@@ -490,7 +513,6 @@
             listenSync(`${partnerId}_${myId}`);
         }
 
-        // تفعيل الصوت من المايكروفون
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
                 document.getElementById('call-status-text').innerText = "أنتما تشاهدان معاً الآن! 🍿🎧";
@@ -512,7 +534,6 @@
             if (ytPlayer) ytPlayer.stopVideo();
         }
 
-        // كتم المايكروفون
         let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = !isMuted;
