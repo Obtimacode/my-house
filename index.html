@@ -6,8 +6,6 @@
     <title>MyHouse Cozy Cinema</title>
     <!-- PeerJS للمكالمات الصوتية المباشرة -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- مكتبة مشغل يوتيوب الرسمية -->
-    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -90,7 +88,12 @@
         #video-container {
             width: 100%;
             height: 100%;
-            pointer-events: auto;
+        }
+
+        #player {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
 
         /* حقل إدخال رابط الفيديو */
@@ -161,18 +164,9 @@
         }
 
         @keyframes floatUp {
-            0% {
-                transform: translateY(0) scale(0.5) rotate(0deg);
-                opacity: 0;
-            }
-            15% {
-                opacity: 1;
-                transform: translateY(-20px) scale(1.2);
-            }
-            100% {
-                transform: translateY(-300px) scale(1) rotate(var(--rot));
-                opacity: 0;
-            }
+            0 { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            15% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { transform: translateY(-300px) scale(1) rotate(var(--rot)); opacity: 0; }
         }
 
         /* أزرار التحكم */
@@ -220,15 +214,12 @@
 
         <!-- غرفة السينما المشتركة -->
         <div class="cinema-room">
-            <!-- مشغل فيديو يوتيوب ذو الجودة الأصلية والتزامن الخفيف -->
             <div id="video-container">
                 <div id="player"></div>
             </div>
 
-            <!-- حاوية الإيموجيات الطائرة -->
             <div class="floating-container" id="floating-container"></div>
 
-            <!-- تفاعلات طائرة سريعة -->
             <div class="reactions-bar">
                 <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
                 <button class="react-btn" onclick="sendReaction('😂')">😂</button>
@@ -236,7 +227,6 @@
                 <button class="react-btn" onclick="sendReaction('😭')">😭</button>
             </div>
 
-            <!-- اختيار وتغيير الفيديو -->
             <div class="video-selector">
                 <input type="text" id="video-url" placeholder="ألصق رابط فيديو يوتيوب هنا...">
                 <button id="btn-load-video">شغّل</button>
@@ -245,12 +235,16 @@
         
         <div class="controls">
             <button id="btn-mute" class="btn-control btn-mute">🎙️</button>
-            <button id="btn-accept" class="btn-control btn-accept" style="display: none;">📞</button>
+            <button id="btn-accept" class="btn-control btn-accept" style="display: none;">📞 قبول</button>
             <button id="btn-hangup" class="btn-control btn-hangup">❌</button>
         </div>
     </div>
 
-    <audio id="remote-audio" autoplay></audio>
+    <!-- عنصر أوديو للمكالمة -->
+    <audio id="remote-audio" autoplay playsinline></audio>
+
+    <!-- تحميل مكتبة يوتيوب API بشكل متزامن وبسيط لتفادي تعليق الكود -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
@@ -277,8 +271,7 @@
                     'autoplay': 1,
                     'controls': 1,
                     'rel': 0,
-                    'playsinline': 1,
-                    'mute': 1 
+                    'playsinline': 1
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -288,12 +281,9 @@
         };
 
         function onPlayerReady(event) {
-            document.body.addEventListener('click', () => {
-                if (ytPlayer && ytPlayer.isMuted()) {
-                    ytPlayer.unMute();
-                    ytPlayer.setVolume(80);
-                }
-            }, { once: true });
+            // حل مشكلة كتم الصوت التلقائي فبعض الهواتف
+            ytPlayer.unMute();
+            ytPlayer.setVolume(80);
         }
 
         // معالجة صورة الأفتار
@@ -314,19 +304,19 @@
             if(!myName) return alert("الرجاء كتابة الاسم!");
 
             try {
+                // طلب صلاحية المايكروفون بشكل مرن
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
                 alert("يجب السماح بالوصول للمايكروفون للمكالمة الصوتية!");
                 return;
             }
 
-            // إضافة سيرفرات STUN من Google لحل مشكلة الاتصال الخارجي عبر جدار الحماية (NAT Traversal)
+            // تهيئة الـ PeerJS بدون إعدادات معقدة ومجمدة للاتصال
             const peerConfig = {
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' },
-                        { urls: 'stun:stun2.l.google.com:19302' }
+                        { urls: 'stun:stun1.l.google.com:19302' }
                     ]
                 }
             };
@@ -345,7 +335,6 @@
                 listenForIncomingCalls();
             });
 
-            // معالجة أخطاء الاتصال لمنع تشنج التطبيق
             peer.on('error', (err) => {
                 console.error("PeerJS Error:", err);
             });
@@ -379,6 +368,10 @@
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('call-screen').style.display = 'flex';
 
+            // تفعيل مسبق لقناة الصوت على الهاتف لتجنب حظر الأوتوبلاي
+            const remoteAudio = document.getElementById('remote-audio');
+            remoteAudio.play().catch(() => {});
+
             currentCall = peer.call(targetId, localStream);
             handleCallStreams(currentCall);
             setupCinemaSync();
@@ -399,6 +392,10 @@
                 document.getElementById('call-screen').style.display = 'flex';
 
                 document.getElementById('btn-accept').onclick = () => {
+                    // تفعيل مسبق لقناة الصوت عند الضغط
+                    const remoteAudio = document.getElementById('remote-audio');
+                    remoteAudio.play().catch(() => {});
+
                     currentCall.answer(localStream);
                     document.getElementById('btn-accept').style.display = 'none';
                     handleCallStreams(currentCall);
@@ -522,7 +519,13 @@
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
                 document.getElementById('call-status-text').innerText = "أنتما تشاهدان معاً الآن! 🍿🎧";
-                document.getElementById('remote-audio').srcObject = remoteStream;
+                const remoteAudio = document.getElementById('remote-audio');
+                
+                remoteAudio.srcObject = remoteStream;
+                // إعادة محاولة التشغيل قسرياً لضمان عدم حدوث أي حظر
+                remoteAudio.play().catch(e => {
+                    console.log("Audio play deferred to user click.", e);
+                });
             });
             call.on('close', () => endCallInterface());
         }
