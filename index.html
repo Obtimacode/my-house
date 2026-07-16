@@ -379,7 +379,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100px;
+            min-height: 270px;
             overflow: hidden;
         }
 
@@ -439,7 +439,7 @@
             position: relative;
             width: 100%;
             max-width: 900px;
-            height: 75%;
+            height: 80%;
             background: #000;
             border-radius: 20px;
             overflow: hidden;
@@ -452,7 +452,7 @@
 
         #video-container {
             width: 100%;
-            height: 100%;
+            height: 65%;
         }
 
         #player {
@@ -546,7 +546,7 @@
         }
 
         @media (max-width: 480px) {
-            .cinema-room { height: 75%; }
+            .cinema-room { height: 80%; }
             #call-screen { padding: 20px 15px; }
         }
     </style>
@@ -598,9 +598,18 @@
                 <div id="paypal-button-container"></div>
             </div>
 
-            <!-- حاوية إعلانات Adsterra المدمجة مع الكود الجديد -->
+            <!-- حاوية الإعلان الجديد (300x250) في الصفحة الأولى -->
             <div class="ad-container">
-                <script src="https://pl30383703.effectivecpmnetwork.com/e3/24/8a/e3248aff6420ee0465599fc6a23ed8d0.js"></script>
+                <script>
+                    atOptions = {
+                        'key' : 'c76a8f84d5a54d297c3ed43c7b491550',
+                        'format' : 'iframe',
+                        'height' : 250,
+                        'width' : 300,
+                        'params' : {}
+                    };
+                </script>
+                <script src="https://www.highperformanceformat.com/c76a8f84d5a54d297c3ed43c7b491550/invoke.js"></script>
             </div>
 
             <!-- حقوق Optima Code المضافة -->
@@ -673,6 +682,20 @@
             <div class="video-selector">
                 <input type="text" id="video-url" placeholder="ألصق رابط فيديو يوتيوب هنا...">
                 <button id="btn-load-video">شغّل</button>
+            </div>
+
+            <!-- حاوية الإعلان الجديد (300x250) داخل السينما أثناء المشاهدة -->
+            <div class="cinema-ad-container" style="padding: 10px; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); min-height: 270px; overflow: hidden;">
+                <script>
+                    atOptions = {
+                        'key' : 'c76a8f84d5a54d297c3ed43c7b491550',
+                        'format' : 'iframe',
+                        'height' : 250,
+                        'width' : 300,
+                        'params' : {}
+                    };
+                </script>
+                <script src="https://www.highperformanceformat.com/c76a8f84d5a54d297c3ed43c7b491550/invoke.js"></script>
             </div>
         </div>
         
