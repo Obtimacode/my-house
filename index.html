@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
-    <!-- Favicon (أيقونة المتصفح - كرة الأرض) -->
-    <link rel="icon" type="image/png" href="watchcall.png">
-    <link rel="apple-touch-icon" href="watchcall.png">
+    <!-- Favicon (أيقونة المتصفح الفوق - تم التعديل لتطير كوكب الأرض وتظهر واضحة وبحجم مناسب) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="watchcall.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="watchcall.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="watchcall.png?v=2">
+    <link rel="shortcut icon" href="watchcall.png?v=2" type="image/x-icon">
     
     <!-- Google AdSense Verification Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
@@ -122,13 +124,12 @@
             gap: 12px;
         }
 
-        /* تعديل احترافي لحجم اللوغو وشكله */
+        /* تعديل حجم اللوغو ليصبح متناسق وممتاز */
         .site-logo {
             width: 48px;
             height: 48px;
             object-fit: contain;
             border-radius: 50%;
-            /* تمت إزالة الحدود والخلفية الرمادية القديمة ليتألق اللوغو الأصلي */
             filter: drop-shadow(0 0 8px rgba(0, 102, 255, 0.3));
             flex-shrink: 0;
         }
@@ -717,7 +718,6 @@
         <!-- LOGIN SCREEN -->
         <div id="login-screen">
             <h1>
-                <!-- الشعار بحجم مصلح ومتناسق بالكامل ومريح للعين -->
                 <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
                 <span>Join WatchCall</span>
             </h1>
@@ -1182,6 +1182,7 @@
             set(ref(db, `calls/${partnerId}_${myId}/videoState`), videoData);
         }
 
+        // Real-time synchronization listeners
         function setupCinemaSync() {
             initYoutubePlayer();
 
