@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📺</text></svg>">
+    
     <!-- Google AdSense Verification Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
     
@@ -47,12 +50,45 @@
             color: var(--text-main); 
             display: flex; 
             flex-direction: column;
-            justify-content: center; 
+            justify-content: flex-start; 
             align-items: center; 
             min-height: 100vh; 
             padding: 20px;
             overflow-y: auto;
             background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
+        }
+
+        /* simple header navigation */
+        .site-header {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            margin-bottom: 10px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .header-logo i {
+            color: var(--accent-blue);
+            width: 28px;
+            height: 28px;
+        }
+
+        .header-logo span {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
         }
 
         .toast-container {
@@ -694,6 +730,14 @@
     </style>
 </head>
 <body>
+
+    <!-- SIMPLE HEADER NAVIGATION -->
+    <header class="site-header">
+        <a href="/" class="header-logo">
+            <i data-lucide="tv"></i>
+            <span>WatchCall</span>
+        </a>
+    </header>
 
     <div id="toast-container" class="toast-container"></div>
 
