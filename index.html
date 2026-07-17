@@ -1,1291 +1,1287 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
+<!-- Favicon and Site Logo -->
+<link rel="icon" type="image/png" href="watchcall.png">
+<link rel="apple-touch-icon" href="watchcall.png">
+
+<!-- Google AdSense Verification Code -->
+<script async src="[https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763](https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763)" crossorigin="anonymous"></script>
+
+<link href="[https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap)" rel="stylesheet">
+
+<script src="[https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js](https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js)"></script>
+<script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
+<script src="[https://www.paypal.com/sdk/js?client-id=AeWZjpjao8UB0DNcL_Ahgo-fWMx6nJIEeGnswxdoDfmAU3yFY6PSz5OALcU5PBXKHF37B7iX1p07zO-8&currency=USD](https://www.paypal.com/sdk/js?client-id=AeWZjpjao8UB0DNcL_Ahgo-fWMx6nJIEeGnswxdoDfmAU3yFY6PSz5OALcU5PBXKHF37B7iX1p07zO-8&currency=USD)"></script>
+<script src="[https://www.youtube.com/iframe_api](https://www.youtube.com/iframe_api)"></script>
+
+<style>
+    :root {
+        --bg-dark: #05070f;
+        --card-bg: rgba(13, 18, 33, 0.75);
+        --card-border: rgba(255, 255, 255, 0.05);
+        --accent-blue: #0066ff;
+        --accent-hover: #0052cc;
+        --danger-red: #ef4444;
+        --danger-hover: #dc2626;
+        --success-green: #10b981;
+        --text-main: #f3f4f6;
+        --text-muted: #6b7280;
+        --text-secondary: #9ca3af;
+    }
+
+    * { 
+        box-sizing: border-box; 
+        margin: 0; 
+        padding: 0; 
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; 
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    h1, h2, h3, .my-code-value {
+        font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body { 
+        background-color: var(--bg-dark); 
+        color: var(--text-main); 
+        display: flex; 
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        padding: 20px;
+        overflow-y: auto;
+        background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
+    }
+
+    .site-logo {
+        height: 40px; /* Tasteful, elegant size */
+        margin-bottom: 12px;
+        display: inline-block;
+    }
+
+    .logo-container {
+        text-align: center;
+        width: 100%;
+    }
+
+    .toast-container {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+    }
+
+    .toast {
+        background: rgba(17, 24, 39, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        padding: 12px 20px;
+        border-radius: 12px;
+        color: var(--text-main);
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     
-    <!-- FAVICON (The icon in the browser tab) -->
-    <link rel="icon" type="image/png" href="logo.png">
+    .container { 
+        background: var(--card-bg); 
+        width: 100%; 
+        max-width: 420px; 
+        padding: 35px 28px; 
+        border-radius: 28px; 
+        border: 1px solid var(--card-border);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        text-align: center; 
+        transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        margin: 20px 0;
+    }
     
-    <!-- Google AdSense Verification Code -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
+    .container.app-expanded {
+        max-width: 500px; 
+    }
     
-    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    h1 { 
+        font-size: 26px; 
+        font-weight: 900; 
+        margin-bottom: 8px; 
+        color: var(--text-main); 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
     
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=AeWZjpjao8UB0DNcL_Ahgo-fWMx6nJIEeGnswxdoDfmAU3yFY6PSz5OALcU5PBXKHF37B7iX1p07zO-8&currency=USD"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
+    .avatar-picker { 
+        position: relative; 
+        width: 100px; 
+        height: 100px; 
+        margin: 0 auto 24px; 
+        cursor: pointer; 
+    }
+    .avatar-picker img { 
+        width: 100%; 
+        height: 100%; 
+        border-radius: 50%; 
+        object-fit: cover; 
+        border: 3px solid var(--accent-blue); 
+    }
+    .avatar-picker input { display: none; }
+    .avatar-overlay { 
+        position: absolute; 
+        bottom: 2px; 
+        right: 2px; 
+        background: var(--accent-blue); 
+        padding: 7px; 
+        border-radius: 50%; 
+        color: white; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        border: 2px solid #0d1221;
+    }
+    
+    input[type="text"] { 
+        width: 100%; 
+        padding: 14px 18px; 
+        background: rgba(255, 255, 255, 0.03); 
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        border-radius: 14px; 
+        color: white; 
+        font-size: 15px; 
+        font-weight: 700;
+        margin-bottom: 20px; 
+        outline: none; 
+        text-align: center;
+    }
+    input[type="text"]:focus {
+        border-color: var(--accent-blue);
+    }
 
-    <style>
-        :root {
-            --bg-dark: #05070f;
-            --card-bg: rgba(13, 18, 33, 0.75);
-            --card-border: rgba(255, 255, 255, 0.05);
-            --accent-blue: #0066ff;
-            --accent-hover: #0052cc;
-            --danger-red: #ef4444;
-            --danger-hover: #dc2626;
-            --success-green: #10b981;
-            --text-main: #f3f4f6;
-            --text-muted: #6b7280;
-            --text-secondary: #9ca3af;
-        }
+    #target-code-input {
+        direction: ltr !important;
+        text-align: center;
+        letter-spacing: 2px;
+    }
+    
+    button { 
+        width: 100%; 
+        padding: 14px; 
+        background: var(--accent-blue); 
+        border: none; 
+        border-radius: 14px; 
+        color: white; 
+        font-size: 16px; 
+        font-weight: 700; 
+        cursor: pointer; 
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    button:hover { 
+        background: var(--accent-hover); 
+    }
+    
+    #app-screen { display: none; }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; 
-            -webkit-tap-highlight-color: transparent;
-        }
+    .my-code-panel {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+    .my-code-title {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .my-code-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--accent-blue);
+        letter-spacing: 3px;
+        direction: ltr !important;
+        display: inline-block;
+    }
 
-        h1, h2, h3, .my-code-value {
-            font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
-        }
+    .partner-found-card {
+        display: none;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 16px;
+        margin-top: 15px;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .partner-found-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+    }
+    .partner-found-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .partner-found-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    .btn-mini {
+        width: auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+    .btn-mini-cancel { background: #1f2937; }
 
-        body { 
-            background-color: var(--bg-dark); 
-            color: var(--text-main); 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding: 20px;
-            overflow-y: auto;
-            background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
-        }
+    .support-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 20px;
+        padding: 18px;
+        margin-top: 25px;
+        text-align: center;
+    }
+    .support-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+    .support-desc {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+        line-height: 1.5;
+    }
+    .presets-container {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .btn-preset {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-main);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        width: auto;
+        transition: all 0.2s ease;
+    }
+    .btn-preset:hover, .btn-preset.active {
+        background: var(--accent-blue);
+        border-color: var(--accent-blue);
+        color: white;
+    }
+    .custom-donation-wrapper {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 4px 12px;
+        direction: ltr !important;
+    }
+    .custom-donation-wrapper input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: white;
+        font-size: 14px;
+        font-weight: 700;
+        width: 100%;
+        text-align: left;
+        padding: 6px;
+        margin-bottom: 0 !important;
+    }
+    .custom-donation-wrapper span {
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 800;
+        padding-left: 4px;
+    }
 
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
+    #call-screen { 
+        display: none; 
+        position: fixed; 
+        top: 0; left: 0; 
+        width: 100%; height: 100%; 
+        background: #030408; 
+        z-index: 100; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: space-between; 
+        padding: 15px;
+        overflow-y: auto;
+    }
 
-        .toast {
-            background: rgba(17, 24, 39, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            padding: 12px 20px;
-            border-radius: 12px;
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+    .calling-state-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+    }
+    .calling-state-container h3 {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
 
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .container { 
-            background: var(--card-bg); 
-            width: 100%; 
-            max-width: 420px; 
-            padding: 35px 28px; 
-            border-radius: 28px; 
-            border: 1px solid var(--card-border);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            text-align: center; 
-            transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            margin: 20px 0;
-        }
-        
-        .container.app-expanded {
-            max-width: 500px; 
-        }
-        
-        /* New Logo and Header Styles */
-        .site-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
+    .cinema-room {
+        width: 100%;
+        max-width: 1150px;
+        background: #000;
+        border-radius: 20px;
+        overflow: hidden;
+        display: none;
+        border: 1px solid var(--card-border);
+        margin-top: 10px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
 
-        .site-logo {
-            width: 32px;  /* Sleek, small size */
-            height: 32px;
-            object-fit: contain;
-        }
-        
-        h1 { 
-            font-size: 26px; 
-            font-weight: 900; 
-            color: var(--text-main); 
-            margin: 0; /* Remove margin, handled by gap */
-        }
+    .cinema-grid {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
 
-        .subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            font-weight: 500;
-        }
-        
-        .avatar-picker { 
-            position: relative; 
-            width: 100px; 
-            height: 100px; 
-            margin: 0 auto 24px; 
-            cursor: pointer; 
-        }
-        .avatar-picker img { 
-            width: 100%; 
-            height: 100%; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 3px solid var(--accent-blue); 
-        }
-        .avatar-picker input { display: none; }
-        .avatar-overlay { 
-            position: absolute; 
-            bottom: 2px; 
-            right: 2px; 
-            background: var(--accent-blue); 
-            padding: 7px; 
-            border-radius: 50%; 
-            color: white; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            border: 2px solid #0d1221;
-        }
-        
-        input[type="text"] { 
-            width: 100%; 
-            padding: 14px 18px; 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 14px; 
-            color: white; 
-            font-size: 15px; 
-            font-weight: 700;
-            margin-bottom: 20px; 
-            outline: none; 
-            text-align: center;
-        }
-        input[type="text"]:focus {
-            border-color: var(--accent-blue);
-        }
+    .video-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #000;
+    }
 
-        #target-code-input {
-            direction: ltr !important;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-        
-        button { 
-            width: 100%; 
-            padding: 14px; 
-            background: var(--accent-blue); 
-            border: none; 
-            border-radius: 14px; 
-            color: white; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        button:hover { 
-            background: var(--accent-hover); 
-        }
-        
-        #app-screen { display: none; }
+    #video-container {
+        width: 100%;
+        position: relative;
+        padding-bottom: 56.25%; 
+        background: #000;
+    }
 
-        .my-code-panel {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-        }
-        .my-code-title {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .my-code-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent-blue);
-            letter-spacing: 3px;
-            direction: ltr !important;
-            display: inline-block;
-        }
+    #video-container iframe, #player {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        border: none;
+    }
 
-        .partner-found-card {
-            display: none;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 15px;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .partner-found-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-align: left;
-        }
-        .partner-found-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .partner-found-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-mini {
-            width: auto;
-            padding: 8px 12px;
-            font-size: 12px;
-            border-radius: 8px;
-        }
-        .btn-mini-cancel { background: #1f2937; }
+    .video-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        padding: 15px;
+        background: #080c14;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .search-row {
+        display: flex;
+        gap: 10px;
+    }
+    .search-row input {
+        flex: 1;
+        padding: 12px 16px;
+        background: #03050a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: white;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 0;
+        text-align: left;
+    }
+    .search-row button {
+        width: auto;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 700;
+        border-radius: 10px;
+        white-space: nowrap;
+    }
 
-        .support-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 20px;
-            padding: 18px;
-            margin-top: 25px;
-            text-align: center;
-        }
-        .support-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .support-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 14px;
-            line-height: 1.5;
-        }
-        .presets-container {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .btn-preset {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            width: auto;
-            transition: all 0.2s ease;
-        }
-        .btn-preset:hover, .btn-preset.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: white;
-        }
-        .custom-donation-wrapper {
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 4px 12px;
-            direction: ltr !important;
-        }
-        .custom-donation-wrapper input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: white;
-            font-size: 14px;
-            font-weight: 700;
-            width: 100%;
-            text-align: left;
-            padding: 6px;
-            margin-bottom: 0 !important;
-        }
-        .custom-donation-wrapper span {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 800;
-            padding-left: 4px;
-        }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 250px; 
+        background: #060913;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .chat-header {
+        padding: 10px 15px;
+        background: #090e1c;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--accent-blue);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .chat-msg {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 13.5px;
+        animation: slideUpFade 0.2s ease;
+        text-align: left;
+    }
+    .chat-msg img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .chat-msg-body {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 8px 12px;
+        border-radius: 14px;
+        max-width: 85%;
+        word-break: break-all;
+    }
+    .chat-msg-name {
+        font-weight: 800;
+        color: var(--accent-blue);
+        margin-bottom: 3px;
+        font-size: 12px;
+    }
+    .chat-input-row {
+        display: flex;
+        padding: 10px;
+        background: #04060c;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        gap: 8px;
+    }
+    .chat-input-row input {
+        flex: 1;
+        padding: 12px;
+        background: #080c14;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        color: white;
+        font-size: 13.5px;
+        font-weight: 700;
+        margin-bottom: 0;
+        text-align: left;
+    }
+    .chat-input-row button {
+        width: auto;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 700;
+    }
 
-        #call-screen { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: #030408; 
-            z-index: 100; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 15px;
-            overflow-y: auto;
-        }
+    .controls { 
+        display: flex; 
+        gap: 15px; 
+        justify-content: center; 
+        width: 100%; 
+        padding: 15px 0 5px;
+    }
+    .btn-control { 
+        width: 52px; 
+        height: 52px; 
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border: none; 
+        cursor: pointer; 
+        color: white;
+    }
+    .btn-mute { background: #1f2937; }
+    .btn-mute.active { background: var(--danger-red); }
+    .btn-hangup { background: var(--danger-red); }
+    .btn-accept { 
+        background: var(--success-green); 
+        border-radius: 26px; 
+        width: auto; 
+        padding: 0 20px; 
+        font-size: 14px; 
+        font-weight: 700;
+        gap: 8px;
+    }
 
-        .calling-state-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-        }
-        .calling-state-container h3 {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
+    /* --- ADSENSE REQUISITES --- */
+    .adsense-container {
+        width: 100%;
+        max-width: 420px;
+        margin: 15px 0;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.01);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 90px;
+    }
+    .adsense-container::before {
+        content: 'Advertisement';
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-        .cinema-room {
-            width: 100%;
-            max-width: 1150px;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            display: none;
-            border: 1px solid var(--card-border);
-            margin-top: 10px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
+    .cinema-adsense-container {
+        width: 100%;
+        background: #04060c;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .cinema-adsense-container::before {
+        content: 'Advertisement';
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+    }
 
+    .site-footer {
+        margin-top: 30px;
+        width: 100%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+    .optima-footer {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+    .optima-brand {
+        color: var(--accent-blue);
+        font-weight: 900;
+    }
+    .footer-links {
+        display: flex;
+        gap: 15px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    .footer-links a:hover {
+        color: var(--accent-blue);
+    }
+
+    /* Policy Modals */
+    .policy-modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(5, 7, 15, 0.95);
+        z-index: 3000;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    .policy-modal-content {
+        background: #0d1221;
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        max-width: 500px;
+        width: 100%;
+        padding: 25px;
+        max-height: 80vh;
+        overflow-y: auto;
+        text-align: left;
+    }
+    .policy-modal-content h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: var(--text-main);
+    }
+    .policy-modal-content p {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+    .policy-modal-content button {
+        margin-top: 15px;
+        padding: 10px;
+    }
+
+    @media (min-width: 850px) {
         .cinema-grid {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
+            flex-direction: row; 
+            height: 80vh; 
+            max-height: 580px; 
+            min-height: 400px; 
         }
-
         .video-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #000;
-        }
-
-        #video-container {
-            width: 100%;
-            position: relative;
-            padding-bottom: 56.25%; 
-            background: #000;
-        }
-
-        #video-container iframe, #player {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
+            flex: 7.2; 
             height: 100%;
-            z-index: 5;
-            border: none;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
-
+        #video-container {
+            padding-bottom: 0; 
+            flex: 1; 
+            position: relative;
+            overflow: hidden;
+        }
         .video-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            padding: 15px;
+            flex-shrink: 0; 
             background: #080c14;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .search-row {
-            display: flex;
-            gap: 10px;
-        }
-        .search-row input {
-            flex: 1;
-            padding: 12px 16px;
-            background: #03050a;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            color: white;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 0;
-            text-align: left;
-        }
-        .search-row button {
-            width: auto;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 700;
-            border-radius: 10px;
-            white-space: nowrap;
-        }
-
         .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 250px; 
-            background: #060913;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex: 2.8; 
+            height: 100% !important; 
+            border-top: none;
         }
-        .chat-header {
-            padding: 10px 15px;
-            background: #090e1c;
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--accent-blue);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .chat-msg {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 13.5px;
-            animation: slideUpFade 0.2s ease;
-            text-align: left;
-        }
-        .chat-msg img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .chat-msg-body {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            border-radius: 14px;
-            max-width: 85%;
-            word-break: break-all;
-        }
-        .chat-msg-name {
-            font-weight: 800;
-            color: var(--accent-blue);
-            margin-bottom: 3px;
-            font-size: 12px;
-        }
-        .chat-input-row {
-            display: flex;
-            padding: 10px;
-            background: #04060c;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            gap: 8px;
-        }
-        .chat-input-row input {
-            flex: 1;
-            padding: 12px;
-            background: #080c14;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            color: white;
-            font-size: 13.5px;
-            font-weight: 700;
-            margin-bottom: 0;
-            text-align: left;
-        }
-        .chat-input-row button {
-            width: auto;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            font-weight: 700;
-        }
+    }
+</style>
+<div id="toast-container" class="toast-container"></div>
 
-        .controls { 
-            display: flex; 
-            gap: 15px; 
-            justify-content: center; 
-            width: 100%; 
-            padding: 15px 0 5px;
-        }
-        .btn-control { 
-            width: 52px; 
-            height: 52px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border: none; 
-            cursor: pointer; 
-            color: white;
-        }
-        .btn-mute { background: #1f2937; }
-        .btn-mute.active { background: var(--danger-red); }
-        .btn-hangup { background: var(--danger-red); }
-        .btn-accept { 
-            background: var(--success-green); 
-            border-radius: 26px; 
-            width: auto; 
-            padding: 0 20px; 
-            font-size: 14px; 
-            font-weight: 700;
-            gap: 8px;
-        }
-
-        /* --- ADSENSE REQUISITES --- */
-        .adsense-container {
-            width: 100%;
-            max-width: 420px;
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px dashed rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 90px;
-        }
-        .adsense-container::before {
-            content: 'Advertisement';
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .cinema-adsense-container {
-            width: 100%;
-            background: #04060c;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .cinema-adsense-container::before {
-            content: 'Advertisement';
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .site-footer {
-            margin-top: 30px;
-            width: 100%;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: center;
-        }
-        .optima-footer {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-        .optima-brand {
-            color: var(--accent-blue);
-            font-weight: 900;
-        }
-        .footer-links {
-            display: flex;
-            gap: 15px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        .footer-links a:hover {
-            color: var(--accent-blue);
-        }
-
-        /* Policy Modals */
-        .policy-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(5, 7, 15, 0.95);
-            z-index: 3000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .policy-modal-content {
-            background: #0d1221;
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            max-width: 500px;
-            width: 100%;
-            padding: 25px;
-            max-height: 80vh;
-            overflow-y: auto;
-            text-align: left;
-        }
-        .policy-modal-content h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: var(--text-main);
-        }
-        .policy-modal-content p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-        .policy-modal-content button {
-            margin-top: 15px;
-            padding: 10px;
-        }
-
-        @media (min-width: 850px) {
-            .cinema-grid {
-                flex-direction: row; 
-                height: 80vh; 
-                max-height: 580px; 
-                min-height: 400px; 
-            }
-            .video-section {
-                flex: 7.2; 
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                border-right: 1px solid rgba(255, 255, 255, 0.05);
-            }
-            #video-container {
-                padding-bottom: 0; 
-                flex: 1; 
-                position: relative;
-                overflow: hidden;
-            }
-            .video-selector {
-                flex-shrink: 0; 
-                background: #080c14;
-            }
-            .chat-container {
-                flex: 2.8; 
-                height: 100% !important; 
-                border-top: none;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div id="toast-container" class="toast-container"></div>
-
-    <!-- MAIN INTERFACE -->
-    <div class="container" id="main-container">
-        <!-- LOGIN SCREEN -->
-        <div id="login-screen">
-            <!-- New Header with Logo -->
-            <div class="site-header">
-                <img src="logo.png" alt="WatchCall Logo" class="site-logo">
-                <h1>Join WatchCall</h1>
-            </div>
-            <p class="subtitle">Voice chat & watch YouTube in perfect real-time sync</p>
-            
-            <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
-                <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Avatar">
-                <div class="avatar-overlay"><i data-lucide="camera"></i></div>
-                <input type="file" id="file-input" accept="image/*">
-            </div>
-            
-            <input type="text" id="username" placeholder="Choose a nickname..." autocomplete="off" maxlength="15">
-            <button id="btn-join"><i data-lucide="log-in"></i>Enter Room Now</button>
-            
-            <!-- DONATION/SUPPORT OPTION -->
-            <div class="support-card">
-                <div class="support-title">
-                    <i data-lucide="heart" style="color: var(--danger-red); fill: var(--danger-red); width: 16px; height: 16px;"></i>
-                    <span>Support Optima Code</span>
-                </div>
-                <div class="support-desc">Your donations help us keep our open-source tools running and free.</div>
-                <div class="presets-container">
-                    <button class="btn-preset active" data-val="3.00">$3</button>
-                    <button class="btn-preset" data-val="5.00">$5</button>
-                    <button class="btn-preset" data-val="10.00">$10</button>
-                    <button class="btn-preset" id="btn-custom-toggle" data-val="custom">Other</button>
-                </div>
-
-                <div class="custom-donation-wrapper" id="custom-donation-box" style="display: none;">
-                    <input type="text" id="custom-amount-input" placeholder="0.00" maxlength="6">
-                    <span>USD $</span>
-                </div>
-
-                <div id="paypal-button-container"></div>
-            </div>
+<!-- MAIN INTERFACE -->
+<div class="container" id="main-container">
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="logo-container">
+            <img src="watchcall.png" alt="WatchCall Site Logo" class="site-logo">
         </div>
-
-        <!-- APP DASHBOARD SCREEN -->
-        <div id="app-screen">
-            <!-- New Header with Logo -->
-            <div class="site-header">
-                <img src="logo.png" alt="WatchCall Logo" class="site-logo">
-                <h1>Your Private Room</h1>
+        <h1>
+            <i data-lucide="tv"></i>
+            <span>Join WatchCall</span>
+        </h1>
+        <p class="subtitle">Voice chat & watch YouTube in perfect real-time sync</p>
+        
+        <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
+            <img id="avatar-preview" src="[https://api.dicebear.com/7.x/bottts/svg?seed=default](https://api.dicebear.com/7.x/bottts/svg?seed=default)" alt="Avatar">
+            <div class="avatar-overlay"><i data-lucide="camera"></i></div>
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+        
+        <input type="text" id="username" placeholder="Choose a nickname..." autocomplete="off" maxlength="15">
+        <button id="btn-join"><i data-lucide="log-in"></i>Enter Room Now</button>
+        
+        <!-- DONATION/SUPPORT OPTION -->
+        <div class="support-card">
+            <div class="support-title">
+                <i data-lucide="heart" style="color: var(--danger-red); fill: var(--danger-red); width: 16px; height: 16px;"></i>
+                <span>Support Optima Code</span>
             </div>
-            <div class="my-code-panel">
-                <div class="my-code-title">Your Shareable Code</div>
-                <div class="my-code-value" id="my-6digit-code">------</div>
+            <div class="support-desc">Your donations help us keep our open-source tools running and free.</div>
+            <div class="presets-container">
+                <button class="btn-preset active" data-val="3.00">$3</button>
+                <button class="btn-preset" data-val="5.00">$5</button>
+                <button class="btn-preset" data-val="10.00">$10</button>
+                <button class="btn-preset" id="btn-custom-toggle" data-val="custom">Other</button>
             </div>
 
-            <input type="text" id="target-code-input" placeholder="000 000" maxlength="7" autocomplete="off">
-            <button id="btn-search-by-code"><i data-lucide="search"></i>Connect with Partner Code</button>
-
-            <div class="partner-found-card" id="partner-found-card">
-                <div class="partner-found-info">
-                    <img class="partner-found-avatar" id="found-avatar" src="" alt="">
-                    <div>
-                        <div id="found-name" style="font-weight: 800;">Partner Name</div>
-                    </div>
-                </div>
-                <div class="partner-found-buttons">
-                    <button class="btn-mini btn-mini-cancel" id="btn-cancel-search">Cancel</button>
-                    <button class="btn-mini" id="btn-start-actual-call" style="background: var(--success-green); font-weight: 700;">Call</button>
-                </div>
+            <div class="custom-donation-wrapper" id="custom-donation-box" style="display: none;">
+                <input type="text" id="custom-amount-input" placeholder="0.00" maxlength="6">
+                <span>USD $</span>
             </div>
+
+            <div id="paypal-button-container"></div>
         </div>
     </div>
 
-    <!-- MAIN AD PLACEHOLDER -->
-    <div class="adsense-container" id="ad-slot-home">
-        <!-- Place your Google AdSense code here -->
-        <!-- <ins class="adsbygoogle" ...></ins> -->
+    <!-- APP DASHBOARD SCREEN -->
+    <div id="app-screen">
+        <div class="logo-container">
+            <img src="watchcall.png" alt="WatchCall Site Logo" class="site-logo">
+        </div>
+        <h1>
+            <i data-lucide="key-round"></i>
+            <span>Your Private Room</span>
+        </h1>
+        <div class="my-code-panel">
+            <div class="my-code-title">Your Shareable Code</div>
+            <div class="my-code-value" id="my-6digit-code">------</div>
+        </div>
+
+        <input type="text" id="target-code-input" placeholder="000 000" maxlength="7" autocomplete="off">
+        <button id="btn-search-by-code"><i data-lucide="search"></i>Connect with Partner Code</button>
+
+        <div class="partner-found-card" id="partner-found-card">
+            <div class="partner-found-info">
+                <img class="partner-found-avatar" id="found-avatar" src="" alt="">
+                <div>
+                    <div id="found-name" style="font-weight: 800;">Partner Name</div>
+                </div>
+            </div>
+            <div class="partner-found-buttons">
+                <button class="btn-mini btn-mini-cancel" id="btn-cancel-search">Cancel</button>
+                <button class="btn-mini" id="btn-start-actual-call" style="background: var(--success-green); font-weight: 700;">Call</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN AD PLACEHOLDER -->
+<div class="adsense-container" id="ad-slot-home">
+    <!-- Place your Google AdSense code here -->
+    <!-- <ins class="adsbygoogle" ...></ins> -->
+</div>
+
+<!-- LEGAL FOOTER -->
+<footer class="site-footer">
+    <div class="optima-footer">Designed and developed by <span class="optima-brand">Optima Code</span></div>
+    <div class="footer-links">
+        <a href="#" onclick="showModal('privacy-modal')">Privacy Policy</a>
+        <span>•</span>
+        <a href="#" onclick="showModal('terms-modal')">Terms of Service</a>
+    </div>
+</footer>
+
+<!-- CALL ROOM SCREEN -->
+<div id="call-screen">
+    <div class="logo-container">
+        <img src="watchcall.png" alt="WatchCall Site Logo" class="site-logo">
+    </div>
+    <div class="calling-state-container" id="calling-state-view">
+        <h3 id="call-user-name">Partner User</h3>
+        <p id="call-status-text" style="font-weight: 700; color: var(--text-secondary);">Connecting secure audio & sync session...</p>
     </div>
 
-    <!-- LEGAL FOOTER -->
-    <footer class="site-footer">
-        <div class="optima-footer">Designed and developed by <span class="optima-brand">Optima Code</span></div>
-        <div class="footer-links">
-            <a href="#" onclick="showModal('privacy-modal')">Privacy Policy</a>
-            <span>•</span>
-            <a href="#" onclick="showModal('terms-modal')">Terms of Service</a>
-        </div>
-    </footer>
-
-    <!-- CALL ROOM SCREEN -->
-    <div id="call-screen">
-        <div class="calling-state-container" id="calling-state-view">
-            <h3 id="call-user-name">Partner User</h3>
-            <p id="call-status-text" style="font-weight: 700; color: var(--text-secondary);">Connecting secure audio & sync session...</p>
-        </div>
-
-        <div class="cinema-room" id="cinema-room">
-            <div class="cinema-grid">
+    <div class="cinema-room" id="cinema-room">
+        <div class="cinema-grid">
+            
+            <div class="video-section">
+                <div id="video-container">
+                    <div id="player"></div>
+                </div>
                 
-                <div class="video-section">
-                    <div id="video-container">
-                        <div id="player"></div>
-                    </div>
-                    
-                    <div class="video-selector">
-                        <div class="search-row">
-                            <input type="text" id="video-url" placeholder="Paste YouTube link here to sync play...">
-                            <button id="btn-load-video">
-                                <i data-lucide="play"></i>
-                                <span>Play</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- RECURRING STREAM ADSENSE SLOT -->
-                    <div class="cinema-adsense-container" id="ad-slot-cinema">
-                        <!-- Place your inline AdSense code here -->
-                    </div>
-                </div>
-
-                <div class="chat-container">
-                    <div class="chat-header">
-                        <i data-lucide="message-square"></i>
-                        <span>Live Cinema Chat</span>
-                    </div>
-                    <div class="chat-messages" id="chat-box"></div>
-                    <div class="chat-input-row">
-                        <input type="text" id="chat-input" placeholder="Type a message to the room...">
-                        <button id="btn-send-msg" style="background: var(--accent-blue);">
-                            <i data-lucide="send"></i>
+                <div class="video-selector">
+                    <div class="search-row">
+                        <input type="text" id="video-url" placeholder="Paste YouTube link here to sync play...">
+                        <button id="btn-load-video">
+                            <i data-lucide="play"></i>
+                            <span>Play</span>
                         </button>
                     </div>
                 </div>
 
+                <!-- RECURRING STREAM ADSENSE SLOT -->
+                <div class="cinema-adsense-container" id="ad-slot-cinema">
+                    <!-- Place your inline AdSense code here -->
+                </div>
             </div>
-        </div>
-        
-        <div class="controls">
-            <button id="btn-mute" class="btn-control btn-mute"><i data-lucide="mic"></i></button>
-            <button id="btn-accept" class="btn-control btn-accept" style="display: none;"><i data-lucide="phone"></i>Accept</button>
-            <button id="btn-hangup" class="btn-control btn-hangup"><i data-lucide="phone-off"></i></button>
-        </div>
-    </div>
 
-    <!-- MODALS FOR ADSENSE REQUIREMENTS -->
-    <div class="policy-modal" id="privacy-modal">
-        <div class="policy-modal-content">
-            <h2>Privacy Policy</h2>
-            <p>At WatchCall, we value your privacy. We do not store any personal identification data. Your custom room data and coordinates are processed on serverless real-time cloud connections and destroyed once you disconnect.</p>
-            <p><strong>Third-Party Advertising:</strong> This site may display advertisements provided by Google AdSense. Google utilizes cookies to show advertisements based on your visits to this website and other platforms.</p>
-            <button onclick="closeModal('privacy-modal')">I Understand</button>
-        </div>
-    </div>
+            <div class="chat-container">
+                <div class="chat-header">
+                    <i data-lucide="message-square"></i>
+                    <span>Live Cinema Chat</span>
+                </div>
+                <div class="chat-messages" id="chat-box"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="Type a message to the room...">
+                    <button id="btn-send-msg" style="background: var(--accent-blue);">
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+            </div>
 
-    <div class="policy-modal" id="terms-modal">
-        <div class="policy-modal-content">
-            <h2>Terms of Service</h2>
-            <p>Welcome to WatchCall. By utilizing this site, you agree to comply with our fair-use standards. Re-broadcasting copyrighted content outside of public API limits is strictly prohibited.</p>
-            <p>Audio processing is established peer-to-peer (P2P). We do not record, listen, or intercept any audio communication streams between users.</p>
-            <button onclick="closeModal('terms-modal')">I Accept</button>
         </div>
     </div>
+    
+    <div class="controls">
+        <button id="btn-mute" class="btn-control btn-mute"><i data-lucide="mic"></i></button>
+        <button id="btn-accept" class="btn-control btn-accept" style="display: none;"><i data-lucide="phone"></i>Accept</button>
+        <button id="btn-hangup" class="btn-control btn-hangup"><i data-lucide="phone-off"></i></button>
+    </div>
+</div>
 
-    <audio id="remote-audio" autoplay playsinline></audio>
+<!-- MODALS FOR ADSENSE REQUIREMENTS -->
+<div class="policy-modal" id="privacy-modal">
+    <div class="policy-modal-content">
+        <h2>Privacy Policy</h2>
+        <p>At WatchCall, we value your privacy. We do not store any personal identification data. Your custom room data and coordinates are processed on serverless real-time cloud connections and destroyed once you disconnect.</p>
+        <p><strong>Third-Party Advertising:</strong> This site may display advertisements provided by Google AdSense. Google utilizes cookies to show advertisements based on your visits to this website and other platforms.</p>
+        <button onclick="closeModal('privacy-modal')">I Understand</button>
+    </div>
+</div>
 
-    <!-- FUNCTIONAL SCRIPT MODULE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, onDisconnect, update, remove, get, push } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+<div class="policy-modal" id="terms-modal">
+    <div class="policy-modal-content">
+        <h2>Terms of Service</h2>
+        <p>Welcome to WatchCall. By utilizing this site, you agree to comply with our fair-use standards. Re-broadcasting copyrighted content outside of public API limits is strictly prohibited.</p>
+        <p>Audio processing is established peer-to-peer (P2P). We do not record, listen, or intercept any audio communication streams between users.</p>
+        <button onclick="closeModal('terms-modal')">I Accept</button>
+    </div>
+</div>
 
-        const firebaseConfig = { databaseURL: "https://my-house-672f0-default-rtdb.firebaseio.com/" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+<audio id="remote-audio" autoplay playsinline></audio>
 
-        let myId, myName, myAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
-        let my6DigitCode = "";
-        let peer, localStream, currentCall, partnerId = null;
-        let ytPlayer = null;
-        let ignoreNextStateChange = false; 
-        let lastActionSent = null;
-        let searchedPartner = null; 
-        let callRejectedListener = null;
-        let donationAmount = "3.00"; 
+<!-- FUNCTIONAL SCRIPT MODULE -->
+<script type="module">
+    import { initializeApp } from "[https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js)";
+    import { getDatabase, ref, set, onValue, onDisconnect, update, remove, get, push } from "[https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js)";
 
+    const firebaseConfig = { databaseURL: "[https://my-house-672f0-default-rtdb.firebaseio.com/](https://my-house-672f0-default-rtdb.firebaseio.com/)" };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let myId, myName, myAvatar = "[https://api.dicebear.com/7.x/bottts/svg?seed=default](https://api.dicebear.com/7.x/bottts/svg?seed=default)";
+    let my6DigitCode = "";
+    let peer, localStream, currentCall, partnerId = null;
+    let ytPlayer = null;
+    let ignoreNextStateChange = false; 
+    let lastActionSent = null;
+    let searchedPartner = null; 
+    let callRejectedListener = null;
+    let donationAmount = "3.00"; 
+
+    lucide.createIcons();
+
+    // Modals Logic
+    window.showModal = function(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
+    window.closeModal = function(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    function sanitizeInput(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, function(m) {
+            switch (m) {
+                case '&': return '&amp;';
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '"': return '&quot;';
+                case "'"); return '&#x27;';
+                default: return m;
+            }
+        }).trim();
+    }
+
+    function extractYoutubeId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        let iconName = 'info';
+        if (type === 'success') iconName = 'check-circle';
+        if (type === 'danger') iconName = 'alert-triangle';
+        toast.innerHTML = `<i data-lucide="${iconName}"></i><span>${sanitizeInput(message)}</span>`;
+        container.appendChild(toast);
         lucide.createIcons();
+        setTimeout(() => { toast.remove(); }, 3000);
+    }
 
-        // Modals Logic
-        window.showModal = function(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-        window.closeModal = function(id) {
-            document.getElementById(id).style.display = 'none';
-        }
+    // Donation Setups
+    const presetButtons = document.querySelectorAll('.btn-preset');
+    const customDonationBox = document.getElementById('custom-donation-box');
+    const customAmountInput = document.getElementById('custom-amount-input');
 
-        function sanitizeInput(str) {
-            if (!str) return '';
-            return str.replace(/[&<>"']/g, function(m) {
-                switch (m) {
-                    case '&': return '&amp;';
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '"': return '&quot;';
-                    case "'": return '&#x27;';
-                    default: return m;
-                }
-            }).trim();
-        }
-
-        function extractYoutubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            let iconName = 'info';
-            if (type === 'success') iconName = 'check-circle';
-            if (type === 'danger') iconName = 'alert-triangle';
-            toast.innerHTML = `<i data-lucide="${iconName}"></i><span>${sanitizeInput(message)}</span>`;
-            container.appendChild(toast);
-            lucide.createIcons();
-            setTimeout(() => { toast.remove(); }, 3000);
-        }
-
-        // Donation Setups
-        const presetButtons = document.querySelectorAll('.btn-preset');
-        const customDonationBox = document.getElementById('custom-donation-box');
-        const customAmountInput = document.getElementById('custom-amount-input');
-
-        presetButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                presetButtons.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                const val = e.target.getAttribute('data-val');
-                if (val === 'custom') {
-                    customDonationBox.style.display = 'flex';
-                    customAmountInput.focus();
-                    const inputVal = parseFloat(customAmountInput.value);
-                    donationAmount = (!isNaN(inputVal) && inputVal > 0) ? inputVal.toFixed(2) : "1.00";
-                } else {
-                    customDonationBox.style.display = 'none';
-                    donationAmount = val;
-                }
-            });
-        });
-
-        customAmountInput.addEventListener('input', (e) => {
-            let val = e.target.value.replace(/[^0-9.]/g, '');
-            const parts = val.split('.');
-            if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
-            e.target.value = val;
-
-            const parsedVal = parseFloat(val);
-            donationAmount = (!isNaN(parsedVal) && parsedVal > 0) ? parsedVal.toFixed(2) : "1.00";
-        });
-
-        paypal.Buttons({
-            style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 40 },
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: { value: donationAmount },
-                        description: "Support Optima Code Team"
-                    }]
-                });
-            },
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    showToast(`Thank you for supporting Optima Code! Donor: ${details.payer.name.given_name}`, "success");
-                });
-            },
-            onError: function(err) {
-                showToast("An error occurred during payment processing.", "danger");
-            }
-        }).render('#paypal-button-container');
-
-        document.getElementById('target-code-input').addEventListener('input', (e) => {
-            let val = e.target.value.replace(/\D/g, '');
-            if (val.length > 3) val = val.slice(0, 3) + ' ' + val.slice(3, 6);
-            e.target.value = val;
-        });
-
-        // Room Authentication
-        document.getElementById('btn-join').addEventListener('click', async () => {
-            myName = sanitizeInput(document.getElementById('username').value);
-            if(!myName || myName.length < 2) return showToast("Please write a valid nickname!", "danger");
-
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            } catch (err) {
-                showToast("Microphone access is mandatory for call synchronizations!", "danger");
-                return;
-            }
-
-            peer = new Peer({
-                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-            });
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            presetButtons.forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
             
-            peer.on('open', async (id) => {
-                myId = id;
-                my6DigitCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const val = e.target.getAttribute('data-val');
+            if (val === 'custom') {
+                customDonationBox.style.display = 'flex';
+                customAmountInput.focus();
+                const inputVal = parseFloat(customAmountInput.value);
+                donationAmount = (!isNaN(inputVal) && inputVal > 0) ? inputVal.toFixed(2) : "1.00";
+            } else {
+                customDonationBox.style.display = 'none';
+                donationAmount = val;
+            }
+        });
+    });
 
-                const userRef = ref(db, 'users/' + myId);
-                const codeRef = ref(db, 'codes/' + my6DigitCode);
+    customAmountInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/[^0-9.]/g, '');
+        const parts = val.split('.');
+        if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+        e.target.value = val;
 
-                await set(userRef, { name: myName, avatar: myAvatar, code: my6DigitCode });
-                await set(codeRef, { peerId: myId, name: myName, avatar: myAvatar });
+        const parsedVal = parseFloat(val);
+        donationAmount = (!isNaN(parsedVal) && parsedVal > 0) ? parsedVal.toFixed(2) : "1.00";
+    });
 
-                onDisconnect(userRef).remove();
-                onDisconnect(codeRef).remove();
-
-                document.getElementById('my-6digit-code').innerText = my6DigitCode.slice(0, 3) + ' ' + my6DigitCode.slice(3, 6);
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('main-container').classList.add('app-expanded');
-                
-                listenForIncomingCalls();
+    paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 40 },
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: { value: donationAmount },
+                    description: "Support Optima Code Team"
+                }]
             });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                showToast(`Thank you for supporting Optima Code! Donor: ${details.payer.name.given_name}`, "success");
+            });
+        },
+        onError: function(err) {
+            showToast("An error occurred during payment processing.", "danger");
+        }
+    }).render('#paypal-button-container');
+
+    document.getElementById('target-code-input').addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '');
+        if (val.length > 3) val = val.slice(0, 3) + ' ' + val.slice(3, 6);
+        e.target.value = val;
+    });
+
+    // Room Authentication
+    document.getElementById('btn-join').addEventListener('click', async () => {
+        myName = sanitizeInput(document.getElementById('username').value);
+        if(!myName || myName.length < 2) return showToast("Please write a valid nickname!", "danger");
+
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            showToast("Microphone access is mandatory for call synchronizations!", "danger");
+            return;
+        }
+
+        peer = new Peer({
+            config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+        });
+        
+        peer.on('open', async (id) => {
+            myId = id;
+            my6DigitCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            const userRef = ref(db, 'users/' + myId);
+            const codeRef = ref(db, 'codes/' + my6DigitCode);
+
+            await set(userRef, { name: myName, avatar: myAvatar, code: my6DigitCode });
+            await set(codeRef, { peerId: myId, name: myName, avatar: myAvatar });
+
+            onDisconnect(userRef).remove();
+            onDisconnect(codeRef).remove();
+
+            document.getElementById('my-6digit-code').innerText = my6DigitCode.slice(0, 3) + ' ' + my6DigitCode.slice(3, 6);
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('main-container').classList.add('app-expanded');
+            
+            listenForIncomingCalls();
+        });
+    });
+
+    document.getElementById('btn-search-by-code').addEventListener('click', async () => {
+        const rawCode = document.getElementById('target-code-input').value.replace(/\s+/g, '');
+        if (!/^\d{6}$/.test(rawCode)) return showToast("Please input a valid 6-digit code!", "danger");
+        if (rawCode === my6DigitCode) return showToast("You cannot connect to yourself!", "danger");
+
+        const codeSnapshot = await get(ref(db, 'codes/' + rawCode));
+        if (!codeSnapshot.exists()) return showToast("Code not found or offline!", "danger");
+
+        searchedPartner = codeSnapshot.val();
+        document.getElementById('found-avatar').src = searchedPartner.avatar;
+        document.getElementById('found-name').innerText = searchedPartner.name;
+        document.getElementById('partner-found-card').style.display = 'flex';
+    });
+
+    document.getElementById('btn-start-actual-call').addEventListener('click', () => {
+        if (!searchedPartner) return;
+        document.getElementById('partner-found-card').style.display = 'none';
+        startCall(searchedPartner.peerId, searchedPartner.name, searchedPartner.avatar);
+    });
+
+    function startCall(targetId, targetName, targetAvatar) {
+        partnerId = targetId;
+        document.getElementById('btn-accept').style.display = 'none';
+        document.getElementById('cinema-room').style.display = 'none';
+        document.getElementById('calling-state-view').style.display = 'flex';
+        document.getElementById('call-screen').style.display = 'flex';
+
+        currentCall = peer.call(targetId, localStream);
+        handleCallStreams(currentCall);
+
+        const rejectRef = ref(db, `calls/${myId}_${partnerId}/rejected`);
+        set(rejectRef, false);
+        
+        callRejectedListener = onValue(rejectRef, (snapshot) => {
+            if (snapshot.exists() && snapshot.val() === true) {
+                showToast("Partner rejected the call.", "danger");
+                if(currentCall) currentCall.close();
+                endCallInterface();
+            }
         });
 
-        document.getElementById('btn-search-by-code').addEventListener('click', async () => {
-            const rawCode = document.getElementById('target-code-input').value.replace(/\s+/g, '');
-            if (!/^\d{6}$/.test(rawCode)) return showToast("Please input a valid 6-digit code!", "danger");
-            if (rawCode === my6DigitCode) return showToast("You cannot connect to yourself!", "danger");
+        setupCinemaSync();
+        setupChatSync();
+    }
 
-            const codeSnapshot = await get(ref(db, 'codes/' + rawCode));
-            if (!codeSnapshot.exists()) return showToast("Code not found or offline!", "danger");
+    function listenForIncomingCalls() {
+        peer.on('call', (incomingCall) => {
+            currentCall = incomingCall;
+            partnerId = incomingCall.peer;
+            
+            onValue(ref(db, 'users/' + partnerId), (snapshot) => {
+                const caller = snapshot.val();
+                if (caller) {
+                    document.getElementById('call-user-name').innerText = caller.name;
+                }
+            }, { onlyOnce: true });
 
-            searchedPartner = codeSnapshot.val();
-            document.getElementById('found-avatar').src = searchedPartner.avatar;
-            document.getElementById('found-name').innerText = searchedPartner.name;
-            document.getElementById('partner-found-card').style.display = 'flex';
-        });
-
-        document.getElementById('btn-start-actual-call').addEventListener('click', () => {
-            if (!searchedPartner) return;
-            document.getElementById('partner-found-card').style.display = 'none';
-            startCall(searchedPartner.peerId, searchedPartner.name, searchedPartner.avatar);
-        });
-
-        function startCall(targetId, targetName, targetAvatar) {
-            partnerId = targetId;
-            document.getElementById('btn-accept').style.display = 'none';
+            document.getElementById('btn-accept').style.display = 'inline-flex';
             document.getElementById('cinema-room').style.display = 'none';
             document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('call-screen').style.display = 'flex';
 
-            currentCall = peer.call(targetId, localStream);
-            handleCallStreams(currentCall);
+            document.getElementById('btn-accept').onclick = () => {
+                currentCall.answer(localStream);
+                document.getElementById('btn-accept').style.display = 'none';
+                handleCallStreams(currentCall);
+                setupCinemaSync();
+                setupChatSync();
+            };
+        });
+    }
 
-            const rejectRef = ref(db, `calls/${myId}_${partnerId}/rejected`);
-            set(rejectRef, false);
-            
-            callRejectedListener = onValue(rejectRef, (snapshot) => {
-                if (snapshot.exists() && snapshot.val() === true) {
-                    showToast("Partner rejected the call.", "danger");
-                    if(currentCall) currentCall.close();
-                    endCallInterface();
-                }
-            });
-
-            setupCinemaSync();
-            setupChatSync();
+    // YouTube Control APIs
+    function initYoutubePlayer(videoId = 'dQw4w9WgXcQ') {
+        if (ytPlayer) {
+            try { ytPlayer.destroy(); } catch(e) {}
         }
-
-        function listenForIncomingCalls() {
-            peer.on('call', (incomingCall) => {
-                currentCall = incomingCall;
-                partnerId = incomingCall.peer;
-                
-                onValue(ref(db, 'users/' + partnerId), (snapshot) => {
-                    const caller = snapshot.val();
-                    if (caller) {
-                        document.getElementById('call-user-name').innerText = caller.name;
-                    }
-                }, { onlyOnce: true });
-
-                document.getElementById('btn-accept').style.display = 'inline-flex';
-                document.getElementById('cinema-room').style.display = 'none';
-                document.getElementById('calling-state-view').style.display = 'flex';
-                document.getElementById('call-screen').style.display = 'flex';
-
-                document.getElementById('btn-accept').onclick = () => {
-                    currentCall.answer(localStream);
-                    document.getElementById('btn-accept').style.display = 'none';
-                    handleCallStreams(currentCall);
-                    setupCinemaSync();
-                    setupChatSync();
-                };
-            });
-        }
-
-        // YouTube Control APIs
-        function initYoutubePlayer(videoId = 'dQw4w9WgXcQ') {
-            if (ytPlayer) {
-                try { ytPlayer.destroy(); } catch(e) {}
+        ytPlayer = new YT.Player('player', {
+            videoId: videoId,
+            playerVars: {
+                'autoplay': 0,
+                'controls': 1,
+                'rel': 0,
+                'showinfo': 0,
+                'iv_load_policy': 3,
+                'playsinline': 1
+            },
+            events: {
+                'onStateChange': onPlayerStateChange
             }
-            ytPlayer = new YT.Player('player', {
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 1,
-                    'rel': 0,
-                    'showinfo': 0,
-                    'iv_load_policy': 3,
-                    'playsinline': 1
-                },
-                events: {
-                    'onStateChange': onPlayerStateChange
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        if (ignoreNextStateChange || !partnerId) return;
+
+        const state = event.data;
+        const currentTime = ytPlayer.getCurrentTime();
+
+        if (state === YT.PlayerState.PLAYING) {
+            if (lastActionSent === 'play' && Math.abs(currentTime - ytPlayer.getCurrentTime()) < 1.5) return;
+            lastActionSent = 'play';
+            const videoState = { action: 'play', time: currentTime, timestamp: Date.now() };
+            update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
+            update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
+        } 
+        else if (state === YT.PlayerState.PAUSED) {
+            if (lastActionSent === 'pause') return;
+            lastActionSent = 'pause';
+            const videoState = { action: 'pause', time: currentTime, timestamp: Date.now() };
+            update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
+            update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
+        }
+    }
+
+    document.getElementById('btn-load-video').addEventListener('click', () => {
+        const urlValue = document.getElementById('video-url').value;
+        const videoId = extractYoutubeId(urlValue);
+        if (!videoId) return showToast("Invalid YouTube URL!", "danger");
+        triggerVideoChange(videoId);
+    });
+
+    function triggerVideoChange(videoId) {
+        if (!partnerId) return;
+        const videoData = { videoId: videoId, action: 'load', time: 0, timestamp: Date.now() };
+        set(ref(db, `calls/${myId}_${partnerId}/videoState`), videoData);
+        set(ref(db, `calls/${partnerId}_${myId}/videoState`), videoData);
+    }
+
+    function setupCinemaSync() {
+        initYoutubePlayer();
+
+        const listenSync = (callKey) => {
+            onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
+                if (!snapshot.exists() || !ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+                const data = snapshot.val();
+                ignoreNextStateChange = true;
+
+                if (data.action === 'load') {
+                    ytPlayer.loadVideoById(data.videoId, 0);
+                    setTimeout(() => { ignoreNextStateChange = false; }, 1000);
+                    return;
                 }
+
+                const localTime = ytPlayer.getCurrentTime();
+                const diff = Math.abs(localTime - data.time);
+
+                if (data.action === 'play') {
+                    if (diff > 1.5) ytPlayer.seekTo(data.time, true);
+                    if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) ytPlayer.playVideo();
+                } else if (data.action === 'pause') {
+                    if (ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) ytPlayer.pauseVideo();
+                    if (diff > 1.5) ytPlayer.seekTo(data.time, true);
+                }
+                setTimeout(() => { ignoreNextStateChange = false; }, 500);
             });
-        }
+        };
+        listenSync(`${myId}_${partnerId}`);
+    }
 
-        function onPlayerStateChange(event) {
-            if (ignoreNextStateChange || !partnerId) return;
+    document.getElementById('btn-send-msg').addEventListener('click', sendChatMessage);
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendChatMessage();
+    });
 
-            const state = event.data;
-            const currentTime = ytPlayer.getCurrentTime();
+    async function sendChatMessage() {
+        const text = sanitizeInput(document.getElementById('chat-input').value);
+        if (!text || !partnerId) return;
 
-            if (state === YT.PlayerState.PLAYING) {
-                if (lastActionSent === 'play' && Math.abs(currentTime - ytPlayer.getCurrentTime()) < 1.5) return;
-                lastActionSent = 'play';
-                const videoState = { action: 'play', time: currentTime, timestamp: Date.now() };
-                update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
-                update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
-            } 
-            else if (state === YT.PlayerState.PAUSED) {
-                if (lastActionSent === 'pause') return;
-                lastActionSent = 'pause';
-                const videoState = { action: 'pause', time: currentTime, timestamp: Date.now() };
-                update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
-                update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
-            }
-        }
+        const chatRef = ref(db, `chats/${myId}_${partnerId}`);
+        const chatPartnerRef = ref(db, `chats/${partnerId}_${myId}`);
+        
+        const msgData = {
+            sender: myName,
+            avatar: myAvatar,
+            text: text,
+            timestamp: Date.now()
+        };
 
-        document.getElementById('btn-load-video').addEventListener('click', () => {
-            const urlValue = document.getElementById('video-url').value;
-            const videoId = extractYoutubeId(urlValue);
-            if (!videoId) return showToast("Invalid YouTube URL!", "danger");
-            triggerVideoChange(videoId);
+        await push(chatRef, msgData);
+        await push(chatPartnerRef, msgData);
+
+        document.getElementById('chat-input').value = '';
+    }
+
+    function setupChatSync() {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = ''; 
+        
+        const chatRef = ref(db, `chats/${myId}_${partnerId}`);
+        onValue(chatRef, (snapshot) => {
+            if (!snapshot.exists()) return;
+            chatBox.innerHTML = '';
+            snapshot.forEach((child) => {
+                const msg = child.val();
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-msg';
+                msgDiv.innerHTML = `
+                    <img src="${msg.avatar}" alt="">
+                    <div class="chat-msg-body">
+                        <div class="chat-msg-name">${msg.sender}</div>
+                        <div style="font-weight: 700;">${msg.text}</div>
+                    </div>
+                `;
+                chatBox.appendChild(msgDiv);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
+
+    function handleCallStreams(call) {
+        call.on('stream', (remoteStream) => {
+            showToast("Connected to Voice & Cinema!", "success");
+            document.getElementById('calling-state-view').style.display = 'none';
+            document.getElementById('cinema-room').style.display = 'block';
+            document.getElementById('remote-audio').srcObject = remoteStream;
         });
 
-        function triggerVideoChange(videoId) {
-            if (!partnerId) return;
-            const videoData = { videoId: videoId, action: 'load', time: 0, timestamp: Date.now() };
-            set(ref(db, `calls/${myId}_${partnerId}/videoState`), videoData);
-            set(ref(db, `calls/${partnerId}_${myId}/videoState`), videoData);
-        }
-
-        function setupCinemaSync() {
-            initYoutubePlayer();
-
-            const listenSync = (callKey) => {
-                onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
-                    if (!snapshot.exists() || !ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
-                    const data = snapshot.val();
-                    ignoreNextStateChange = true;
-
-                    if (data.action === 'load') {
-                        ytPlayer.loadVideoById(data.videoId, 0);
-                        setTimeout(() => { ignoreNextStateChange = false; }, 1000);
-                        return;
-                    }
-
-                    const localTime = ytPlayer.getCurrentTime();
-                    const diff = Math.abs(localTime - data.time);
-
-                    if (data.action === 'play') {
-                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
-                        if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) ytPlayer.playVideo();
-                    } else if (data.action === 'pause') {
-                        if (ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) ytPlayer.pauseVideo();
-                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
-                    }
-                    setTimeout(() => { ignoreNextStateChange = false; }, 500);
-                });
-            };
-            listenSync(`${myId}_${partnerId}`);
-        }
-
-        document.getElementById('btn-send-msg').addEventListener('click', sendChatMessage);
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendChatMessage();
-        });
-
-        async function sendChatMessage() {
-            const text = sanitizeInput(document.getElementById('chat-input').value);
-            if (!text || !partnerId) return;
-
-            const chatRef = ref(db, `chats/${myId}_${partnerId}`);
-            const chatPartnerRef = ref(db, `chats/${partnerId}_${myId}`);
-            
-            const msgData = {
-                sender: myName,
-                avatar: myAvatar,
-                text: text,
-                timestamp: Date.now()
-            };
-
-            await push(chatRef, msgData);
-            await push(chatPartnerRef, msgData);
-
-            document.getElementById('chat-input').value = '';
-        }
-
-        function chatSync() {
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = ''; 
-            
-            const chatRef = ref(db, `chats/${myId}_${partnerId}`);
-            onValue(chatRef, (snapshot) => {
-                if (!snapshot.exists()) return;
-                chatBox.innerHTML = '';
-                snapshot.forEach((child) => {
-                    const msg = child.val();
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'chat-msg';
-                    msgDiv.innerHTML = `
-                        <img src="${msg.avatar}" alt="">
-                        <div class="chat-msg-body">
-                            <div class="chat-msg-name">${msg.sender}</div>
-                            <div style="font-weight: 700;">${msg.text}</div>
-                        </div>
-                    `;
-                    chatBox.appendChild(msgDiv);
-                });
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
-        }
-
-        function handleCallStreams(call) {
-            call.on('stream', (remoteStream) => {
-                showToast("Connected to Voice & Cinema!", "success");
-                document.getElementById('calling-state-view').style.display = 'none';
-                document.getElementById('cinema-room').style.display = 'block';
-                document.getElementById('remote-audio').srcObject = remoteStream;
-            });
-
-            call.on('close', () => {
-                showToast("Current session ended.", "danger");
-                endCallInterface();
-            });
-        }
-
-        document.getElementById('btn-hangup').addEventListener('click', async () => {
-            if (partnerId) {
-                await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
-                remove(ref(db, `calls/${myId}_${partnerId}`));
-                remove(ref(db, `chats/${myId}_${partnerId}`));
-            }
-            if(currentCall) currentCall.close();
+        call.on('close', () => {
+            showToast("Current session ended.", "danger");
             endCallInterface();
         });
+    }
 
-        function endCallInterface() {
-            if (callRejectedListener) { callRejectedListener(); callRejectedListener = null; }
-            document.getElementById('call-screen').style.display = 'none';
-            document.getElementById('cinema-room').style.display = 'none';
-            document.getElementById('remote-audio').srcObject = null;
-            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
-                ytPlayer.stopVideo();
-            }
-            partnerId = null;
+    document.getElementById('btn-hangup').addEventListener('click', async () => {
+        if (partnerId) {
+            await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
+            remove(ref(db, `calls/${myId}_${partnerId}`));
+            remove(ref(db, `chats/${myId}_${partnerId}`));
         }
+        if(currentCall) currentCall.close();
+        endCallInterface();
+    });
 
-        let isMuted = false;
-        document.getElementById('btn-mute').addEventListener('click', () => {
-            isMuted = !isMuted;
-            localStream.getAudioTracks()[0].enabled = !isMuted;
-            document.getElementById('btn-mute').classList.toggle('active', isMuted);
-        });
-    </script>
-</body>
-</html>
+    function endCallInterface() {
+        if (callRejectedListener) { callRejectedListener(); callRejectedListener = null; }
+        document.getElementById('call-screen').style.display = 'none';
+        document.getElementById('cinema-room').style.display = 'none';
+        document.getElementById('remote-audio').srcObject = null;
+        if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+            ytPlayer.stopVideo();
+        }
+        partnerId = null;
+    }
+
+    let isMuted = false;
+    document.getElementById('btn-mute').addEventListener('click', () => {
+        isMuted = !isMuted;
+        localStream.getAudioTracks()[0].enabled = !isMuted;
+        document.getElementById('btn-mute').classList.toggle('active', isMuted);
+    });
+</script>
