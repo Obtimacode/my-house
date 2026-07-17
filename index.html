@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📺</text></svg>">
+    <!-- FAVICON (The icon in the browser tab) -->
+    <link rel="icon" type="image/png" href="logo.png">
     
     <!-- Google AdSense Verification Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
@@ -50,45 +50,12 @@
             color: var(--text-main); 
             display: flex; 
             flex-direction: column;
-            justify-content: flex-start; 
+            justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
             padding: 20px;
             overflow-y: auto;
             background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
-        }
-
-        /* simple header navigation */
-        .site-header {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 0 20px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            margin-bottom: 10px;
-        }
-
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: var(--text-main);
-        }
-
-        .header-logo i {
-            color: var(--accent-blue);
-            width: 28px;
-            height: 28px;
-        }
-
-        .header-logo span {
-            font-family: 'Cabinet Grotesk', sans-serif;
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: 0.5px;
         }
 
         .toast-container {
@@ -143,15 +110,26 @@
             max-width: 500px; 
         }
         
-        h1 { 
-            font-size: 26px; 
-            font-weight: 900; 
-            margin-bottom: 8px; 
-            color: var(--text-main); 
+        /* New Logo and Header Styles */
+        .site-header {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .site-logo {
+            width: 32px;  /* Sleek, small size */
+            height: 32px;
+            object-fit: contain;
+        }
+        
+        h1 { 
+            font-size: 26px; 
+            font-weight: 900; 
+            color: var(--text-main); 
+            margin: 0; /* Remove margin, handled by gap */
         }
 
         .subtitle {
@@ -731,24 +709,17 @@
 </head>
 <body>
 
-    <!-- SIMPLE HEADER NAVIGATION -->
-    <header class="site-header">
-        <a href="/" class="header-logo">
-            <i data-lucide="tv"></i>
-            <span>WatchCall</span>
-        </a>
-    </header>
-
     <div id="toast-container" class="toast-container"></div>
 
     <!-- MAIN INTERFACE -->
     <div class="container" id="main-container">
         <!-- LOGIN SCREEN -->
         <div id="login-screen">
-            <h1>
-                <i data-lucide="tv"></i>
-                <span>Join WatchCall</span>
-            </h1>
+            <!-- New Header with Logo -->
+            <div class="site-header">
+                <img src="logo.png" alt="WatchCall Logo" class="site-logo">
+                <h1>Join WatchCall</h1>
+            </div>
             <p class="subtitle">Voice chat & watch YouTube in perfect real-time sync</p>
             
             <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
@@ -785,10 +756,11 @@
 
         <!-- APP DASHBOARD SCREEN -->
         <div id="app-screen">
-            <h1>
-                <i data-lucide="key-round"></i>
-                <span>Your Private Room</span>
-            </h1>
+            <!-- New Header with Logo -->
+            <div class="site-header">
+                <img src="logo.png" alt="WatchCall Logo" class="site-logo">
+                <h1>Your Private Room</h1>
+            </div>
             <div class="my-code-panel">
                 <div class="my-code-title">Your Shareable Code</div>
                 <div class="my-code-value" id="my-6digit-code">------</div>
@@ -1248,7 +1220,7 @@
             document.getElementById('chat-input').value = '';
         }
 
-        function setupChatSync() {
+        function chatSync() {
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = ''; 
             
