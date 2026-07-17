@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
+    <!-- Favicon (أيقونة المتصفح - كرة الأرض) -->
+    <link rel="icon" type="image/png" href="watchcall.png">
+    <link rel="apple-touch-icon" href="watchcall.png">
+    
     <!-- Google AdSense Verification Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
     
@@ -116,6 +120,14 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+        }
+
+        .site-logo {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .subtitle {
@@ -702,7 +714,8 @@
         <!-- LOGIN SCREEN -->
         <div id="login-screen">
             <h1>
-                <i data-lucide="tv"></i>
+                <!-- إدراج شعار الموقع الرسمي هنا -->
+                <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
                 <span>Join WatchCall</span>
             </h1>
             <p class="subtitle">Voice chat & watch YouTube in perfect real-time sync</p>
@@ -742,7 +755,8 @@
         <!-- APP DASHBOARD SCREEN -->
         <div id="app-screen">
             <h1>
-                <i data-lucide="key-round"></i>
+                <!-- إدراج شعار الموقع هنا أيضاً للجمالية والتكامل البصري -->
+                <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
                 <span>Your Private Room</span>
             </h1>
             <div class="my-code-panel">
