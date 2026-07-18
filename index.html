@@ -10,7 +10,7 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:; frame-src https://www.youtube.com; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:; frame-ancestors 'none';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
     <meta name="format-detection" content="telephone=no">
@@ -876,8 +876,7 @@
         </div>
     </div>
 
-    <!-- ======== التعديل هنا: إضافة webkit-playsinline ======== -->
-    <audio id="remote-audio" autoplay playsinline webkit-playsinline></audio>
+    <audio id="remote-audio" autoplay playsinline></audio>
 
     <!-- FUNCTIONAL SCRIPT MODULE -->
     <script type="module">
@@ -923,6 +922,7 @@
                     default: return m;
                 }
             });
+            // إزالة أي محاولة لاستخدام innerHTML خطير
             cleaned = cleaned.replace(/(javascript|onerror|onload|onclick|onmouseover)/gi, '');
             return cleaned.trim();
         }
@@ -1182,7 +1182,7 @@
             });
         }
 
-        // ======== YouTube Control APIs (تم التعديل للإيفون) ========
+        // YouTube Control APIs
         function initYoutubePlayer(videoId = 'dQw4w9WgXcQ') {
             if (ytPlayer) {
                 try { ytPlayer.destroy(); } catch(e) {}
@@ -1190,29 +1190,17 @@
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
-                    'autoplay': 1,  // ← تغيير من 0 إلى 1
+                    'autoplay': 0,
                     'controls': 1,
                     'rel': 0,
                     'showinfo': 0,
                     'iv_load_policy': 3,
-                    'playsinline': 1,
-                    'enablejsapi': 1,  // ← إضافة
-                    'origin': window.location.origin  // ← إضافة
+                    'playsinline': 1
                 },
                 events: {
-                    'onStateChange': onPlayerStateChange,
-                    'onReady': onPlayerReady  // ← إضافة
+                    'onStateChange': onPlayerStateChange
                 }
             });
-        }
-
-        // ======== دالة جديدة للتشغيل على iPhone ========
-        function onPlayerReady(event) {
-            if (event.target && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                setTimeout(() => {
-                    event.target.playVideo();
-                }, 500);
-            }
         }
 
         function onPlayerStateChange(event) {
@@ -1293,6 +1281,7 @@
             const text = sanitizeInput(rawText);
             if (!text || !partnerId || !callInProgress) return;
 
+            // تشفير الرسالة قبل الإرسال
             const encryptedText = encryptData(text);
 
             const chatRef = ref(db, `chats/${myId}_${partnerId}`);
@@ -1301,7 +1290,7 @@
             const msgData = {
                 sender: myName,
                 avatar: myAvatar,
-                text: encryptedText,
+                text: encryptedText, // تخزين مشفر
                 timestamp: Date.now()
             };
 
@@ -1321,11 +1310,13 @@
                 chatBox.innerHTML = '';
                 snapshot.forEach((child) => {
                     const msg = child.val();
+                    // فك تشفير الرسالة عند العرض
                     const decryptedText = decryptData(msg.text);
                     
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'chat-msg';
                     
+                    // استخدام textContent آمن بدلاً من innerHTML
                     const imgElement = document.createElement('img');
                     imgElement.src = msg.avatar;
                     imgElement.alt = '';
@@ -1400,11 +1391,6 @@
             isMuted = !isMuted;
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
-        });
-
-        document.getElementById('btn-cancel-search').addEventListener('click', () => {
-            document.getElementById('partner-found-card').style.display = 'none';
-            searchedPartner = null;
         });
     </script>
 </body>
