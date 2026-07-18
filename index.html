@@ -5,17 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
-    <!-- ======== طبقات الحماية الجديدة ======== -->
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:; frame-ancestors 'none';">
+    <!-- Security Headers (ترويسات الأمان لحل ثغرات Nikto وحماية المتصفح) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
-    <meta name="format-detection" content="telephone=no">
-    <!-- ======== نهاية طبقات الحماية ======== -->
 
+    <!-- Favicon (تم تحديث المقاسات لأقصى دقة وحجم ممكن في المتصفح لتفادي كوكب الأرض وتبان كبيرة) -->
     <link rel="icon" type="image/png" sizes="32x32" href="watchcall.png?v=3">
     <link rel="icon" type="image/png" sizes="48x48" href="watchcall.png?v=3">
     <link rel="icon" type="image/png" sizes="96x96" href="watchcall.png?v=3">
@@ -23,6 +18,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="watchcall.png?v=3">
     <link rel="shortcut icon" href="watchcall.png?v=3" type="image/x-icon">
     
+    <!-- Google AdSense Verification Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,7 +29,6 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
-        /* كل الأنماط كما هي بدون تغيير */
         :root {
             --bg-dark: #05070f;
             --card-bg: rgba(13, 18, 33, 0.75);
@@ -887,7 +882,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ======== متغيرات الحماية ========
         let myId, myName, myAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
         let my6DigitCode = "";
         let peer, localStream, currentCall, partnerId = null;
@@ -897,7 +891,6 @@
         let searchedPartner = null; 
         let callRejectedListener = null;
         let donationAmount = "3.00"; 
-        let callInProgress = false;
 
         lucide.createIcons();
 
@@ -909,10 +902,9 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        // ======== تنقية محسنة ضد XSS ========
         function sanitizeInput(str) {
             if (!str) return '';
-            let cleaned = str.replace(/[&<>"']/g, function(m) {
+            return str.replace(/[&<>"']/g, function(m) {
                 switch (m) {
                     case '&': return '&amp;';
                     case '<': return '&lt;';
@@ -921,32 +913,7 @@
                     case "'": return '&#x27;';
                     default: return m;
                 }
-            });
-            // إزالة أي محاولة لاستخدام innerHTML خطير
-            cleaned = cleaned.replace(/(javascript|onerror|onload|onclick|onmouseover)/gi, '');
-            return cleaned.trim();
-        }
-
-        // ======== تشفير بسيط للرسائل ========
-        function encryptData(text) {
-            try {
-                return btoa(encodeURIComponent(text));
-            } catch(e) { return text; }
-        }
-
-        function decryptData(encoded) {
-            try {
-                return decodeURIComponent(atob(encoded));
-            } catch(e) { return encoded; }
-        }
-
-        // ======== التحقق من صحة الشريك ========
-        function validatePartner(partnerData) {
-            if (!partnerData || typeof partnerData !== 'object') return false;
-            if (!partnerData.peerId || typeof partnerData.peerId !== 'string') return false;
-            if (!partnerData.name || typeof partnerData.name !== 'string') return false;
-            if (partnerData.peerId === myId) return false;
-            return true;
+            }).trim();
         }
 
         function extractYoutubeId(url) {
@@ -1019,30 +986,25 @@
             donationAmount = (!isNaN(parsedVal) && parsedVal > 0) ? parsedVal.toFixed(2) : "1.00";
         });
 
-        // ======== PayPal محمي ========
-        try {
-            paypal.Buttons({
-                style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 40 },
-                createOrder: function(data, actions) {
-                    return actions.order.create({
-                        purchase_units: [{
-                            amount: { value: donationAmount },
-                            description: "Support Optima Code Team"
-                        }]
-                    });
-                },
-                onApprove: function(data, actions) {
-                    return actions.order.capture().then(function(details) {
-                        showToast(`Thank you for supporting Optima Code! Donor: ${sanitizeInput(details.payer.name.given_name)}`, "success");
-                    });
-                },
-                onError: function(err) {
-                    showToast("An error occurred during payment processing.", "danger");
-                }
-            }).render('#paypal-button-container');
-        } catch(e) {
-            console.log("PayPal initialization protected");
-        }
+        paypal.Buttons({
+            style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 40 },
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: { value: donationAmount },
+                        description: "Support Optima Code Team"
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    showToast(`Thank you for supporting Optima Code! Donor: ${details.payer.name.given_name}`, "success");
+                });
+            },
+            onError: function(err) {
+                showToast("An error occurred during payment processing.", "danger");
+            }
+        }).render('#paypal-button-container');
 
         document.getElementById('target-code-input').addEventListener('input', (e) => {
             let val = e.target.value.replace(/\D/g, '');
@@ -1050,7 +1012,7 @@
             e.target.value = val;
         });
 
-        // Room Authentication مع حماية إضافية
+        // Room Authentication
         document.getElementById('btn-join').addEventListener('click', async () => {
             myName = sanitizeInput(document.getElementById('username').value);
             if(!myName || myName.length < 2) return showToast("Please write a valid nickname!", "danger");
@@ -1096,39 +1058,27 @@
             const codeSnapshot = await get(ref(db, 'codes/' + rawCode));
             if (!codeSnapshot.exists()) return showToast("Code not found or offline!", "danger");
 
-            const partnerData = codeSnapshot.val();
-            if (!validatePartner(partnerData)) return showToast("Invalid partner data!", "danger");
-
-            searchedPartner = partnerData;
+            searchedPartner = codeSnapshot.val();
             document.getElementById('found-avatar').src = searchedPartner.avatar;
             document.getElementById('found-name').innerText = searchedPartner.name;
             document.getElementById('partner-found-card').style.display = 'flex';
         });
 
         document.getElementById('btn-start-actual-call').addEventListener('click', () => {
-            if (!searchedPartner || !validatePartner(searchedPartner)) return;
+            if (!searchedPartner) return;
             document.getElementById('partner-found-card').style.display = 'none';
             startCall(searchedPartner.peerId, searchedPartner.name, searchedPartner.avatar);
         });
 
         function startCall(targetId, targetName, targetAvatar) {
-            if (callInProgress) return;
-            callInProgress = true;
-            
             partnerId = targetId;
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
             document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('call-screen').style.display = 'flex';
 
-            try {
-                currentCall = peer.call(targetId, localStream);
-                handleCallStreams(currentCall);
-            } catch(e) {
-                showToast("Call initiation failed!", "danger");
-                callInProgress = false;
-                return;
-            }
+            currentCall = peer.call(targetId, localStream);
+            handleCallStreams(currentCall);
 
             const rejectRef = ref(db, `calls/${myId}_${partnerId}/rejected`);
             set(rejectRef, false);
@@ -1147,17 +1097,12 @@
 
         function listenForIncomingCalls() {
             peer.on('call', (incomingCall) => {
-                if (callInProgress) {
-                    incomingCall.close();
-                    return;
-                }
-                
                 currentCall = incomingCall;
                 partnerId = incomingCall.peer;
                 
                 onValue(ref(db, 'users/' + partnerId), (snapshot) => {
                     const caller = snapshot.val();
-                    if (caller && validatePartner(caller)) {
+                    if (caller) {
                         document.getElementById('call-user-name').innerText = caller.name;
                     }
                 }, { onlyOnce: true });
@@ -1168,16 +1113,11 @@
                 document.getElementById('call-screen').style.display = 'flex';
 
                 document.getElementById('btn-accept').onclick = () => {
-                    try {
-                        currentCall.answer(localStream);
-                        callInProgress = true;
-                        document.getElementById('btn-accept').style.display = 'none';
-                        handleCallStreams(currentCall);
-                        setupCinemaSync();
-                        setupChatSync();
-                    } catch(e) {
-                        showToast("Failed to accept call!", "danger");
-                    }
+                    currentCall.answer(localStream);
+                    document.getElementById('btn-accept').style.display = 'none';
+                    handleCallStreams(currentCall);
+                    setupCinemaSync();
+                    setupChatSync();
                 };
             });
         }
@@ -1204,7 +1144,7 @@
         }
 
         function onPlayerStateChange(event) {
-            if (ignoreNextStateChange || !partnerId || !callInProgress) return;
+            if (ignoreNextStateChange || !partnerId) return;
 
             const state = event.data;
             const currentTime = ytPlayer.getCurrentTime();
@@ -1233,19 +1173,19 @@
         });
 
         function triggerVideoChange(videoId) {
-            if (!partnerId || !callInProgress) return;
+            if (!partnerId) return;
             const videoData = { videoId: videoId, action: 'load', time: 0, timestamp: Date.now() };
             set(ref(db, `calls/${myId}_${partnerId}/videoState`), videoData);
             set(ref(db, `calls/${partnerId}_${myId}/videoState`), videoData);
         }
 
-        // Real-time synchronization listeners with encryption
+        // Real-time synchronization listeners
         function setupCinemaSync() {
             initYoutubePlayer();
 
             const listenSync = (callKey) => {
                 onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
-                    if (!snapshot.exists() || !ytPlayer || typeof ytPlayer.getPlayerState !== 'function' || !callInProgress) return;
+                    if (!snapshot.exists() || !ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
                     const data = snapshot.val();
                     ignoreNextStateChange = true;
 
@@ -1277,12 +1217,8 @@
         });
 
         async function sendChatMessage() {
-            const rawText = document.getElementById('chat-input').value;
-            const text = sanitizeInput(rawText);
-            if (!text || !partnerId || !callInProgress) return;
-
-            // تشفير الرسالة قبل الإرسال
-            const encryptedText = encryptData(text);
+            const text = sanitizeInput(document.getElementById('chat-input').value);
+            if (!text || !partnerId) return;
 
             const chatRef = ref(db, `chats/${myId}_${partnerId}`);
             const chatPartnerRef = ref(db, `chats/${partnerId}_${myId}`);
@@ -1290,7 +1226,7 @@
             const msgData = {
                 sender: myName,
                 avatar: myAvatar,
-                text: encryptedText, // تخزين مشفر
+                text: text,
                 timestamp: Date.now()
             };
 
@@ -1310,34 +1246,15 @@
                 chatBox.innerHTML = '';
                 snapshot.forEach((child) => {
                     const msg = child.val();
-                    // فك تشفير الرسالة عند العرض
-                    const decryptedText = decryptData(msg.text);
-                    
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'chat-msg';
-                    
-                    // استخدام textContent آمن بدلاً من innerHTML
-                    const imgElement = document.createElement('img');
-                    imgElement.src = msg.avatar;
-                    imgElement.alt = '';
-                    
-                    const bodyDiv = document.createElement('div');
-                    bodyDiv.className = 'chat-msg-body';
-                    
-                    const nameDiv = document.createElement('div');
-                    nameDiv.className = 'chat-msg-name';
-                    nameDiv.textContent = msg.sender;
-                    
-                    const textDiv = document.createElement('div');
-                    textDiv.style.fontWeight = '700';
-                    textDiv.textContent = decryptedText;
-                    
-                    bodyDiv.appendChild(nameDiv);
-                    bodyDiv.appendChild(textDiv);
-                    
-                    msgDiv.appendChild(imgElement);
-                    msgDiv.appendChild(bodyDiv);
-                    
+                    msgDiv.innerHTML = `
+                        <img src="${msg.avatar}" alt="">
+                        <div class="chat-msg-body">
+                            <div class="chat-msg-name">${msg.sender}</div>
+                            <div style="font-weight: 700;">${msg.text}</div>
+                        </div>
+                    `;
                     chatBox.appendChild(msgDiv);
                 });
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -1360,22 +1277,16 @@
 
         document.getElementById('btn-hangup').addEventListener('click', async () => {
             if (partnerId) {
-                try {
-                    await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
-                    await remove(ref(db, `calls/${myId}_${partnerId}`));
-                    await remove(ref(db, `chats/${myId}_${partnerId}`));
-                } catch(e) {}
+                await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
+                remove(ref(db, `calls/${myId}_${partnerId}`));
+                remove(ref(db, `chats/${myId}_${partnerId}`));
             }
             if(currentCall) currentCall.close();
             endCallInterface();
         });
 
         function endCallInterface() {
-            callInProgress = false;
-            if (callRejectedListener) { 
-                try { callRejectedListener(); } catch(e) {}
-                callRejectedListener = null; 
-            }
+            if (callRejectedListener) { callRejectedListener(); callRejectedListener = null; }
             document.getElementById('call-screen').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
             document.getElementById('remote-audio').srcObject = null;
@@ -1387,7 +1298,6 @@
 
         let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
-            if (!localStream) return;
             isMuted = !isMuted;
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
