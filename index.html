@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
-    <!-- ======== طبقات الحماية ======== -->
+    <!-- ======== طبقات الحماية الجديدة ======== -->
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
@@ -740,7 +740,7 @@
             <input type="text" id="username" placeholder="Choose a nickname..." autocomplete="off" maxlength="15">
             <button id="btn-join"><i data-lucide="log-in"></i>Enter Room Now</button>
             
-            <!-- ======== DONATION / SUPPORT OPTION ======== -->
+            <!-- DONATION/SUPPORT OPTION -->
             <div class="support-card">
                 <div class="support-title">
                     <i data-lucide="heart" style="color: var(--danger-red); fill: var(--danger-red); width: 16px; height: 16px;"></i>
@@ -761,7 +761,6 @@
 
                 <div id="paypal-button-container"></div>
             </div>
-            <!-- ======== نهاية DONATION ======== -->
         </div>
 
         <!-- APP DASHBOARD SCREEN -->
@@ -877,6 +876,7 @@
         </div>
     </div>
 
+    <!-- ======== التعديل هنا: إضافة webkit-playsinline ======== -->
     <audio id="remote-audio" autoplay playsinline webkit-playsinline></audio>
 
     <!-- FUNCTIONAL SCRIPT MODULE -->
@@ -1182,7 +1182,7 @@
             });
         }
 
-        // YouTube Control APIs (تم التعديل للإيفون)
+        // ======== YouTube Control APIs (تم التعديل للإيفون) ========
         function initYoutubePlayer(videoId = 'dQw4w9WgXcQ') {
             if (ytPlayer) {
                 try { ytPlayer.destroy(); } catch(e) {}
@@ -1190,23 +1190,23 @@
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
-                    'autoplay': 1,
+                    'autoplay': 1,  // ← تغيير من 0 إلى 1
                     'controls': 1,
                     'rel': 0,
                     'showinfo': 0,
                     'iv_load_policy': 3,
                     'playsinline': 1,
-                    'enablejsapi': 1,
-                    'origin': window.location.origin
+                    'enablejsapi': 1,  // ← إضافة
+                    'origin': window.location.origin  // ← إضافة
                 },
                 events: {
                     'onStateChange': onPlayerStateChange,
-                    'onReady': onPlayerReady
+                    'onReady': onPlayerReady  // ← إضافة
                 }
             });
         }
 
-        // دالة جديدة للتشغيل على iPhone
+        // ======== دالة جديدة للتشغيل على iPhone ========
         function onPlayerReady(event) {
             if (event.target && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 setTimeout(() => {
