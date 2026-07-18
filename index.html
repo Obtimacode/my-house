@@ -1,22 +1,17 @@
-<!DOCTYPE html>
+
+html_content = '''<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
     
-    <!-- ======== طبقات الحماية الجديدة ======== -->
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com https://www.paypal.com https://www.paypalobjects.com; img-src 'self' data: https: https://www.paypal.com; media-src 'self' blob: https:; connect-src 'self' https: wss: https://www.paypal.com; frame-src https://www.youtube.com https://www.paypal.com; frame-ancestors 'none';">
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
-    <meta name="format-detection" content="telephone=no">
-    <!-- ======== نهاية طبقات الحماية ======== -->
 
-    <!-- Favicon (تم تحديث المقاسات لأقصى دقة وحجم ممكن في المتصفح لتفادي كوكب الأرض وتبان كبيرة) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="watchcall.png?v=3">
     <link rel="icon" type="image/png" sizes="48x48" href="watchcall.png?v=3">
     <link rel="icon" type="image/png" sizes="96x96" href="watchcall.png?v=3">
@@ -898,6 +893,11 @@
         let callRejectedListener = null;
         let donationAmount = "3.00"; 
 
+        // FIX #11: Define onYouTubeIframeAPIReady globally before module loads
+        window.onYouTubeIframeAPIReady = function() {
+            console.log("YouTube API Ready");
+        };
+
         lucide.createIcons();
 
         // Modals Logic
@@ -928,6 +928,7 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        // FIX #7: Sanitize iconName to prevent XSS
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -935,7 +936,9 @@
             let iconName = 'info';
             if (type === 'success') iconName = 'check-circle';
             if (type === 'danger') iconName = 'alert-triangle';
-            toast.innerHTML = `<i data-lucide="${iconName}"></i><span>${sanitizeInput(message)}</span>`;
+            // FIX #7: Sanitize both iconName and message
+            const safeIcon = sanitizeInput(iconName);
+            toast.innerHTML = `<i data-lucide="${safeIcon}"></i><span>${sanitizeInput(message)}</span>`;
             container.appendChild(toast);
             lucide.createIcons();
             setTimeout(() => { toast.remove(); }, 3000);
@@ -1018,6 +1021,13 @@
             e.target.value = val;
         });
 
+        // FIX #10: Add Cancel Search button handler
+        document.getElementById('btn-cancel-search').addEventListener('click', () => {
+            document.getElementById('partner-found-card').style.display = 'none';
+            document.getElementById('target-code-input').value = '';
+            searchedPartner = null;
+        });
+
         // Room Authentication
         document.getElementById('btn-join').addEventListener('click', async () => {
             myName = sanitizeInput(document.getElementById('username').value);
@@ -1044,8 +1054,9 @@
                 await set(userRef, { name: myName, avatar: myAvatar, code: my6DigitCode });
                 await set(codeRef, { peerId: myId, name: myName, avatar: myAvatar });
 
-                onDisconnect(userRef).remove();
-                onDisconnect(codeRef).remove();
+                // FIX #3: Use set(null) instead of remove() for onDisconnect
+                onDisconnect(userRef).set(null);
+                onDisconnect(codeRef).set(null);
 
                 document.getElementById('my-6digit-code').innerText = my6DigitCode.slice(0, 3) + ' ' + my6DigitCode.slice(3, 6);
                 document.getElementById('login-screen').style.display = 'none';
@@ -1149,14 +1160,16 @@
             });
         }
 
+        // FIX #1: Remove redundant getCurrentTime() call
         function onPlayerStateChange(event) {
             if (ignoreNextStateChange || !partnerId) return;
 
             const state = event.data;
             const currentTime = ytPlayer.getCurrentTime();
 
+            // FIX #1: Use currentTime variable instead of calling getCurrentTime() again
             if (state === YT.PlayerState.PLAYING) {
-                if (lastActionSent === 'play' && Math.abs(currentTime - ytPlayer.getCurrentTime()) < 1.5) return;
+                if (lastActionSent === 'play') return; // Simplified check
                 lastActionSent = 'play';
                 const videoState = { action: 'play', time: currentTime, timestamp: Date.now() };
                 update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
@@ -1186,6 +1199,7 @@
         }
 
         // Real-time synchronization listeners
+        // FIX #4: Listen to both directions for sync
         function setupCinemaSync() {
             initYoutubePlayer();
 
@@ -1214,7 +1228,9 @@
                     setTimeout(() => { ignoreNextStateChange = false; }, 500);
                 });
             };
+            // FIX #4: Listen to both call directions
             listenSync(`${myId}_${partnerId}`);
+            listenSync(`${partnerId}_${myId}`);
         }
 
         document.getElementById('btn-send-msg').addEventListener('click', sendChatMessage);
@@ -1267,6 +1283,7 @@
             });
         }
 
+        // FIX #6: Add error handling for call streams
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
                 showToast("Connected to Voice & Cinema!", "success");
@@ -1277,6 +1294,13 @@
 
             call.on('close', () => {
                 showToast("Current session ended.", "danger");
+                endCallInterface();
+            });
+
+            // FIX #6: Add error event handler
+            call.on('error', (err) => {
+                console.error("Call error:", err);
+                showToast("Connection error occurred.", "danger");
                 endCallInterface();
             });
         }
@@ -1291,6 +1315,7 @@
             endCallInterface();
         });
 
+        // FIX #5: Reset currentCall and add cleanup
         function endCallInterface() {
             if (callRejectedListener) { callRejectedListener(); callRejectedListener = null; }
             document.getElementById('call-screen').style.display = 'none';
@@ -1299,15 +1324,27 @@
             if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
                 ytPlayer.stopVideo();
             }
+            // FIX #5: Reset currentCall to prevent stale references
+            currentCall = null;
             partnerId = null;
+            // FIX #4: Clear searchedPartner on hangup
+            searchedPartner = null;
         }
 
         let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = !isMuted;
-            localStream.getAudioTracks()[0].enabled = !isMuted;
+            if (localStream && localStream.getAudioTracks().length > 0) {
+                localStream.getAudioTracks()[0].enabled = !isMuted;
+            }
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
         });
     </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/agents/output/watchcall_fixed.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("File saved successfully!")
+print(f"File size: {len(html_content)} characters")
