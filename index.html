@@ -117,6 +117,7 @@
             text-align: center; 
             transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             margin: 20px 0;
+            position: relative;
         }
         
         .container.app-expanded {
@@ -132,6 +133,50 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Active Online Counter Badge */
+        .online-counter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--success-green);
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-green);
+            border-radius: 50%;
+            position: relative;
+            display: inline-block;
+        }
+
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: var(--success-green);
+            border-radius: 50%;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.8); opacity: 0; }
+            100% { transform: scale(0.95); opacity: 0; }
         }
 
         .site-logo {
@@ -726,6 +771,10 @@
             <h1>
                 <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
                 <span>Join WatchCall</span>
+                <span class="online-counter-badge">
+                    <span class="pulse-dot"></span>
+                    <span id="active-online-count">1</span> Online
+                </span>
             </h1>
             <p class="subtitle">Voice chat & watch YouTube in perfect real-time sync</p>
             
@@ -766,6 +815,10 @@
             <h1>
                 <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
                 <span>Your Private Room</span>
+                <span class="online-counter-badge">
+                    <span class="pulse-dot"></span>
+                    <span id="active-online-count-app">1</span> Online
+                </span>
             </h1>
             <div class="my-code-panel">
                 <div class="my-code-title">Your Shareable Code</div>
@@ -896,6 +949,19 @@
         let donationAmount = "3.00"; 
 
         lucide.createIcons();
+
+        // Active Online Presence Counter Tracking
+        const activePresenceRef = push(ref(db, 'online_presence'));
+        set(activePresenceRef, true);
+        onDisconnect(activePresenceRef).remove();
+
+        onValue(ref(db, 'online_presence'), (snapshot) => {
+            const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 1;
+            const loginElem = document.getElementById('active-online-count');
+            const appElem = document.getElementById('active-online-count-app');
+            if (loginElem) loginElem.innerText = count;
+            if (appElem) appElem.innerText = count;
+        });
 
         // Modals Logic
         window.showModal = function(id) {
