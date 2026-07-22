@@ -471,27 +471,6 @@
             border: none;
         }
 
-        /* iOS Enable Overlay Button */
-        .ios-sync-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
-            background: rgba(0, 102, 255, 0.85);
-            backdrop-filter: blur(8px);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: none;
-            align-items: center;
-            gap: 6px;
-        }
-
         .video-selector {
             display: flex;
             flex-direction: column;
@@ -889,10 +868,6 @@
                 
                 <div class="video-section">
                     <div id="video-container">
-                        <button id="btn-ios-sync" class="ios-sync-btn">
-                            <i data-lucide="volume-2"></i>
-                            <span>Enable Audio & Sync</span>
-                        </button>
                         <div id="player"></div>
                     </div>
                     
@@ -972,8 +947,6 @@
         let searchedPartner = null; 
         let callRejectedListener = null;
         let donationAmount = "3.00"; 
-
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
         lucide.createIcons();
 
@@ -1114,14 +1087,7 @@
             if(!myName || myName.length < 2) return showToast("Please write a valid nickname!", "danger");
 
             try {
-                // Optimized Audio for iOS WebRTC + Media Compatibility
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
-                    } 
-                });
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
                 showToast("Microphone access is mandatory for call synchronizations!", "danger");
                 return;
@@ -1225,7 +1191,7 @@
             });
         }
 
-        // YouTube Control APIs (iOS WebKit Compatibility Patch)
+        // YouTube Control APIs
         function initYoutubePlayer(videoId = 'dQw4w9WgXcQ') {
             if (ytPlayer) {
                 try { ytPlayer.destroy(); } catch(e) {}
@@ -1238,32 +1204,13 @@
                     'rel': 0,
                     'showinfo': 0,
                     'iv_load_policy': 3,
-                    'playsinline': 1,
-                    'enablejsapi': 1,
-                    'origin': window.location.origin
+                    'playsinline': 1
                 },
                 events: {
-                    'onReady': (event) => {
-                        if (isIOS) {
-                            event.target.mute();
-                            const iosBtn = document.getElementById('btn-ios-sync');
-                            if (iosBtn) iosBtn.style.display = 'flex';
-                        }
-                    },
                     'onStateChange': onPlayerStateChange
                 }
             });
         }
-
-        // iOS Enable Audio & Sync Button Handler
-        document.getElementById('btn-ios-sync').addEventListener('click', function() {
-            if (ytPlayer && typeof ytPlayer.unMute === 'function') {
-                ytPlayer.unMute();
-                ytPlayer.playVideo();
-                this.style.display = 'none';
-                showToast("Audio & Sync unlocked for iOS!", "success");
-            }
-        });
 
         function onPlayerStateChange(event) {
             if (ignoreNextStateChange || !partnerId) return;
@@ -1319,26 +1266,13 @@
 
                     const localTime = ytPlayer.getCurrentTime();
                     const diff = Math.abs(localTime - data.time);
-                    const currentState = ytPlayer.getPlayerState();
 
                     if (data.action === 'play') {
-                        if (currentState !== YT.PlayerState.PLAYING) {
-                            try {
-                                ytPlayer.playVideo();
-                            } catch (e) {
-                                console.log("Autoplay restricted by browser", e);
-                            }
-                        }
-                        if (currentState === YT.PlayerState.PLAYING && diff > 2.0) {
-                            ytPlayer.seekTo(data.time, true);
-                        }
+                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
+                        if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) ytPlayer.playVideo();
                     } else if (data.action === 'pause') {
-                        if (currentState !== YT.PlayerState.PAUSED) {
-                            ytPlayer.pauseVideo();
-                        }
-                        if (diff > 1.5) {
-                            ytPlayer.seekTo(data.time, true);
-                        }
+                        if (ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) ytPlayer.pauseVideo();
+                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
                     }
                     setTimeout(() => { ignoreNextStateChange = false; }, 500);
                 });
@@ -1401,10 +1335,7 @@
                 showToast("Connected to Voice & Cinema!", "success");
                 document.getElementById('calling-state-view').style.display = 'none';
                 document.getElementById('cinema-room').style.display = 'block';
-                
-                const remoteAudio = document.getElementById('remote-audio');
-                remoteAudio.srcObject = remoteStream;
-                remoteAudio.play().catch(e => console.log("Audio play interaction required:", e));
+                document.getElementById('remote-audio').srcObject = remoteStream;
             });
 
             call.on('close', () => {
@@ -1437,9 +1368,7 @@
         let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = !isMuted;
-            if (localStream && localStream.getAudioTracks().length > 0) {
-                localStream.getAudioTracks()[0].enabled = !isMuted;
-            }
+            localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
         });
     </script>
