@@ -32,7 +32,7 @@
         :root {
             --bg-dark: #05070f;
             --card-bg: rgba(13, 18, 33, 0.75);
-            --card-border: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.08);
             --accent-blue: #0066ff;
             --accent-hover: #0052cc;
             --danger-red: #ef4444;
@@ -41,6 +41,8 @@
             --text-main: #f3f4f6;
             --text-muted: #6b7280;
             --text-secondary: #9ca3af;
+            --discord-sidebar: #0b0f19;
+            --discord-card: rgba(255, 255, 255, 0.04);
         }
 
         * { 
@@ -63,7 +65,7 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            padding: 20px;
+            padding: 10px;
             overflow-y: auto;
             background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
         }
@@ -105,7 +107,7 @@
             background: var(--card-bg); 
             width: 100%; 
             max-width: 420px; 
-            padding: 35px 28px; 
+            padding: 30px 24px; 
             border-radius: 28px; 
             border: 1px solid var(--card-border);
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
@@ -113,16 +115,16 @@
             -webkit-backdrop-filter: blur(20px);
             text-align: center; 
             transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            margin: 20px 0;
+            margin: auto;
             position: relative;
         }
         
         .container.app-expanded {
-            max-width: 500px; 
+            max-width: 480px; 
         }
         
         h1 { 
-            font-size: 28px; 
+            font-size: 26px; 
             font-weight: 900; 
             margin-bottom: 8px; 
             color: var(--text-main); 
@@ -144,8 +146,6 @@
             font-size: 12px;
             font-weight: 700;
             color: var(--success-green);
-            margin-left: 6px;
-            vertical-align: middle;
         }
 
         .pulse-dot {
@@ -176,8 +176,8 @@
         }
 
         .site-logo {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             object-fit: contain;
             border-radius: 50%;
             filter: drop-shadow(0 0 8px rgba(0, 102, 255, 0.3));
@@ -185,17 +185,17 @@
         }
 
         .subtitle {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             font-weight: 500;
         }
         
         .avatar-picker { 
             position: relative; 
-            width: 100px; 
-            height: 100px; 
-            margin: 0 auto 24px; 
+            width: 90px; 
+            height: 90px; 
+            margin: 0 auto 20px; 
             cursor: pointer; 
         }
         .avatar-picker img { 
@@ -211,7 +211,7 @@
             bottom: 2px; 
             right: 2px; 
             background: var(--accent-blue); 
-            padding: 7px; 
+            padding: 6px; 
             border-radius: 50%; 
             color: white; 
             display: flex; 
@@ -222,14 +222,14 @@
         
         input[type="text"] { 
             width: 100%; 
-            padding: 14px 18px; 
+            padding: 12px 16px; 
             background: rgba(255, 255, 255, 0.03); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 14px; 
+            border-radius: 12px; 
             color: white; 
-            font-size: 15px; 
+            font-size: 14px; 
             font-weight: 700;
-            margin-bottom: 20px; 
+            margin-bottom: 16px; 
             outline: none; 
             text-align: center;
         }
@@ -245,12 +245,12 @@
         
         button { 
             width: 100%; 
-            padding: 14px; 
+            padding: 12px 16px; 
             background: var(--accent-blue); 
             border: none; 
-            border-radius: 14px; 
+            border-radius: 12px; 
             color: white; 
-            font-size: 16px; 
+            font-size: 15px; 
             font-weight: 700; 
             cursor: pointer; 
             transition: all 0.3s ease;
@@ -268,20 +268,20 @@
         .my-code-panel {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 20px;
+            padding: 16px;
             border-radius: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .my-code-title {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         .my-code-value {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             color: var(--accent-blue);
             letter-spacing: 3px;
@@ -294,7 +294,7 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 16px;
-            padding: 16px;
+            padding: 14px;
             margin-top: 15px;
             align-items: center;
             justify-content: space-between;
@@ -306,8 +306,8 @@
             text-align: left;
         }
         .partner-found-avatar {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
         }
@@ -326,13 +326,13 @@
         .support-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 20px;
-            padding: 18px;
-            margin-top: 25px;
+            border-radius: 18px;
+            padding: 16px;
+            margin-top: 20px;
             text-align: center;
         }
         .support-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
             color: var(--text-main);
             display: flex;
@@ -342,24 +342,24 @@
             margin-bottom: 6px;
         }
         .support-desc {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
-            margin-bottom: 14px;
-            line-height: 1.5;
+            margin-bottom: 12px;
+            line-height: 1.4;
         }
         .presets-container {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 10px;
         }
         .btn-preset {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text-main);
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             width: auto;
@@ -371,13 +371,13 @@
             color: white;
         }
         .custom-donation-wrapper {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 10px;
-            padding: 4px 12px;
+            padding: 4px 10px;
             direction: ltr !important;
         }
         .custom-donation-wrapper input {
@@ -385,32 +385,33 @@
             border: none;
             outline: none;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             width: 100%;
             text-align: left;
-            padding: 6px;
+            padding: 4px;
             margin-bottom: 0 !important;
         }
         .custom-donation-wrapper span {
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
             padding-left: 4px;
         }
 
+        /* --- FULL SCREEN CALL / CINEMA ROOM (OPTIMIZED FOR PC) --- */
         #call-screen { 
             display: none; 
             position: fixed; 
             top: 0; left: 0; 
-            width: 100%; height: 100%; 
+            width: 100vw; height: 100vh; 
             background: #030408; 
             z-index: 100; 
             flex-direction: column; 
             align-items: center; 
             justify-content: space-between; 
-            padding: 15px;
-            overflow-y: auto;
+            padding: 12px 16px;
+            overflow: hidden;
         }
 
         .calling-state-container {
@@ -421,121 +422,49 @@
             flex: 1;
         }
         .calling-state-container h3 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        /* VOICE ROOM PROFILES SECTION */
-        .voice-participants-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            width: 100%;
-            padding: 12px 20px;
-            background: #080c14;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .user-profile-card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 6px 14px;
-            border-radius: 30px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .user-avatar-wrapper {
-            position: relative;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .user-avatar-wrapper img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-
-        /* Speaking State Indicator */
-        .user-profile-card.speaking .user-avatar-wrapper img {
-            border-color: var(--success-green);
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
-        }
-
-        /* Muted Mic Overlay Badge */
-        .mute-badge {
-            display: none;
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            background: var(--danger-red);
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #080c14;
-            z-index: 2;
-        }
-        .mute-badge svg {
-            width: 10px;
-            height: 10px;
-        }
-
-        .user-profile-card.muted .mute-badge {
-            display: flex;
-        }
-
-        .user-profile-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
+        /* MAIN DISCORD-STYLE CINEMA GRID */
         .cinema-room {
             width: 100%;
-            max-width: 1150px;
+            max-width: 1400px;
+            height: calc(100vh - 85px);
             background: #000;
             border-radius: 20px;
             overflow: hidden;
             display: none;
             border: 1px solid var(--card-border);
-            margin-top: 10px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
 
-        .cinema-grid {
+        .cinema-main-layout {
             display: flex;
-            flex-direction: column;
             width: 100%;
+            height: 100%;
+            background: #000;
         }
 
+        /* Left Side: YouTube Video Player */
         .video-section {
-            width: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             background: #000;
+            height: 100%;
+            position: relative;
         }
 
         #video-container {
+            flex: 1;
             width: 100%;
             position: relative;
-            padding-bottom: 56.25%; 
             background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #video-container iframe, #player {
@@ -549,46 +478,168 @@
 
         .video-selector {
             display: flex;
-            flex-direction: column;
             gap: 8px;
             width: 100%;
-            padding: 15px;
+            padding: 12px 16px;
             background: #080c14;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
         .search-row {
             display: flex;
             gap: 10px;
+            width: 100%;
         }
         .search-row input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: #03050a;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             color: white;
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 600;
             margin-bottom: 0;
             text-align: left;
         }
         .search-row button {
             width: auto;
-            padding: 12px 24px;
-            font-size: 14px;
+            padding: 10px 20px;
+            font-size: 13px;
             font-weight: 700;
             border-radius: 10px;
             white-space: nowrap;
         }
 
-        /* --- SLIDING CHAT DRAWER (النافذة الجانبية للشات) --- */
+        /* Right Side: DISCORD STYLE VOICE PARTICIPANTS SIDEBAR */
+        .discord-voice-sidebar {
+            width: 320px;
+            background: var(--discord-sidebar);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .voice-sidebar-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .voice-participants-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        /* ENLARGED DISCORD PROFILE CARD */
+        .user-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--discord-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 16px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .user-avatar-wrapper {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        /* Discord-style Speaking Pulse Ring */
+        .user-profile-card.speaking .user-avatar-wrapper img {
+            border-color: var(--success-green);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
+        }
+
+        .mute-badge {
+            display: none;
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            background: var(--danger-red);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #080c14;
+            z-index: 2;
+        }
+        .mute-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .user-profile-card.muted .mute-badge {
+            display: flex;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .user-profile-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-status-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .user-profile-card.speaking .user-status-text {
+            color: var(--success-green);
+        }
+
+        /* --- SLIDING CHAT DRAWER PANEL --- */
         .chat-drawer {
             position: fixed;
             top: 0;
             right: -360px;
             width: 320px;
             height: 100%;
-            background: rgba(8, 12, 20, 0.95);
+            background: rgba(8, 12, 20, 0.96);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-left: 1px solid rgba(255, 255, 255, 0.08);
@@ -708,16 +759,19 @@
             font-weight: 700;
         }
 
+        /* BOTTOM CALL CONTROLS */
         .controls { 
             display: flex; 
             gap: 15px; 
             justify-content: center; 
+            align-items: center;
             width: 100%; 
-            padding: 15px 0 5px;
+            padding: 10px 0 2px;
+            height: 60px;
         }
         .btn-control { 
-            width: 52px; 
-            height: 52px; 
+            width: 48px; 
+            height: 48px; 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
@@ -729,8 +783,14 @@
         }
         .btn-mute { background: #1f2937; }
         .btn-mute.active { background: var(--danger-red); }
-        .btn-chat-toggle { background: #1f2937; }
+
+        /* Hide Chat toggle initially until call is active */
+        .btn-chat-toggle { 
+            background: #1f2937; 
+            display: none; 
+        }
         .btn-chat-toggle.active { background: var(--accent-blue); }
+
         .btn-hangup { background: var(--danger-red); }
         .btn-accept { 
             background: var(--success-green); 
@@ -743,12 +803,12 @@
         }
 
         .site-footer {
-            margin-top: 30px;
+            margin-top: 20px;
             width: 100%;
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
         }
         .optima-footer {
@@ -811,6 +871,36 @@
         .policy-modal-content button {
             margin-top: 15px;
             padding: 10px;
+        }
+
+        /* RESPONSIVE LAYOUT FOR MOBILE DEVICES */
+        @media (max-width: 850px) {
+            .cinema-main-layout {
+                flex-direction: column;
+            }
+            .discord-voice-sidebar {
+                width: 100%;
+                height: 140px;
+                flex-direction: row;
+                align-items: center;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .voice-participants-list {
+                flex-direction: row;
+                width: 100%;
+            }
+            .user-profile-card {
+                flex: 1;
+                padding: 8px 12px;
+            }
+            .user-avatar-wrapper {
+                width: 44px;
+                height: 44px;
+            }
+            .voice-sidebar-title {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -914,28 +1004,8 @@
         </div>
 
         <div class="cinema-room" id="cinema-room">
-            <!-- VOICE PARTICIPANTS AREA -->
-            <div class="voice-participants-bar">
-                <!-- Local User Profile Card -->
-                <div class="user-profile-card" id="card-local-user">
-                    <div class="user-avatar-wrapper">
-                        <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="My Profile">
-                        <div class="mute-badge"><i data-lucide="mic-off"></i></div>
-                    </div>
-                    <span class="user-profile-name" id="name-local-user">You</span>
-                </div>
-
-                <!-- Remote Partner Profile Card -->
-                <div class="user-profile-card" id="card-remote-user">
-                    <div class="user-avatar-wrapper">
-                        <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Partner Profile">
-                        <div class="mute-badge"><i data-lucide="mic-off"></i></div>
-                    </div>
-                    <span class="user-profile-name" id="name-remote-user">Partner</span>
-                </div>
-            </div>
-
-            <div class="cinema-grid">
+            <div class="cinema-main-layout">
+                <!-- VIDEO PLAYER & LINK SELECTOR (LEFT SIDE) -->
                 <div class="video-section">
                     <div id="video-container">
                         <div id="player"></div>
@@ -948,6 +1018,40 @@
                                 <i data-lucide="play"></i>
                                 <span>Play</span>
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DISCORD STYLE VOICE PARTICIPANTS SIDEBAR (RIGHT SIDE) -->
+                <div class="discord-voice-sidebar">
+                    <div class="voice-sidebar-title">
+                        <i data-lucide="users" style="width: 14px; height: 14px;"></i>
+                        <span>Voice Channel</span>
+                    </div>
+
+                    <div class="voice-participants-list">
+                        <!-- Local User Card -->
+                        <div class="user-profile-card" id="card-local-user">
+                            <div class="user-avatar-wrapper">
+                                <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="My Profile">
+                                <div class="mute-badge"><i data-lucide="mic-off"></i></div>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-profile-name" id="name-local-user">You</span>
+                                <span class="user-status-text" id="status-local-user">Connected</span>
+                            </div>
+                        </div>
+
+                        <!-- Remote Partner Card -->
+                        <div class="user-profile-card" id="card-remote-user">
+                            <div class="user-avatar-wrapper">
+                                <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=partner" alt="Partner Profile">
+                                <div class="mute-badge"><i data-lucide="mic-off"></i></div>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-profile-name" id="name-remote-user">Partner</span>
+                                <span class="user-status-text" id="status-remote-user">Connected</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -976,6 +1080,7 @@
         
         <div class="controls">
             <button id="btn-mute" class="btn-control btn-mute" title="Toggle Mic"><i data-lucide="mic"></i></button>
+            <!-- Chat Toggle Icon: HIDE BY DEFAULT, SHOW ONLY WHEN CONNECTED -->
             <button id="btn-toggle-chat" class="btn-control btn-chat-toggle" title="Toggle Chat Drawer"><i data-lucide="message-square"></i></button>
             <button id="btn-accept" class="btn-control btn-accept" style="display: none;"><i data-lucide="phone"></i>Accept</button>
             <button id="btn-hangup" class="btn-control btn-hangup" title="End Call"><i data-lucide="phone-off"></i></button>
@@ -1146,7 +1251,7 @@
         });
 
         paypal.Buttons({
-            style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 40 },
+            style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 38 },
             createOrder: function(data, actions) {
                 return actions.order.create({
                     purchase_units: [{
@@ -1259,7 +1364,7 @@
                 const checkVoiceLevels = () => {
                     if (!partnerId) return;
 
-                    // Check Local Speaking
+                    // Local Speaking Check
                     const localData = new Uint8Array(localAnalyser.frequencyBinCount);
                     localAnalyser.getByteFrequencyData(localData);
                     let localSum = 0;
@@ -1267,13 +1372,16 @@
                     let localAverage = localSum / localData.length;
 
                     const localCard = document.getElementById('card-local-user');
+                    const localStatus = document.getElementById('status-local-user');
                     if (localAverage > 15 && !isMuted) {
                         localCard.classList.add('speaking');
+                        if (localStatus) localStatus.innerText = "Speaking...";
                     } else {
                         localCard.classList.remove('speaking');
+                        if (localStatus) localStatus.innerText = "Connected";
                     }
 
-                    // Check Remote Speaking
+                    // Remote Speaking Check
                     const remoteData = new Uint8Array(remoteAnalyser.frequencyBinCount);
                     remoteAnalyser.getByteFrequencyData(remoteData);
                     let remoteSum = 0;
@@ -1281,10 +1389,13 @@
                     let remoteAverage = remoteSum / remoteData.length;
 
                     const remoteCard = document.getElementById('card-remote-user');
+                    const remoteStatus = document.getElementById('status-remote-user');
                     if (remoteAverage > 15) {
                         remoteCard.classList.add('speaking');
+                        if (remoteStatus) remoteStatus.innerText = "Speaking...";
                     } else {
                         remoteCard.classList.remove('speaking');
+                        if (remoteStatus) remoteStatus.innerText = "Connected";
                     }
 
                     requestAnimationFrame(checkVoiceLevels);
@@ -1300,6 +1411,7 @@
             partnerId = targetId;
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
+            document.getElementById('btn-toggle-chat').style.display = 'none'; // HIDE CHAT ICON UNTIL ANSWERED
             document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('call-screen').style.display = 'flex';
 
@@ -1338,6 +1450,7 @@
 
                 document.getElementById('btn-accept').style.display = 'inline-flex';
                 document.getElementById('cinema-room').style.display = 'none';
+                document.getElementById('btn-toggle-chat').style.display = 'none'; // HIDE CHAT ICON
                 document.getElementById('calling-state-view').style.display = 'flex';
                 document.getElementById('call-screen').style.display = 'flex';
 
@@ -1495,6 +1608,10 @@
                 showToast("Connected to Voice & Cinema!", "success");
                 document.getElementById('calling-state-view').style.display = 'none';
                 document.getElementById('cinema-room').style.display = 'block';
+                
+                // SHOW CHAT TOGGLE BUTTON ONCE CALL IS SUCCESSFULLY ESTABLISHED
+                document.getElementById('btn-toggle-chat').style.display = 'flex';
+                
                 document.getElementById('remote-audio').srcObject = remoteStream;
 
                 setupAudioDetectors(remoteStream);
@@ -1520,6 +1637,7 @@
             if (callRejectedListener) { callRejectedListener(); callRejectedListener = null; }
             document.getElementById('call-screen').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
+            document.getElementById('btn-toggle-chat').style.display = 'none'; // HIDE CHAT ICON
             chatDrawer.classList.remove('open');
             btnToggleChat.classList.remove('active');
             document.getElementById('remote-audio').srcObject = null;
