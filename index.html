@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
-    
-    <!-- Adsterra Script 1 -->
-    <script src="https://pl30469225.effectivecpmnetwork.com/17/ed/63/17ed634e1133d93176099688131b3f21.js"></script>
-    <!-- Adsterra Popunder Script 2 -->
-    <script src="https://pl30486794.effectivecpmnetwork.com/67/60/b6/6760b67bae5aa3e1998fa336ea68cbff.js"></script>
 
     <!-- Security Headers (ترويسات الأمان لحل ثغرات Nikto وحماية المتصفح) -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:;">
@@ -23,7 +18,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="watchcall.png?v=3">
     <link rel="shortcut icon" href="watchcall.png?v=3" type="image/x-icon">
     
-    <!-- Google AdSense Verification Code -->
+    <!-- Google AdSense Verification Code (محتفظ به للتحقق فقط) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -432,6 +427,86 @@
             margin-bottom: 10px;
         }
 
+        /* VOICE ROOM PROFILES SECTION (DISCORD STYLE) */
+        .voice-participants-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            padding: 12px 20px;
+            background: #080c14;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 6px 14px;
+            border-radius: 30px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .user-avatar-wrapper {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        /* Speaking State Indicator (Green Ring) */
+        .user-profile-card.speaking .user-avatar-wrapper img {
+            border-color: var(--success-green);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+        }
+
+        /* Muted Mic Overlay Badge */
+        .mute-badge {
+            display: none;
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--danger-red);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #080c14;
+            z-index: 2;
+        }
+        .mute-badge svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .user-profile-card.muted .mute-badge {
+            display: flex;
+        }
+
+        .user-profile-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
         .cinema-room {
             width: 100%;
             max-width: 1150px;
@@ -620,46 +695,6 @@
             gap: 8px;
         }
 
-        .adsense-container {
-            width: 100%;
-            max-width: 420px;
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px dashed rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 90px;
-        }
-        .adsense-container::before {
-            content: 'Advertisement';
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .cinema-adsense-container {
-            width: 100%;
-            background: #04060c;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .cinema-adsense-container::before {
-            content: 'Advertisement';
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
         .site-footer {
             margin-top: 30px;
             width: 100%;
@@ -845,9 +880,6 @@
         </div>
     </div>
 
-    <!-- MAIN AD PLACEHOLDER -->
-    <div class="adsense-container" id="ad-slot-home"></div>
-
     <!-- LEGAL FOOTER -->
     <footer class="site-footer">
         <div class="optima-footer">Designed and developed by <span class="optima-brand">Optima Code</span></div>
@@ -866,6 +898,27 @@
         </div>
 
         <div class="cinema-room" id="cinema-room">
+            <!-- VOICE PARTICIPANTS AREA (DISCORD STYLE) -->
+            <div class="voice-participants-bar">
+                <!-- Local User Profile Card -->
+                <div class="user-profile-card" id="card-local-user">
+                    <div class="user-avatar-wrapper">
+                        <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="My Profile">
+                        <div class="mute-badge"><i data-lucide="mic-off"></i></div>
+                    </div>
+                    <span class="user-profile-name" id="name-local-user">You</span>
+                </div>
+
+                <!-- Remote Partner Profile Card -->
+                <div class="user-profile-card" id="card-remote-user">
+                    <div class="user-avatar-wrapper">
+                        <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Partner Profile">
+                        <div class="mute-badge"><i data-lucide="mic-off"></i></div>
+                    </div>
+                    <span class="user-profile-name" id="name-remote-user">Partner</span>
+                </div>
+            </div>
+
             <div class="cinema-grid">
                 
                 <div class="video-section">
@@ -882,8 +935,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <div class="cinema-adsense-container" id="ad-slot-cinema"></div>
                 </div>
 
                 <div class="chat-container">
@@ -949,6 +1000,7 @@
         let searchedPartner = null; 
         let callRejectedListener = null;
         let donationAmount = "3.00"; 
+        let audioContext, localAnalyser, remoteAnalyser;
 
         lucide.createIcons();
 
@@ -1141,12 +1193,81 @@
             startCall(searchedPartner.peerId, searchedPartner.name, searchedPartner.avatar);
         });
 
+        function setupVoiceProfilesUI(partnerName, partnerAvatar) {
+            document.getElementById('avatar-local-user').src = myAvatar;
+            document.getElementById('name-local-user').innerText = myName + " (You)";
+
+            document.getElementById('avatar-remote-user').src = partnerAvatar || "https://api.dicebear.com/7.x/bottts/svg?seed=partner";
+            document.getElementById('name-remote-user').innerText = partnerName || "Partner";
+
+            lucide.createIcons();
+        }
+
+        function setupAudioDetectors(remoteStream) {
+            try {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') audioContext.resume();
+
+                // Local Audio Detection
+                const localSource = audioContext.createMediaStreamSource(localStream);
+                localAnalyser = audioContext.createAnalyser();
+                localAnalyser.fftSize = 256;
+                localSource.connect(localAnalyser);
+
+                // Remote Audio Detection
+                const remoteSource = audioContext.createMediaStreamSource(remoteStream);
+                remoteAnalyser = audioContext.createAnalyser();
+                remoteAnalyser.fftSize = 256;
+                remoteSource.connect(remoteAnalyser);
+
+                const checkVoiceLevels = () => {
+                    if (!partnerId) return;
+
+                    // Check Local Speaking
+                    const localData = new Uint8Array(localAnalyser.frequencyBinCount);
+                    localAnalyser.getByteFrequencyData(localData);
+                    let localSum = 0;
+                    for (let i = 0; i < localData.length; i++) localSum += localData[i];
+                    let localAverage = localSum / localData.length;
+
+                    const localCard = document.getElementById('card-local-user');
+                    if (localAverage > 15 && !isMuted) {
+                        localCard.classList.add('speaking');
+                    } else {
+                        localCard.classList.remove('speaking');
+                    }
+
+                    // Check Remote Speaking
+                    const remoteData = new Uint8Array(remoteAnalyser.frequencyBinCount);
+                    remoteAnalyser.getByteFrequencyData(remoteData);
+                    let remoteSum = 0;
+                    for (let i = 0; i < remoteData.length; i++) remoteSum += remoteData[i];
+                    let remoteAverage = remoteSum / remoteData.length;
+
+                    const remoteCard = document.getElementById('card-remote-user');
+                    if (remoteAverage > 15) {
+                        remoteCard.classList.add('speaking');
+                    } else {
+                        remoteCard.classList.remove('speaking');
+                    }
+
+                    requestAnimationFrame(checkVoiceLevels);
+                };
+
+                checkVoiceLevels();
+            } catch (e) {
+                console.warn("Audio Context Voice Detection Error:", e);
+            }
+        }
+
         function startCall(targetId, targetName, targetAvatar) {
             partnerId = targetId;
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
             document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('call-screen').style.display = 'flex';
+
+            setupVoiceProfilesUI(targetName, targetAvatar);
 
             currentCall = peer.call(targetId, localStream);
             handleCallStreams(currentCall);
@@ -1175,6 +1296,7 @@
                     const caller = snapshot.val();
                     if (caller) {
                         document.getElementById('call-user-name').innerText = caller.name;
+                        setupVoiceProfilesUI(caller.name, caller.avatar);
                     }
                 }, { onlyOnce: true });
 
@@ -1338,6 +1460,8 @@
                 document.getElementById('calling-state-view').style.display = 'none';
                 document.getElementById('cinema-room').style.display = 'block';
                 document.getElementById('remote-audio').srcObject = remoteStream;
+
+                setupAudioDetectors(remoteStream);
             });
 
             call.on('close', () => {
@@ -1372,6 +1496,14 @@
             isMuted = !isMuted;
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
+            
+            // Toggle local muted visual badge
+            const localCard = document.getElementById('card-local-user');
+            if (isMuted) {
+                localCard.classList.add('muted');
+            } else {
+                localCard.classList.remove('muted');
+            }
         });
     </script>
 </body>
