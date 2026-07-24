@@ -41,8 +41,6 @@
             --text-main: #f3f4f6;
             --text-muted: #6b7280;
             --text-secondary: #9ca3af;
-            --discord-sidebar: #0b0f19;
-            --discord-card: rgba(255, 255, 255, 0.04);
         }
 
         * { 
@@ -410,7 +408,7 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: space-between; 
-            padding: 12px 16px;
+            padding: 12px;
             overflow: hidden;
         }
 
@@ -427,7 +425,7 @@
             margin-bottom: 8px;
         }
 
-        /* MAIN DISCORD-STYLE CINEMA GRID */
+        /* MAIN CINEMA GRID */
         .cinema-room {
             width: 100%;
             max-width: 1400px;
@@ -516,38 +514,14 @@
             white-space: nowrap;
         }
 
-        /* Right Side: DISCORD STYLE VOICE PARTICIPANTS SIDEBAR */
-        .discord-voice-sidebar {
+        /* Right Side: STANDALONE PROFILES CONTAINER */
+        .profiles-container {
             width: 280px;
-            background: var(--discord-sidebar);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 12px;
             overflow-y: auto;
-            border-radius: 16px;
             flex-shrink: 0;
-        }
-
-        .voice-sidebar-title {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .voice-participants-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            flex: 1;
         }
 
         /* --- ENLARGED SQUARE PROFILE CARDS --- */
@@ -606,16 +580,16 @@
             background: var(--danger-red);
             color: white;
             border-radius: 50%;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             align-items: center;
             justify-content: center;
             border: 2px solid #121826;
             z-index: 2;
         }
         .mute-badge svg {
-            width: 12px;
-            height: 12px;
+            width: 13px;
+            height: 13px;
         }
 
         .user-profile-card.muted .mute-badge {
@@ -809,7 +783,6 @@
         .btn-mute { background: #1f2937; }
         .btn-mute.active { background: var(--danger-red); }
 
-        /* Hide Chat toggle initially until call is active */
         .btn-chat-toggle { 
             background: #1f2937; 
             display: none; 
@@ -915,29 +888,23 @@
                 flex: 1;
                 min-height: 0;
             }
-            .discord-voice-sidebar {
+            .profiles-container {
                 width: 100%;
                 height: auto;
-                max-height: 110px;
-                padding: 8px;
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
-            }
-            .voice-participants-list {
                 flex-direction: row;
-                width: 100%;
                 gap: 8px;
+                flex-shrink: 0;
             }
             .user-profile-card {
                 flex: 1;
-                padding: 6px 10px;
-                height: 100%;
+                padding: 8px 10px;
                 flex-direction: row;
                 gap: 8px;
                 border-radius: 12px;
             }
             .user-avatar-wrapper {
-                width: 40px;
-                height: 40px;
+                width: 38px;
+                height: 38px;
             }
             .user-info {
                 align-items: flex-start;
@@ -946,9 +913,6 @@
             .user-profile-name {
                 font-size: 12px;
                 padding: 2px 6px;
-            }
-            .voice-sidebar-title {
-                display: none;
             }
         }
     </style>
@@ -1071,36 +1035,29 @@
                     </div>
                 </div>
 
-                <!-- DISCORD STYLE VOICE PARTICIPANTS SIDEBAR (RIGHT SIDE) -->
-                <div class="discord-voice-sidebar">
-                    <div class="voice-sidebar-title">
-                        <i data-lucide="users" style="width: 14px; height: 14px;"></i>
-                        <span>Voice Channel</span>
+                <!-- STANDALONE USER PROFILES CONTAINER (RIGHT SIDE ON PC / TOP ON MOBILE) -->
+                <div class="profiles-container">
+                    <!-- Local User Card -->
+                    <div class="user-profile-card" id="card-local-user">
+                        <div class="user-avatar-wrapper">
+                            <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="My Profile">
+                            <div class="mute-badge"><i data-lucide="mic-off"></i></div>
+                        </div>
+                        <div class="user-info">
+                            <span class="user-profile-name" id="name-local-user">You</span>
+                            <span class="user-status-text" id="status-local-user">Connected</span>
+                        </div>
                     </div>
 
-                    <div class="voice-participants-list">
-                        <!-- Local User Card -->
-                        <div class="user-profile-card" id="card-local-user">
-                            <div class="user-avatar-wrapper">
-                                <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="My Profile">
-                                <div class="mute-badge"><i data-lucide="mic-off"></i></div>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-profile-name" id="name-local-user">You</span>
-                                <span class="user-status-text" id="status-local-user">Connected</span>
-                            </div>
+                    <!-- Remote Partner Card -->
+                    <div class="user-profile-card" id="card-remote-user">
+                        <div class="user-avatar-wrapper">
+                            <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=partner" alt="Partner Profile">
+                            <div class="mute-badge"><i data-lucide="mic-off"></i></div>
                         </div>
-
-                        <!-- Remote Partner Card -->
-                        <div class="user-profile-card" id="card-remote-user">
-                            <div class="user-avatar-wrapper">
-                                <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=partner" alt="Partner Profile">
-                                <div class="mute-badge"><i data-lucide="mic-off"></i></div>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-profile-name" id="name-remote-user">Partner</span>
-                                <span class="user-status-text" id="status-remote-user">Connected</span>
-                            </div>
+                        <div class="user-info">
+                            <span class="user-profile-name" id="name-remote-user">Partner</span>
+                            <span class="user-status-text" id="status-remote-user">Connected</span>
                         </div>
                     </div>
                 </div>
@@ -1129,7 +1086,6 @@
         
         <div class="controls">
             <button id="btn-mute" class="btn-control btn-mute" title="Toggle Mic"><i data-lucide="mic"></i></button>
-            <!-- Chat Toggle Icon: HIDE BY DEFAULT, SHOW ONLY WHEN CONNECTED -->
             <button id="btn-toggle-chat" class="btn-control btn-chat-toggle" title="Toggle Chat Drawer"><i data-lucide="message-square"></i></button>
             <button id="btn-accept" class="btn-control btn-accept" style="display: none;"><i data-lucide="phone"></i>Accept</button>
             <button id="btn-hangup" class="btn-control btn-hangup" title="End Call"><i data-lucide="phone-off"></i></button>
@@ -1176,6 +1132,7 @@
         let callRejectedListener = null;
         let donationAmount = "3.00"; 
         let audioContext, localAnalyser, remoteAnalyser;
+        let isMuted = false;
 
         lucide.createIcons();
 
@@ -1487,6 +1444,7 @@
 
             setupCinemaSync();
             setupChatSync();
+            setupMuteStateSync();
         }
 
         function listenForIncomingCalls() {
@@ -1514,6 +1472,7 @@
                     handleCallStreams(currentCall);
                     setupCinemaSync();
                     setupChatSync();
+                    setupMuteStateSync();
                 };
             });
         }
@@ -1657,13 +1616,26 @@
             });
         }
 
+        // Realtime Mute Synchronization between peers
+        function setupMuteStateSync() {
+            if (!partnerId) return;
+
+            // Remote Mute Listener
+            onValue(ref(db, `calls/${partnerId}_${myId}/muted`), (snapshot) => {
+                const remoteCard = document.getElementById('card-remote-user');
+                if (snapshot.exists() && snapshot.val() === true) {
+                    remoteCard.classList.add('muted');
+                } else {
+                    remoteCard.classList.remove('muted');
+                }
+            });
+        }
+
         function handleCallStreams(call) {
             call.on('stream', (remoteStream) => {
                 showToast("Connected to Voice & Cinema!", "success");
                 document.getElementById('calling-state-view').style.display = 'none';
                 document.getElementById('cinema-room').style.display = 'block';
-                
-                // SHOW CHAT TOGGLE BUTTON ONCE CALL IS SUCCESSFULLY ESTABLISHED
                 document.getElementById('btn-toggle-chat').style.display = 'flex';
                 
                 document.getElementById('remote-audio').srcObject = remoteStream;
@@ -1701,18 +1673,22 @@
             partnerId = null;
         }
 
-        let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = !isMuted;
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
             
-            // Toggle local muted visual badge
+            // Local visual badge update
             const localCard = document.getElementById('card-local-user');
             if (isMuted) {
                 localCard.classList.add('muted');
             } else {
                 localCard.classList.remove('muted');
+            }
+
+            // Sync Mute state to Firebase Database for partner visibility
+            if (partnerId) {
+                set(ref(db, `calls/${myId}_${partnerId}/muted`), isMuted);
             }
         });
     </script>
