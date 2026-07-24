@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WatchCall - Watch YouTube Together in Sync with Voice Chat</title>
+    <title>WatchCall - Sync Video & Voice Chat</title>
 
     <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:;">
@@ -12,13 +12,9 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="watchcall.png?v=3">
-    <link rel="icon" type="image/png" sizes="48x48" href="watchcall.png?v=3">
-    <link rel="icon" type="image/png" sizes="96x96" href="watchcall.png?v=3">
-    <link rel="icon" type="image/png" sizes="192x192" href="watchcall.png?v=3">
-    <link rel="apple-touch-icon" sizes="180x180" href="watchcall.png?v=3">
     <link rel="shortcut icon" href="watchcall.png?v=3" type="image/x-icon">
     
-    <!-- Google AdSense Verification Code -->
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4144779103451763" crossorigin="anonymous"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -31,18 +27,15 @@
     <style>
         :root {
             --bg-dark: #05070f;
-            --card-bg: rgba(13, 18, 33, 0.75);
+            --card-bg: rgba(20, 24, 38, 0.85);
             --card-border: rgba(255, 255, 255, 0.08);
             --accent-blue: #0066ff;
             --accent-hover: #0052cc;
             --danger-red: #ef4444;
-            --danger-hover: #dc2626;
             --success-green: #10b981;
             --text-main: #f3f4f6;
-            --text-muted: #6b7280;
-            --text-secondary: #9ca3af;
-            --discord-sidebar: #0b0f19;
-            --discord-card: rgba(255, 255, 255, 0.04);
+            --text-muted: #9ca3af;
+            --square-card-bg: #121624;
         }
 
         * { 
@@ -51,10 +44,6 @@
             padding: 0; 
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; 
             -webkit-tap-highlight-color: transparent;
-        }
-
-        h1, h2, h3, .my-code-value {
-            font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
         }
 
         body { 
@@ -66,13 +55,13 @@
             align-items: center; 
             min-height: 100vh; 
             padding: 10px;
-            overflow-y: auto;
-            background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 80%);
         }
 
         .toast-container {
             position: fixed;
-            bottom: 24px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 2000;
@@ -84,18 +73,18 @@
 
         .toast {
             background: rgba(17, 24, 39, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
             padding: 12px 20px;
-            border-radius: 12px;
+            border-radius: 14px;
             color: var(--text-main);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            animation: slideUpFade 0.3s ease forwards;
         }
 
         @keyframes slideUpFade {
@@ -112,27 +101,19 @@
             border: 1px solid var(--card-border);
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             text-align: center; 
-            transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             margin: auto;
-            position: relative;
-        }
-        
-        .container.app-expanded {
-            max-width: 480px; 
         }
         
         h1 { 
+            font-family: 'Cabinet Grotesk', sans-serif;
             font-size: 26px; 
             font-weight: 900; 
             margin-bottom: 8px; 
-            color: var(--text-main); 
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            flex-wrap: wrap;
         }
 
         .online-counter-badge {
@@ -153,42 +134,19 @@
             height: 8px;
             background-color: var(--success-green);
             border-radius: 50%;
-            position: relative;
-            display: inline-block;
-        }
-
-        .pulse-dot::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background-color: var(--success-green);
-            border-radius: 50%;
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.8); opacity: 0; }
-            100% { transform: scale(0.95); opacity: 0; }
         }
 
         .site-logo {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             object-fit: contain;
             border-radius: 50%;
-            filter: drop-shadow(0 0 8px rgba(0, 102, 255, 0.3));
-            flex-shrink: 0;
         }
 
         .subtitle {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             margin-bottom: 20px;
-            font-weight: 500;
         }
         
         .avatar-picker { 
@@ -215,17 +173,15 @@
             border-radius: 50%; 
             color: white; 
             display: flex; 
-            align-items: center; 
-            justify-content: center;
             border: 2px solid #0d1221;
         }
         
         input[type="text"] { 
             width: 100%; 
             padding: 12px 16px; 
-            background: rgba(255, 255, 255, 0.03); 
+            background: rgba(255, 255, 255, 0.04); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 12px; 
+            border-radius: 14px; 
             color: white; 
             font-size: 14px; 
             font-weight: 700;
@@ -233,22 +189,13 @@
             outline: none; 
             text-align: center;
         }
-        input[type="text"]:focus {
-            border-color: var(--accent-blue);
-        }
 
-        #target-code-input {
-            direction: ltr !important;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-        
         button { 
             width: 100%; 
             padding: 12px 16px; 
             background: var(--accent-blue); 
             border: none; 
-            border-radius: 12px; 
+            border-radius: 14px; 
             color: white; 
             font-size: 15px; 
             font-weight: 700; 
@@ -259,17 +206,15 @@
             justify-content: center;
             gap: 8px;
         }
-        button:hover { 
-            background: var(--accent-hover); 
-        }
+        button:hover { background: var(--accent-hover); }
         
         #app-screen { display: none; }
 
         .my-code-panel {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             padding: 16px;
-            border-radius: 16px;
+            border-radius: 18px;
             margin-bottom: 16px;
         }
         .my-code-title {
@@ -278,15 +223,13 @@
             margin-bottom: 6px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .my-code-value {
+            font-family: 'Cabinet Grotesk', sans-serif;
             font-size: 26px;
             font-weight: 800;
             color: var(--accent-blue);
             letter-spacing: 3px;
-            direction: ltr !important;
-            display: inline-block;
         }
 
         .partner-found-card {
@@ -299,119 +242,20 @@
             align-items: center;
             justify-content: space-between;
         }
-        .partner-found-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-align: left;
-        }
-        .partner-found-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .partner-found-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-mini {
-            width: auto;
-            padding: 8px 12px;
-            font-size: 12px;
-            border-radius: 8px;
-        }
-        .btn-mini-cancel { background: #1f2937; }
 
-        .support-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 18px;
-            padding: 16px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        .support-title {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .support-desc {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        .presets-container {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-        .btn-preset {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            width: auto;
-            transition: all 0.2s ease;
-        }
-        .btn-preset:hover, .btn-preset.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: white;
-        }
-        .custom-donation-wrapper {
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 4px 10px;
-            direction: ltr !important;
-        }
-        .custom-donation-wrapper input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: white;
-            font-size: 13px;
-            font-weight: 700;
-            width: 100%;
-            text-align: left;
-            padding: 4px;
-            margin-bottom: 0 !important;
-        }
-        .custom-donation-wrapper span {
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 800;
-            padding-left: 4px;
-        }
-
-        /* --- FULL SCREEN CALL / CINEMA ROOM (OPTIMIZED FOR PC) --- */
+        /* --- FULL SCREEN CINEMA ROOM (MATCHING USER'S IMAGE EXACTLY) --- */
         #call-screen { 
             display: none; 
             position: fixed; 
             top: 0; left: 0; 
             width: 100vw; height: 100vh; 
-            background: #030408; 
-            z-index: 100; 
+            background: #000000; 
+            z-index: 1000; 
             flex-direction: column; 
             align-items: center; 
             justify-content: space-between; 
-            padding: 12px 16px;
-            overflow: hidden;
+            padding: 16px;
+            overflow-y: auto;
         }
 
         .calling-state-container {
@@ -421,271 +265,190 @@
             justify-content: center;
             flex: 1;
         }
-        .calling-state-container h3 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
 
-        /* MAIN DISCORD-STYLE CINEMA GRID */
         .cinema-room {
             width: 100%;
-            max-width: 1400px;
-            height: calc(100vh - 85px);
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
+            max-width: 520px;
             display: none;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
-
-        .cinema-main-layout {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-
-        /* Left Side: YouTube Video Player */
-        .video-section {
-            flex: 1;
-            display: flex;
             flex-direction: column;
-            background: #000;
-            height: 100%;
+            gap: 16px;
+            margin: auto 0;
+        }
+
+        /* TOP VIDEO CONTAINER WITH ROUNDED CORNERS */
+        .video-box {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #0d111d;
+            border-radius: 24px;
+            overflow: hidden;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
         }
 
         #video-container {
-            flex: 1;
             width: 100%;
+            height: 100%;
             position: relative;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         #video-container iframe, #player {
-            position: absolute;
-            top: 0; left: 0;
             width: 100%;
             height: 100%;
-            z-index: 5;
             border: none;
         }
 
-        .video-selector {
+        .video-input-bar {
             display: flex;
             gap: 8px;
-            width: 100%;
-            padding: 12px 16px;
-            background: #080c14;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: -4px;
         }
-        .search-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-        .search-row input {
+        .video-input-bar input {
             flex: 1;
-            padding: 10px 14px;
-            background: #03050a;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
             margin-bottom: 0;
-            text-align: left;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 12px;
         }
-        .search-row button {
+        .video-input-bar button {
             width: auto;
-            padding: 10px 20px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        /* SQUARE USER PROFILE CARDS GRID (EXACTLY LIKE THE IMAGE) */
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .square-profile-card {
+            background: var(--square-card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .square-profile-card.speaking {
+            border-color: var(--success-green);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .square-avatar-wrapper {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .square-avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .square-card-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge-username {
             font-size: 13px;
             font-weight: 700;
-            border-radius: 10px;
-            white-space: nowrap;
+            color: var(--text-main);
         }
 
-        /* Right Side: DISCORD STYLE VOICE PARTICIPANTS SIDEBAR */
-        .discord-voice-sidebar {
-            width: 320px;
-            background: var(--discord-sidebar);
-            border-left: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-        }
-
-        .voice-sidebar-title {
-            font-size: 12px;
-            font-weight: 800;
+        .badge-status {
+            font-size: 11px;
+            font-weight: 600;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            gap: 4px;
         }
 
-        .voice-participants-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            flex: 1;
-        }
-
-        /* ENLARGED DISCORD PROFILE CARD */
-        .user-profile-card {
+        /* FLOATING BOTTOM CONTROL BAR (MATCHING IMAGE) */
+        .floating-controls-bar {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(22, 26, 38, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 35px;
+            padding: 10px 18px;
             display: flex;
             align-items: center;
-            gap: 14px;
-            background: var(--discord-card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px 16px;
-            border-radius: 16px;
-            transition: all 0.25s ease;
-            position: relative;
+            justify-content: space-around;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            margin-top: 10px;
         }
 
-        .user-avatar-wrapper {
-            position: relative;
-            width: 64px;
-            height: 64px;
+        .btn-ctrl {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            flex-shrink: 0;
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .user-avatar-wrapper img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid transparent;
+            cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        /* Discord-style Speaking Pulse Ring */
-        .user-profile-card.speaking .user-avatar-wrapper img {
-            border-color: var(--success-green);
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
-        }
+        .btn-ctrl:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn-ctrl.active { background: var(--accent-blue); }
+        .btn-ctrl.danger { background: var(--danger-red); }
 
-        .mute-badge {
-            display: none;
-            position: absolute;
-            bottom: 0px;
-            right: 0px;
-            background: var(--danger-red);
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #080c14;
-            z-index: 2;
-        }
-        .mute-badge svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        .user-profile-card.muted .mute-badge {
-            display: flex;
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            overflow: hidden;
-            text-align: left;
-        }
-
-        .user-profile-name {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-status-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .user-profile-card.speaking .user-status-text {
-            color: var(--success-green);
-        }
-
-        /* --- SLIDING CHAT DRAWER PANEL --- */
+        /* CHAT DRAWER PANEL */
         .chat-drawer {
             position: fixed;
             top: 0;
             right: -360px;
             width: 320px;
             height: 100%;
-            background: rgba(8, 12, 20, 0.96);
+            background: rgba(10, 14, 24, 0.98);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border-left: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
-            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 500;
+            transition: right 0.3s ease;
+            z-index: 2000;
             display: flex;
             flex-direction: column;
         }
 
-        .chat-drawer.open {
-            right: 0;
-        }
+        .chat-drawer.open { right: 0; }
 
         .chat-header {
-            padding: 16px 20px;
-            background: #0d1221;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
             font-size: 14px;
             font-weight: 800;
-            color: var(--accent-blue);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
-            align-items: center;
             justify-content: space-between;
-        }
-
-        .chat-header-title {
-            display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .btn-close-chat {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-            border-radius: 6px;
-        }
-        .btn-close-chat:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.05);
         }
 
         .chat-messages {
@@ -702,8 +465,6 @@
             align-items: flex-start;
             gap: 10px;
             font-size: 13px;
-            animation: slideUpFade 0.2s ease;
-            text-align: left;
         }
 
         .chat-msg img {
@@ -711,195 +472,39 @@
             height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            flex-shrink: 0;
         }
 
         .chat-msg-body {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05);
             padding: 8px 12px;
             border-radius: 12px;
             max-width: 85%;
-            word-break: break-all;
-        }
-
-        .chat-msg-name {
-            font-weight: 800;
-            color: var(--accent-blue);
-            margin-bottom: 3px;
-            font-size: 11px;
         }
 
         .chat-input-row {
             display: flex;
             padding: 12px;
-            background: #04060c;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: #05070f;
             gap: 8px;
         }
-
-        .chat-input-row input {
-            flex: 1;
-            padding: 10px 14px;
-            background: #080c14;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 0;
-            text-align: left;
-        }
-
-        .chat-input-row button {
-            width: auto;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        /* BOTTOM CALL CONTROLS */
-        .controls { 
-            display: flex; 
-            gap: 15px; 
-            justify-content: center; 
-            align-items: center;
-            width: 100%; 
-            padding: 10px 0 2px;
-            height: 60px;
-        }
-        .btn-control { 
-            width: 48px; 
-            height: 48px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border: none; 
-            cursor: pointer; 
-            color: white;
-            position: relative;
-        }
-        .btn-mute { background: #1f2937; }
-        .btn-mute.active { background: var(--danger-red); }
-
-        /* Hide Chat toggle initially until call is active */
-        .btn-chat-toggle { 
-            background: #1f2937; 
-            display: none; 
-        }
-        .btn-chat-toggle.active { background: var(--accent-blue); }
-
-        .btn-hangup { background: var(--danger-red); }
-        .btn-accept { 
-            background: var(--success-green); 
-            border-radius: 26px; 
-            width: auto; 
-            padding: 0 20px; 
-            font-size: 14px; 
-            font-weight: 700;
-            gap: 8px;
-        }
+        .chat-input-row input { margin-bottom: 0; }
+        .chat-input-row button { width: auto; padding: 10px 16px; }
 
         .site-footer {
             margin-top: 20px;
-            width: 100%;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-items: center;
-        }
-        .optima-footer {
             font-size: 12px;
-            font-weight: 700;
             color: var(--text-muted);
         }
-        .optima-brand {
-            color: var(--accent-blue);
-            font-weight: 900;
-        }
-        .footer-links {
-            display: flex;
-            gap: 15px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        .footer-links a:hover {
-            color: var(--accent-blue);
-        }
 
-        .policy-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(5, 7, 15, 0.95);
-            z-index: 3000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .policy-modal-content {
-            background: #0d1221;
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            max-width: 500px;
-            width: 100%;
-            padding: 25px;
-            max-height: 80vh;
-            overflow-y: auto;
-            text-align: left;
-        }
-        .policy-modal-content h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: var(--text-main);
-        }
-        .policy-modal-content p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-        .policy-modal-content button {
-            margin-top: 15px;
-            padding: 10px;
-        }
-
-        /* RESPONSIVE LAYOUT FOR MOBILE DEVICES */
-        @media (max-width: 850px) {
-            .cinema-main-layout {
-                flex-direction: column;
+        /* MEDIA QUERIES FOR DESKTOP STYLING */
+        @media (min-width: 768px) {
+            .cinema-room {
+                max-width: 850px;
             }
-            .discord-voice-sidebar {
-                width: 100%;
-                height: 140px;
-                flex-direction: row;
-                align-items: center;
-                border-left: none;
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
-            }
-            .voice-participants-list {
-                flex-direction: row;
-                width: 100%;
-            }
-            .user-profile-card {
-                flex: 1;
-                padding: 8px 12px;
-            }
-            .user-avatar-wrapper {
-                width: 44px;
-                height: 44px;
-            }
-            .voice-sidebar-title {
-                display: none;
+            .square-avatar-wrapper {
+                width: 105px;
+                height: 105px;
             }
         }
     </style>
@@ -912,14 +517,14 @@
         <!-- LOGIN SCREEN -->
         <div id="login-screen">
             <h1>
-                <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
-                <span>Join WatchCall</span>
+                <img src="watchcall.png" alt="Logo" class="site-logo">
+                <span>WatchCall</span>
                 <span class="online-counter-badge">
                     <span class="pulse-dot"></span>
-                    <span id="active-online-count">1</span> Online
+                    <span id="active-online-count">1</span>
                 </span>
             </h1>
-            <p class="subtitle">Voice chat & watch YouTube in perfect real-time sync</p>
+            <p class="subtitle">Watch YouTube synchronized with high quality voice chat</p>
             
             <div class="avatar-picker" onclick="document.getElementById('file-input').click()">
                 <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="Avatar">
@@ -927,44 +532,18 @@
                 <input type="file" id="file-input" accept="image/*">
             </div>
             
-            <input type="text" id="username" placeholder="Choose a nickname..." autocomplete="off" maxlength="15">
-            <button id="btn-join"><i data-lucide="log-in"></i>Enter Room Now</button>
-            
-            <!-- DONATION/SUPPORT OPTION -->
-            <div class="support-card">
-                <div class="support-title">
-                    <i data-lucide="heart" style="color: var(--danger-red); fill: var(--danger-red); width: 16px; height: 16px;"></i>
-                    <span>Support Optima Code</span>
-                </div>
-                <div class="support-desc">Your donations help us keep our open-source tools running and free.</div>
-                <div class="presets-container">
-                    <button class="btn-preset active" data-val="3.00">$3</button>
-                    <button class="btn-preset" data-val="5.00">$5</button>
-                    <button class="btn-preset" data-val="10.00">$10</button>
-                    <button class="btn-preset" id="btn-custom-toggle" data-val="custom">Other</button>
-                </div>
-
-                <div class="custom-donation-wrapper" id="custom-donation-box" style="display: none;">
-                    <input type="text" id="custom-amount-input" placeholder="0.00" maxlength="6">
-                    <span>USD $</span>
-                </div>
-
-                <div id="paypal-button-container"></div>
-            </div>
+            <input type="text" id="username" placeholder="Enter your nickname..." autocomplete="off" maxlength="15">
+            <button id="btn-join"><i data-lucide="log-in"></i>Enter Room</button>
         </div>
 
-        <!-- APP DASHBOARD SCREEN -->
+        <!-- APP DASHBOARD -->
         <div id="app-screen">
             <h1>
-                <img src="watchcall.png" alt="WatchCall Logo" class="site-logo">
-                <span>Your Private Room</span>
-                <span class="online-counter-badge">
-                    <span class="pulse-dot"></span>
-                    <span id="active-online-count-app">1</span> Online
-                </span>
+                <img src="watchcall.png" alt="Logo" class="site-logo">
+                <span>Your Room</span>
             </h1>
             <div class="my-code-panel">
-                <div class="my-code-title">Your Shareable Code</div>
+                <div class="my-code-title">Your Connection Code</div>
                 <div class="my-code-value" id="my-6digit-code">------</div>
             </div>
 
@@ -972,143 +551,86 @@
             <button id="btn-search-by-code"><i data-lucide="search"></i>Connect with Partner Code</button>
 
             <div class="partner-found-card" id="partner-found-card">
-                <div class="partner-found-info">
-                    <img class="partner-found-avatar" id="found-avatar" src="" alt="">
-                    <div>
-                        <div id="found-name" style="font-weight: 800;">Partner Name</div>
-                    </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img id="found-avatar" src="" style="width: 40px; height: 40px; border-radius: 50%;">
+                    <div id="found-name" style="font-weight: 800;">Partner Name</div>
                 </div>
-                <div class="partner-found-buttons">
-                    <button class="btn-mini btn-mini-cancel" id="btn-cancel-search">Cancel</button>
-                    <button class="btn-mini" id="btn-start-actual-call" style="background: var(--success-green); font-weight: 700;">Call</button>
-                </div>
+                <button id="btn-start-actual-call" style="width: auto; background: var(--success-green); padding: 8px 16px;">Call</button>
             </div>
         </div>
     </div>
-
-    <!-- LEGAL FOOTER -->
-    <footer class="site-footer">
-        <div class="optima-footer">Designed and developed by <span class="optima-brand">Optima Code</span></div>
-        <div class="footer-links">
-            <a href="#" onclick="showModal('privacy-modal')">Privacy Policy</a>
-            <span>•</span>
-            <a href="#" onclick="showModal('terms-modal')">Terms of Service</a>
-        </div>
-    </footer>
 
     <!-- CALL ROOM SCREEN -->
     <div id="call-screen">
         <div class="calling-state-container" id="calling-state-view">
-            <h3 id="call-user-name">Partner User</h3>
-            <p id="call-status-text" style="font-weight: 700; color: var(--text-secondary);">Connecting secure audio & sync session...</p>
+            <h3 id="call-user-name" style="font-size: 24px; margin-bottom: 8px;">Connecting...</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Establishing peer-to-peer connection...</p>
         </div>
 
         <div class="cinema-room" id="cinema-room">
-            <div class="cinema-main-layout">
-                <!-- VIDEO PLAYER & LINK SELECTOR (LEFT SIDE) -->
-                <div class="video-section">
-                    <div id="video-container">
-                        <div id="player"></div>
+            <!-- TOP VIDEO CONTAINER -->
+            <div class="video-box">
+                <div id="video-container">
+                    <div id="player"></div>
+                </div>
+            </div>
+
+            <!-- YOUTUBE LINK SELECTOR -->
+            <div class="video-input-bar">
+                <input type="text" id="video-url" placeholder="Paste YouTube video link here...">
+                <button id="btn-load-video"><i data-lucide="play"></i><span>Play</span></button>
+            </div>
+
+            <!-- SQUARE PROFILES GRID (EXACTLY AS THE PROVIDED IMAGE) -->
+            <div class="profiles-grid">
+                <!-- User Profile Square -->
+                <div class="square-profile-card" id="card-local-user">
+                    <div class="square-avatar-wrapper">
+                        <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="You">
                     </div>
-                    
-                    <div class="video-selector">
-                        <div class="search-row">
-                            <input type="text" id="video-url" placeholder="Paste YouTube link here to sync play...">
-                            <button id="btn-load-video">
-                                <i data-lucide="play"></i>
-                                <span>Play</span>
-                            </button>
-                        </div>
+                    <div class="square-card-badges">
+                        <i data-lucide="mic" style="width: 12px; height: 12px;"></i>
+                        <span class="badge-username" id="name-local-user">You</span>
                     </div>
                 </div>
 
-                <!-- DISCORD STYLE VOICE PARTICIPANTS SIDEBAR (RIGHT SIDE) -->
-                <div class="discord-voice-sidebar">
-                    <div class="voice-sidebar-title">
-                        <i data-lucide="users" style="width: 14px; height: 14px;"></i>
-                        <span>Voice Channel</span>
+                <!-- Partner Profile Square -->
+                <div class="square-profile-card" id="card-remote-user">
+                    <div class="square-avatar-wrapper">
+                        <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=partner" alt="Partner">
                     </div>
-
-                    <div class="voice-participants-list">
-                        <!-- Local User Card -->
-                        <div class="user-profile-card" id="card-local-user">
-                            <div class="user-avatar-wrapper">
-                                <img id="avatar-local-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" alt="My Profile">
-                                <div class="mute-badge"><i data-lucide="mic-off"></i></div>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-profile-name" id="name-local-user">You</span>
-                                <span class="user-status-text" id="status-local-user">Connected</span>
-                            </div>
-                        </div>
-
-                        <!-- Remote Partner Card -->
-                        <div class="user-profile-card" id="card-remote-user">
-                            <div class="user-avatar-wrapper">
-                                <img id="avatar-remote-user" src="https://api.dicebear.com/7.x/bottts/svg?seed=partner" alt="Partner Profile">
-                                <div class="mute-badge"><i data-lucide="mic-off"></i></div>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-profile-name" id="name-remote-user">Partner</span>
-                                <span class="user-status-text" id="status-remote-user">Connected</span>
-                            </div>
-                        </div>
+                    <div class="square-card-badges">
+                        <i data-lucide="mic" style="width: 12px; height: 12px;"></i>
+                        <span class="badge-username" id="name-remote-user">Partner</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDING CHAT DRAWER PANEL -->
+        <!-- SLIDING CHAT DRAWER -->
         <div class="chat-drawer" id="chat-drawer">
             <div class="chat-header">
-                <div class="chat-header-title">
-                    <i data-lucide="message-square"></i>
-                    <span>Live Cinema Chat</span>
-                </div>
-                <button class="btn-close-chat" id="btn-close-chat">
-                    <i data-lucide="x"></i>
-                </button>
+                <span>Live Room Chat</span>
+                <button id="btn-close-chat" style="background: transparent; width: auto; padding: 4px;"><i data-lucide="x"></i></button>
             </div>
             <div class="chat-messages" id="chat-box"></div>
             <div class="chat-input-row">
                 <input type="text" id="chat-input" placeholder="Type a message...">
-                <button id="btn-send-msg" style="background: var(--accent-blue);">
-                    <i data-lucide="send"></i>
-                </button>
+                <button id="btn-send-msg"><i data-lucide="send"></i></button>
             </div>
         </div>
         
-        <div class="controls">
-            <button id="btn-mute" class="btn-control btn-mute" title="Toggle Mic"><i data-lucide="mic"></i></button>
-            <!-- Chat Toggle Icon: HIDE BY DEFAULT, SHOW ONLY WHEN CONNECTED -->
-            <button id="btn-toggle-chat" class="btn-control btn-chat-toggle" title="Toggle Chat Drawer"><i data-lucide="message-square"></i></button>
-            <button id="btn-accept" class="btn-control btn-accept" style="display: none;"><i data-lucide="phone"></i>Accept</button>
-            <button id="btn-hangup" class="btn-control btn-hangup" title="End Call"><i data-lucide="phone-off"></i></button>
-        </div>
-    </div>
-
-    <!-- MODALS FOR ADSENSE REQUIREMENTS -->
-    <div class="policy-modal" id="privacy-modal">
-        <div class="policy-modal-content">
-            <h2>Privacy Policy</h2>
-            <p>At WatchCall, we value your privacy. We do not store any personal identification data. Your custom room data and coordinates are processed on serverless real-time cloud connections and destroyed once you disconnect.</p>
-            <p><strong>Third-Party Advertising:</strong> This site may display advertisements provided by Google AdSense. Google utilizes cookies to show advertisements based on your visits to this website and other platforms.</p>
-            <button onclick="closeModal('privacy-modal')">I Understand</button>
-        </div>
-    </div>
-
-    <div class="policy-modal" id="terms-modal">
-        <div class="policy-modal-content">
-            <h2>Terms of Service</h2>
-            <p>Welcome to WatchCall. By utilizing this site, you agree to comply with our fair-use standards. Re-broadcasting copyrighted content outside of public API limits is strictly prohibited.</p>
-            <p>Audio processing is established peer-to-peer (P2P). We do not record, listen, or intercept any audio communication streams between users.</p>
-            <button onclick="closeModal('terms-modal')">I Accept</button>
+        <!-- BOTTOM FLOATING CONTROLS BAR -->
+        <div class="floating-controls-bar">
+            <button class="btn-ctrl" id="btn-mute" title="Mute Mic"><i data-lucide="mic"></i></button>
+            <button class="btn-ctrl" id="btn-toggle-chat" title="Open Chat" style="display: none;"><i data-lucide="message-square"></i></button>
+            <button class="btn-ctrl" id="btn-accept" style="display: none; background: var(--success-green);"><i data-lucide="phone"></i></button>
+            <button class="btn-ctrl danger" id="btn-hangup" title="End Call"><i data-lucide="phone-off"></i></button>
         </div>
     </div>
 
     <audio id="remote-audio" autoplay playsinline></audio>
 
-    <!-- FUNCTIONAL SCRIPT MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, onDisconnect, update, remove, get, push } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
@@ -1121,206 +643,81 @@
         let my6DigitCode = "";
         let peer, localStream, currentCall, partnerId = null;
         let ytPlayer = null;
-        let ignoreNextStateChange = false; 
-        let lastActionSent = null;
-        let searchedPartner = null; 
-        let callRejectedListener = null;
-        let donationAmount = "3.00"; 
-        let audioContext, localAnalyser, remoteAnalyser;
+        let ignoreNextStateChange = false;
+        let searchedPartner = null;
 
         lucide.createIcons();
 
-        // Active Online Presence Counter Tracking
+        // Online Presence
         const activePresenceRef = push(ref(db, 'online_presence'));
         set(activePresenceRef, true);
         onDisconnect(activePresenceRef).remove();
-
         onValue(ref(db, 'online_presence'), (snapshot) => {
             const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 1;
-            const loginElem = document.getElementById('active-online-count');
-            const appElem = document.getElementById('active-online-count-app');
-            if (loginElem) loginElem.innerText = count;
-            if (appElem) appElem.innerText = count;
+            document.getElementById('active-online-count').innerText = count;
         });
 
-        // Modals Logic
-        window.showModal = function(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-        window.closeModal = function(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        // Chat Drawer Toggle Logic
+        // Chat Toggle
         const chatDrawer = document.getElementById('chat-drawer');
         const btnToggleChat = document.getElementById('btn-toggle-chat');
-        const btnCloseChat = document.getElementById('btn-close-chat');
-
-        btnToggleChat.addEventListener('click', () => {
-            chatDrawer.classList.toggle('open');
-            btnToggleChat.classList.toggle('active', chatDrawer.classList.contains('open'));
-        });
-
-        btnCloseChat.addEventListener('click', () => {
-            chatDrawer.classList.remove('open');
-            btnToggleChat.classList.remove('active');
-        });
-
-        function sanitizeInput(str) {
-            if (!str) return '';
-            return str.replace(/[&<>"']/g, function(m) {
-                switch (m) {
-                    case '&': return '&amp;';
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '"': return '&quot;';
-                    case "'": return '&#x27;';
-                    default: return m;
-                }
-            }).trim();
-        }
-
-        function extractYoutubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
+        btnToggleChat.addEventListener('click', () => chatDrawer.classList.toggle('open'));
+        document.getElementById('btn-close-chat').addEventListener('click', () => chatDrawer.classList.remove('open'));
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            let iconName = 'info';
-            if (type === 'success') iconName = 'check-circle';
-            if (type === 'danger') iconName = 'alert-triangle';
-            toast.innerHTML = `<i data-lucide="${iconName}"></i><span>${sanitizeInput(message)}</span>`;
+            toast.innerHTML = `<i data-lucide="info"></i><span>${message}</span>`;
             container.appendChild(toast);
             lucide.createIcons();
-            setTimeout(() => { toast.remove(); }, 3000);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        // Handle Avatar Selection & Upload
-        document.getElementById('file-input').addEventListener('change', function(e) {
+        // Avatar Upload
+        document.getElementById('file-input').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                if (file.size > 2 * 1024 * 1024) {
-                    showToast("Image size must be less than 2MB!", "danger");
-                    return;
-                }
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = (event) => {
                     myAvatar = event.target.result;
                     document.getElementById('avatar-preview').src = myAvatar;
-                    showToast("Avatar updated locally!", "success");
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Donation Setups
-        const presetButtons = document.querySelectorAll('.btn-preset');
-        const customDonationBox = document.getElementById('custom-donation-box');
-        const customAmountInput = document.getElementById('custom-amount-input');
-
-        presetButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                presetButtons.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                const val = e.target.getAttribute('data-val');
-                if (val === 'custom') {
-                    customDonationBox.style.display = 'flex';
-                    customAmountInput.focus();
-                    const inputVal = parseFloat(customAmountInput.value);
-                    donationAmount = (!isNaN(inputVal) && inputVal > 0) ? inputVal.toFixed(2) : "1.00";
-                } else {
-                    customDonationBox.style.display = 'none';
-                    donationAmount = val;
-                }
-            });
-        });
-
-        customAmountInput.addEventListener('input', (e) => {
-            let val = e.target.value.replace(/[^0-9.]/g, '');
-            const parts = val.split('.');
-            if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
-            e.target.value = val;
-
-            const parsedVal = parseFloat(val);
-            donationAmount = (!isNaN(parsedVal) && parsedVal > 0) ? parsedVal.toFixed(2) : "1.00";
-        });
-
-        paypal.Buttons({
-            style: { layout: 'vertical', color: 'gold', shape: 'rect', height: 38 },
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: { value: donationAmount },
-                        description: "Support Optima Code Team"
-                    }]
-                });
-            },
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    showToast(`Thank you for supporting Optima Code! Donor: ${details.payer.name.given_name}`, "success");
-                });
-            },
-            onError: function(err) {
-                showToast("An error occurred during payment processing.", "danger");
-            }
-        }).render('#paypal-button-container');
-
-        document.getElementById('target-code-input').addEventListener('input', (e) => {
-            let val = e.target.value.replace(/\D/g, '');
-            if (val.length > 3) val = val.slice(0, 3) + ' ' + val.slice(3, 6);
-            e.target.value = val;
-        });
-
-        // Room Authentication
+        // Enter App
         document.getElementById('btn-join').addEventListener('click', async () => {
-            myName = sanitizeInput(document.getElementById('username').value);
-            if(!myName || myName.length < 2) return showToast("Please write a valid nickname!", "danger");
+            myName = document.getElementById('username').value.trim();
+            if(!myName) return showToast("Please write a nickname!");
 
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                showToast("Microphone access is mandatory for call synchronizations!", "danger");
-                return;
+                return showToast("Microphone access is required!");
             }
 
-            peer = new Peer({
-                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-            });
-            
+            peer = new Peer({ config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } });
             peer.on('open', async (id) => {
                 myId = id;
                 my6DigitCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-                const userRef = ref(db, 'users/' + myId);
-                const codeRef = ref(db, 'codes/' + my6DigitCode);
+                await set(ref(db, 'users/' + myId), { name: myName, avatar: myAvatar, code: my6DigitCode });
+                await set(ref(db, 'codes/' + my6DigitCode), { peerId: myId, name: myName, avatar: myAvatar });
 
-                await set(userRef, { name: myName, avatar: myAvatar, code: my6DigitCode });
-                await set(codeRef, { peerId: myId, name: myName, avatar: myAvatar });
-
-                onDisconnect(userRef).remove();
-                onDisconnect(codeRef).remove();
-
-                document.getElementById('my-6digit-code').innerText = my6DigitCode.slice(0, 3) + ' ' + my6DigitCode.slice(3, 6);
+                document.getElementById('my-6digit-code').innerText = my6DigitCode;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('main-container').classList.add('app-expanded');
                 
-                listenForIncomingCalls();
+                listenForCalls();
             });
         });
 
+        // Search Partner
         document.getElementById('btn-search-by-code').addEventListener('click', async () => {
             const rawCode = document.getElementById('target-code-input').value.replace(/\s+/g, '');
-            if (!/^\d{6}$/.test(rawCode)) return showToast("Please input a valid 6-digit code!", "danger");
-            if (rawCode === my6DigitCode) return showToast("You cannot connect to yourself!", "danger");
-
             const codeSnapshot = await get(ref(db, 'codes/' + rawCode));
-            if (!codeSnapshot.exists()) return showToast("Code not found or offline!", "danger");
+            if (!codeSnapshot.exists()) return showToast("Code not found!");
 
             searchedPartner = codeSnapshot.val();
             document.getElementById('found-avatar').src = searchedPartner.avatar;
@@ -1330,336 +727,157 @@
 
         document.getElementById('btn-start-actual-call').addEventListener('click', () => {
             if (!searchedPartner) return;
-            document.getElementById('partner-found-card').style.display = 'none';
             startCall(searchedPartner.peerId, searchedPartner.name, searchedPartner.avatar);
         });
 
-        function setupVoiceProfilesUI(partnerName, partnerAvatar) {
+        function setupUI(partnerName, partnerAvatar) {
             document.getElementById('avatar-local-user').src = myAvatar;
-            document.getElementById('name-local-user').innerText = myName + " (You)";
+            document.getElementById('name-local-user').innerText = myName;
 
             document.getElementById('avatar-remote-user').src = partnerAvatar || "https://api.dicebear.com/7.x/bottts/svg?seed=partner";
             document.getElementById('name-remote-user').innerText = partnerName || "Partner";
-
-            lucide.createIcons();
-        }
-
-        function setupAudioDetectors(remoteStream) {
-            try {
-                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioContext.state === 'suspended') audioContext.resume();
-
-                // Local Audio Detection
-                const localSource = audioContext.createMediaStreamSource(localStream);
-                localAnalyser = audioContext.createAnalyser();
-                localAnalyser.fftSize = 256;
-                localSource.connect(localAnalyser);
-
-                // Remote Audio Detection
-                const remoteSource = audioContext.createMediaStreamSource(remoteStream);
-                remoteAnalyser = audioContext.createAnalyser();
-                remoteAnalyser.fftSize = 256;
-                remoteSource.connect(remoteAnalyser);
-
-                const checkVoiceLevels = () => {
-                    if (!partnerId) return;
-
-                    // Local Speaking Check
-                    const localData = new Uint8Array(localAnalyser.frequencyBinCount);
-                    localAnalyser.getByteFrequencyData(localData);
-                    let localSum = 0;
-                    for (let i = 0; i < localData.length; i++) localSum += localData[i];
-                    let localAverage = localSum / localData.length;
-
-                    const localCard = document.getElementById('card-local-user');
-                    const localStatus = document.getElementById('status-local-user');
-                    if (localAverage > 15 && !isMuted) {
-                        localCard.classList.add('speaking');
-                        if (localStatus) localStatus.innerText = "Speaking...";
-                    } else {
-                        localCard.classList.remove('speaking');
-                        if (localStatus) localStatus.innerText = "Connected";
-                    }
-
-                    // Remote Speaking Check
-                    const remoteData = new Uint8Array(remoteAnalyser.frequencyBinCount);
-                    remoteAnalyser.getByteFrequencyData(remoteData);
-                    let remoteSum = 0;
-                    for (let i = 0; i < remoteData.length; i++) remoteSum += remoteData[i];
-                    let remoteAverage = remoteSum / remoteData.length;
-
-                    const remoteCard = document.getElementById('card-remote-user');
-                    const remoteStatus = document.getElementById('status-remote-user');
-                    if (remoteAverage > 15) {
-                        remoteCard.classList.add('speaking');
-                        if (remoteStatus) remoteStatus.innerText = "Speaking...";
-                    } else {
-                        remoteCard.classList.remove('speaking');
-                        if (remoteStatus) remoteStatus.innerText = "Connected";
-                    }
-
-                    requestAnimationFrame(checkVoiceLevels);
-                };
-
-                checkVoiceLevels();
-            } catch (e) {
-                console.warn("Audio Context Voice Detection Error:", e);
-            }
         }
 
         function startCall(targetId, targetName, targetAvatar) {
             partnerId = targetId;
             document.getElementById('btn-accept').style.display = 'none';
             document.getElementById('cinema-room').style.display = 'none';
-            document.getElementById('btn-toggle-chat').style.display = 'none'; // HIDE CHAT ICON UNTIL ANSWERED
+            document.getElementById('btn-toggle-chat').style.display = 'none';
             document.getElementById('calling-state-view').style.display = 'flex';
             document.getElementById('call-screen').style.display = 'flex';
 
-            setupVoiceProfilesUI(targetName, targetAvatar);
-
+            setupUI(targetName, targetAvatar);
             currentCall = peer.call(targetId, localStream);
-            handleCallStreams(currentCall);
+            handleCall(currentCall);
 
-            const rejectRef = ref(db, `calls/${myId}_${partnerId}/rejected`);
-            set(rejectRef, false);
-            
-            callRejectedListener = onValue(rejectRef, (snapshot) => {
-                if (snapshot.exists() && snapshot.val() === true) {
-                    showToast("Partner rejected the call.", "danger");
-                    if(currentCall) currentCall.close();
-                    endCallInterface();
-                }
-            });
-
-            setupCinemaSync();
-            setupChatSync();
+            setupSync();
+            setupChat();
         }
 
-        function listenForIncomingCalls() {
+        function listenForCalls() {
             peer.on('call', (incomingCall) => {
                 currentCall = incomingCall;
                 partnerId = incomingCall.peer;
                 
                 onValue(ref(db, 'users/' + partnerId), (snapshot) => {
                     const caller = snapshot.val();
-                    if (caller) {
-                        document.getElementById('call-user-name').innerText = caller.name;
-                        setupVoiceProfilesUI(caller.name, caller.avatar);
-                    }
+                    if (caller) setupUI(caller.name, caller.avatar);
                 }, { onlyOnce: true });
 
-                document.getElementById('btn-accept').style.display = 'inline-flex';
+                document.getElementById('btn-accept').style.display = 'flex';
                 document.getElementById('cinema-room').style.display = 'none';
-                document.getElementById('btn-toggle-chat').style.display = 'none'; // HIDE CHAT ICON
-                document.getElementById('calling-state-view').style.display = 'flex';
+                document.getElementById('btn-toggle-chat').style.display = 'none';
                 document.getElementById('call-screen').style.display = 'flex';
 
                 document.getElementById('btn-accept').onclick = () => {
                     currentCall.answer(localStream);
                     document.getElementById('btn-accept').style.display = 'none';
-                    handleCallStreams(currentCall);
-                    setupCinemaSync();
-                    setupChatSync();
+                    handleCall(currentCall);
+                    setupSync();
+                    setupChat();
                 };
             });
         }
 
-        // YouTube Control APIs
-        function initYoutubePlayer(videoId = 'dQw4w9WgXcQ') {
-            if (ytPlayer) {
-                try { ytPlayer.destroy(); } catch(e) {}
-            }
+        function initYT(videoId = 'dQw4w9WgXcQ') {
+            if (ytPlayer) try { ytPlayer.destroy(); } catch(e){}
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 1,
-                    'rel': 0,
-                    'showinfo': 0,
-                    'iv_load_policy': 3,
-                    'playsinline': 1
-                },
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
+                events: { 'onStateChange': onPlayerStateChange }
             });
         }
 
         function onPlayerStateChange(event) {
             if (ignoreNextStateChange || !partnerId) return;
-
             const state = event.data;
             const currentTime = ytPlayer.getCurrentTime();
 
             if (state === YT.PlayerState.PLAYING) {
-                if (lastActionSent === 'play' && Math.abs(currentTime - ytPlayer.getCurrentTime()) < 1.5) return;
-                lastActionSent = 'play';
-                const videoState = { action: 'play', time: currentTime, timestamp: Date.now() };
-                update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
-                update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
-            } 
-            else if (state === YT.PlayerState.PAUSED) {
-                if (lastActionSent === 'pause') return;
-                lastActionSent = 'pause';
-                const videoState = { action: 'pause', time: currentTime, timestamp: Date.now() };
-                update(ref(db, `calls/${myId}_${partnerId}/videoState`), videoState);
-                update(ref(db, `calls/${partnerId}_${myId}/videoState`), videoState);
+                update(ref(db, `calls/${myId}_${partnerId}/videoState`), { action: 'play', time: currentTime });
+            } else if (state === YT.PlayerState.PAUSED) {
+                update(ref(db, `calls/${myId}_${partnerId}/videoState`), { action: 'pause', time: currentTime });
             }
         }
 
         document.getElementById('btn-load-video').addEventListener('click', () => {
-            const urlValue = document.getElementById('video-url').value;
-            const videoId = extractYoutubeId(urlValue);
-            if (!videoId) return showToast("Invalid YouTube URL!", "danger");
-            triggerVideoChange(videoId);
+            const url = document.getElementById('video-url').value;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            const videoId = (match && match[2].length === 11) ? match[2] : null;
+            if (videoId && partnerId) {
+                set(ref(db, `calls/${myId}_${partnerId}/videoState`), { videoId: videoId, action: 'load', time: 0 });
+            }
         });
 
-        function triggerVideoChange(videoId) {
-            if (!partnerId) return;
-            const videoData = { videoId: videoId, action: 'load', time: 0, timestamp: Date.now() };
-            set(ref(db, `calls/${myId}_${partnerId}/videoState`), videoData);
-            set(ref(db, `calls/${partnerId}_${myId}/videoState`), videoData);
+        function setupSync() {
+            initYT();
+            onValue(ref(db, `calls/${myId}_${partnerId}/videoState`), (snapshot) => {
+                if (!snapshot.exists() || !ytPlayer) return;
+                const data = snapshot.val();
+                ignoreNextStateChange = true;
+
+                if (data.action === 'load') {
+                    ytPlayer.loadVideoById(data.videoId, 0);
+                } else if (data.action === 'play') {
+                    ytPlayer.seekTo(data.time, true);
+                    ytPlayer.playVideo();
+                } else if (data.action === 'pause') {
+                    ytPlayer.pauseVideo();
+                    ytPlayer.seekTo(data.time, true);
+                }
+                setTimeout(() => ignoreNextStateChange = false, 500);
+            });
         }
 
-        // Real-time synchronization listeners
-        function setupCinemaSync() {
-            initYoutubePlayer();
-
-            const listenSync = (callKey) => {
-                onValue(ref(db, `calls/${callKey}/videoState`), (snapshot) => {
-                    if (!snapshot.exists() || !ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
-                    const data = snapshot.val();
-                    ignoreNextStateChange = true;
-
-                    if (data.action === 'load') {
-                        ytPlayer.loadVideoById(data.videoId, 0);
-                        setTimeout(() => { ignoreNextStateChange = false; }, 1000);
-                        return;
-                    }
-
-                    const localTime = ytPlayer.getCurrentTime();
-                    const diff = Math.abs(localTime - data.time);
-
-                    if (data.action === 'play') {
-                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
-                        if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) ytPlayer.playVideo();
-                    } else if (data.action === 'pause') {
-                        if (ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) ytPlayer.pauseVideo();
-                        if (diff > 1.5) ytPlayer.seekTo(data.time, true);
-                    }
-                    setTimeout(() => { ignoreNextStateChange = false; }, 500);
-                });
-            };
-            listenSync(`${myId}_${partnerId}`);
+        function handleCall(call) {
+            call.on('stream', (remoteStream) => {
+                document.getElementById('calling-state-view').style.display = 'none';
+                document.getElementById('cinema-room').style.display = 'flex';
+                document.getElementById('btn-toggle-chat').style.display = 'flex';
+                document.getElementById('remote-audio').srcObject = remoteStream;
+            });
         }
 
-        document.getElementById('btn-send-msg').addEventListener('click', sendChatMessage);
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendChatMessage();
-        });
-
-        async function sendChatMessage() {
-            const text = sanitizeInput(document.getElementById('chat-input').value);
-            if (!text || !partnerId) return;
-
-            const chatRef = ref(db, `chats/${myId}_${partnerId}`);
-            const chatPartnerRef = ref(db, `chats/${partnerId}_${myId}`);
-            
-            const msgData = {
-                sender: myName,
-                avatar: myAvatar,
-                text: text,
-                timestamp: Date.now()
-            };
-
-            await push(chatRef, msgData);
-            await push(chatPartnerRef, msgData);
-
-            document.getElementById('chat-input').value = '';
-        }
-
-        function setupChatSync() {
+        function setupChat() {
             const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = ''; 
-            
-            const chatRef = ref(db, `chats/${myId}_${partnerId}`);
-            onValue(chatRef, (snapshot) => {
+            onValue(ref(db, `chats/${myId}_${partnerId}`), (snapshot) => {
                 if (!snapshot.exists()) return;
                 chatBox.innerHTML = '';
                 snapshot.forEach((child) => {
                     const msg = child.val();
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'chat-msg';
-                    msgDiv.innerHTML = `
-                        <img src="${msg.avatar}" alt="">
-                        <div class="chat-msg-body">
-                            <div class="chat-msg-name">${msg.sender}</div>
-                            <div style="font-weight: 700;">${msg.text}</div>
-                        </div>
-                    `;
-                    chatBox.appendChild(msgDiv);
+                    chatBox.innerHTML += `
+                        <div class="chat-msg">
+                            <img src="${msg.avatar}">
+                            <div class="chat-msg-body">
+                                <div style="font-size: 11px; font-weight: 800; color: var(--accent-blue);">${msg.sender}</div>
+                                <div>${msg.text}</div>
+                            </div>
+                        </div>`;
                 });
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
         }
 
-        function handleCallStreams(call) {
-            call.on('stream', (remoteStream) => {
-                showToast("Connected to Voice & Cinema!", "success");
-                document.getElementById('calling-state-view').style.display = 'none';
-                document.getElementById('cinema-room').style.display = 'block';
-                
-                // SHOW CHAT TOGGLE BUTTON ONCE CALL IS SUCCESSFULLY ESTABLISHED
-                document.getElementById('btn-toggle-chat').style.display = 'flex';
-                
-                document.getElementById('remote-audio').srcObject = remoteStream;
-
-                setupAudioDetectors(remoteStream);
-            });
-
-            call.on('close', () => {
-                showToast("Current session ended.", "danger");
-                endCallInterface();
-            });
-        }
-
-        document.getElementById('btn-hangup').addEventListener('click', async () => {
-            if (partnerId) {
-                await set(ref(db, `calls/${partnerId}_${myId}/rejected`), true);
-                remove(ref(db, `calls/${myId}_${partnerId}`));
-                remove(ref(db, `chats/${myId}_${partnerId}`));
-            }
-            if(currentCall) currentCall.close();
-            endCallInterface();
+        document.getElementById('btn-send-msg').addEventListener('click', async () => {
+            const text = document.getElementById('chat-input').value.trim();
+            if (!text || !partnerId) return;
+            const msgData = { sender: myName, avatar: myAvatar, text: text };
+            await push(ref(db, `chats/${myId}_${partnerId}`), msgData);
+            await push(ref(db, `chats/${partnerId}_${myId}`), msgData);
+            document.getElementById('chat-input').value = '';
         });
 
-        function endCallInterface() {
-            if (callRejectedListener) { callRejectedListener(); callRejectedListener = null; }
+        document.getElementById('btn-hangup').addEventListener('click', () => {
+            if (currentCall) currentCall.close();
             document.getElementById('call-screen').style.display = 'none';
-            document.getElementById('cinema-room').style.display = 'none';
-            document.getElementById('btn-toggle-chat').style.display = 'none'; // HIDE CHAT ICON
-            chatDrawer.classList.remove('open');
-            btnToggleChat.classList.remove('active');
             document.getElementById('remote-audio').srcObject = null;
-            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
-                ytPlayer.stopVideo();
-            }
-            partnerId = null;
-        }
+        });
 
         let isMuted = false;
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = !isMuted;
             localStream.getAudioTracks()[0].enabled = !isMuted;
             document.getElementById('btn-mute').classList.toggle('active', isMuted);
-            
-            // Toggle local muted visual badge
-            const localCard = document.getElementById('card-local-user');
-            if (isMuted) {
-                localCard.classList.add('muted');
-            } else {
-                localCard.classList.remove('muted');
-            }
         });
     </script>
 </body>
