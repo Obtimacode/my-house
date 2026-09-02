@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WatchCall - Admin Control Panel</title>
+    <title>WatchCall - Full Admin Logs</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -27,7 +27,7 @@
             background-image: radial-gradient(circle at 50% -20%, #111e3b 0%, #05070f 70%);
         }
 
-        .admin-container { max-width: 900px; margin: 0 auto; }
+        .admin-container { max-width: 1100px; margin: 0 auto; }
 
         .header {
             display: flex;
@@ -103,51 +103,69 @@
         }
 
         .rooms-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .room-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
         }
 
-        .room-title {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--success-green);
+        .room-header-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .room-id-tag {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--success-green);
+            direction: ltr;
+        }
+
+        .room-link-btn {
+            background: rgba(0, 102, 255, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             direction: ltr;
         }
 
         .messages-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
+            gap: 12px;
         }
 
         .msg-item {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 12px;
             font-size: 13px;
         }
 
         .msg-avatar {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             object-fit: cover;
             flex-shrink: 0;
@@ -156,8 +174,8 @@
         .msg-content {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            border-radius: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
             width: 100%;
         }
 
@@ -167,29 +185,29 @@
             margin-bottom: 4px;
         }
 
-        .msg-sender { font-weight: 800; color: var(--accent-blue); font-size: 12px; }
-        .msg-time { font-size: 10px; color: var(--text-muted); }
-        .msg-text { color: var(--text-main); font-weight: 600; word-break: break-word; }
+        .msg-sender { font-weight: 800; color: var(--accent-blue); font-size: 13px; }
+        .msg-time { font-size: 11px; color: var(--text-muted); }
+        .msg-text { color: var(--text-main); font-weight: 600; word-break: break-word; line-height: 1.5; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="auth-card">
         <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--accent-blue); margin-bottom: 10px;"></i>
-        <h2>لوحة تحكم الأدمن</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">أدخل كلمة السر للوصول إلى المحادثات</p>
+        <h2>لوحة تحكم الأدمن الشاملة</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">أدخل كلمة السر لعرض كاع السجلات والرابطات</p>
         <input type="password" id="admin-pass" placeholder="كلمة السر...">
         <button id="btn-login">دخول الصفحة</button>
     </div>
 
     <div id="dashboard-screen" class="admin-container" style="display: none;">
         <div class="header">
-            <h1><i data-lucide="message-square"></i> المحادثات الحية</h1>
-            <span id="active-rooms-count" style="font-size: 12px; font-weight: 700; background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.2);">0 غرف نشطة</span>
+            <h1><i data-lucide="database"></i> كاع المحادثات والغرف المسجلة</h1>
+            <span id="active-rooms-count" style="font-size: 12px; font-weight: 700; background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.2);">0 غرف</span>
         </div>
 
         <div class="search-container">
-            <input type="text" id="search-input" class="search-input" placeholder="🔍 بحث بـ Room ID، اسم المستخدم، أو نص الرسالة...">
+            <input type="text" id="search-input" class="search-input" placeholder="🔍 بحث بالرابط، اسم المستخدم، Room ID أو النص...">
         </div>
 
         <div id="rooms-container" class="rooms-grid"></div>
@@ -260,20 +278,21 @@
             const countBadge = document.getElementById('active-rooms-count');
 
             if (!rawChatsData) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">لا توجد محادثات نشطة حالياً فـ Firebase.</p>';
-                countBadge.innerText = '0 غرف نشطة';
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">لا توجد أي محادثات محفوظة في Firebase حالياً.</p>';
+                countBadge.innerText = '0 غرف';
                 return;
             }
 
             const roomKeys = Object.keys(rawChatsData);
-            countBadge.innerText = `${roomKeys.length} غرف نشطة`;
+            countBadge.innerText = `${roomKeys.length} غرف مسجلة بالكامل`;
             container.innerHTML = '';
 
             let renderedRoomsCount = 0;
 
             roomKeys.forEach((roomKey) => {
                 const roomMsgs = rawChatsData[roomKey];
-                const roomMatchesSearch = roomKey.toLowerCase().includes(searchTerm);
+                const fullRoomUrl = `https://watchcall.site/?room=${roomKey}`;
+                const roomMatchesSearch = roomKey.toLowerCase().includes(searchTerm) || fullRoomUrl.toLowerCase().includes(searchTerm);
 
                 const matchingMsgKeys = Object.keys(roomMsgs).filter((msgId) => {
                     const m = roomMsgs[msgId];
@@ -290,7 +309,9 @@
                     let msgsHTML = '';
                     matchingMsgKeys.forEach((msgId) => {
                         const m = roomMsgs[msgId];
-                        const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString() : '';
+                        const dateObj = m.timestamp ? new Date(m.timestamp) : null;
+                        const timeStr = dateObj ? `${dateObj.toLocaleDateString()} - ${dateObj.toLocaleTimeString()}` : '';
+
                         msgsHTML += `
                             <div class="msg-item">
                                 <img class="msg-avatar" src="${m.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}">
@@ -306,9 +327,16 @@
                     });
 
                     roomCard.innerHTML = `
-                        <div class="room-title">
-                            <span>ROOM ID: ${sanitizeInput(roomKey)}</span>
-                            <i data-lucide="radio" style="width: 14px; height: 14px;"></i>
+                        <div class="room-header-info">
+                            <div>
+                                <span class="room-id-tag">ROOM ID: ${sanitizeInput(roomKey)}</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; direction: ltr;">
+                                    الرابط المباشر للغرفة: <a href="${fullRoomUrl}" target="_blank" style="color: var(--accent-blue); text-decoration: underline;">${fullRoomUrl}</a>
+                                </div>
+                            </div>
+                            <a href="${fullRoomUrl}" target="_blank" class="room-link-btn">
+                                <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> دخول الغرفة
+                            </a>
                         </div>
                         <div class="messages-list">${msgsHTML}</div>
                     `;
